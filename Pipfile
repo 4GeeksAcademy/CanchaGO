@@ -7,9 +7,7 @@ verify_ssl = true
 
 [packages]
 flask = "*"
-sqlalchemy = "==1.4.46"
 flask-sqlalchemy = "*"
-flask-migrate = "*"
 flask-swagger = "*"
 psycopg2-binary = "*"
 python-dotenv = "*"
@@ -20,6 +18,8 @@ flask-admin = "*"
 typing-extensions = "*"
 flask-jwt-extended = "==4.6.0"
 wtforms = "==3.1.2"
+sqlalchemy = ">=2.0"
+flask-migrate = "*"
 
 [requires]
 python_version = "3.10"

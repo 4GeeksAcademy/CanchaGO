@@ -1,72 +1,60 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
-"""
 import os
-from flask import Flask, request, jsonify, url_for, send_from_directory
+from flask import Flask, jsonify, send_from_directory
 from flask_migrate import Migrate
-from flask_swagger import swagger
+from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
 from api.models import db
-from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 
-# from models import Person
+# Importa Blueprints directamente
+after_blueprints = []
+from api.routes.hello    import hello_bp
+from api.routes.users    import users_bp
 
-ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
-static_file_dir = os.path.join(os.path.dirname(
-    os.path.realpath(__file__)), '../public/')
-app = Flask(__name__)
+env = 'development' if os.getenv('FLASK_DEBUG') == '1' else 'production'
+port = int(os.getenv('PORT', 3001))
+base_dir = os.path.dirname(os.path.realpath(__file__))
+static_dir = os.path.join(base_dir, '../public')
+
+app = Flask(__name__, static_folder=None)
+CORS(app)
 app.url_map.strict_slashes = False
 
-# database condiguration
-db_url = os.getenv("DATABASE_URL")
-if db_url is not None:
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace(
-        "postgres://", "postgresql://")
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
-
+# Configuración de BD
+db_uri = os.getenv('DATABASE_URL', f"sqlite:///{os.path.join(base_dir, '../sqlite/test.db')}" )
+app.config['SQLALCHEMY_DATABASE_URI']        = db_uri.replace('postgres://', 'postgresql://')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-MIGRATE = Migrate(app, db, compare_type=True)
+
 db.init_app(app)
+Migrate(app, db, compare_type=True)
 
-# add the admin
+# Admin UI y CLI
 setup_admin(app)
-
-# add the admin
 setup_commands(app)
 
-# Add all endpoints form the API with a "api" prefix
-app.register_blueprint(api, url_prefix='/api')
+# Registro de Blueprints
+app.register_blueprint(hello_bp)
+app.register_blueprint(users_bp)
 
-# Handle/serialize errors like a JSON object
-
-
+# Manejo de errores
 @app.errorhandler(APIException)
-def handle_invalid_usage(error):
+def handle_api_error(error):
     return jsonify(error.to_dict()), error.status_code
 
-# generate sitemap with all your endpoints
-
-
+# Sitemap y SPA
 @app.route('/')
 def sitemap():
-    if ENV == "development":
+    if env == 'development':
         return generate_sitemap(app)
-    return send_from_directory(static_file_dir, 'index.html')
+    return send_from_directory(static_dir, 'index.html')
 
-# any other endpoint will try to serve it like a static file
-@app.route('/<path:path>', methods=['GET'])
-def serve_any_other_file(path):
-    if not os.path.isfile(os.path.join(static_file_dir, path)):
-        path = 'index.html'
-    response = send_from_directory(static_file_dir, path)
-    response.cache_control.max_age = 0  # avoid cache memory
-    return response
+@app.route('/<path:path>')
+def serve_file(path):
+    target = path if os.path.isfile(os.path.join(static_dir, path)) else 'index.html'
+    resp   = send_from_directory(static_dir, target)
+    resp.cache_control.max_age = 0
+    return resp
 
-
-# this only runs if `$ python src/main.py` is executed
 if __name__ == '__main__':
-    PORT = int(os.environ.get('PORT', 3001))
-    app.run(host='0.0.0.0', port=PORT, debug=True)
+    app.run(host='0.0.0.0', port=port, debug=(env=='development'))

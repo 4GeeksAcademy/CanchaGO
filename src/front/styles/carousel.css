@@ -1,0 +1,37 @@
+/* Reset de estilos conflictivos */
+.slick-slider, .slick-list, .slick-track {
+    min-height: 1px;
+    position: relative;
+    display: block;
+  }
+  
+  .slick-slide {
+    float: left;
+    height: 100%;
+    min-height: 1px;
+  }
+  
+  /* Previene el colapso del carrusel */
+  .slick-list {
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Contenedor principal */
+  .slick-container {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  /* Flechas de navegación */
+  .slick-prev:before, 
+  .slick-next:before {
+    color: #000;
+    opacity: 1;
+  }
+  
+  /* Puntos indicadores */
+  .slick-dots li button:before {
+    color: #000;
+  }

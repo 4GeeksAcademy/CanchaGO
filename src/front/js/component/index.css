@@ -1,0 +1,55 @@
+.page-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    gap: 1rem;
+  }
+  .cropped-logo {
+    width: 300px;
+    height: 100px;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .btn-blue {
+    background-color: #3b82f6;
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .btn-blue:hover {
+    background-color: #2563eb;
+  }
+  
+  .btn-green {
+    background-color: #22c55e;
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 1rem;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .btn-green:hover {
+    background-color: #16a34a;
+  }
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    gap: 1rem;
+  }
+  
+  .login-input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+  }

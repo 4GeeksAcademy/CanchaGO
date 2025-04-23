@@ -1,7 +1,9 @@
 import React, {useState} from "react";
+import { useNavigate } from "react-router-dom";
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle, FaFacebookF, FaApple } from 'react-icons/fa';
 import { FaUserAlt } from 'react-icons/fa';
 const Loggin= () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
       firstName: '',
       lastName: '',
@@ -68,6 +70,7 @@ const Loggin= () => {
             <h2>< FaUserAlt className="me-2" /> Crear Cuenta</h2>
             <p className="mb-0">Únete a nuestra comunidad</p>
           </div>
+          <button onClick={() => navigate("/login")} className="btn-green">¿Ya tienes una cuenta? </button>
           
           <div className="registration-body">
             <form onSubmit={handleSubmit}>
@@ -82,7 +85,7 @@ const Loggin= () => {
                       className={`form-control ${errors.firstName ? 'is-invalid' : ''}`} 
                       id="firstName" 
                       name="firstName"
-                      placeholder="Juan" 
+                      placeholder="firstName" 
                       value={formData.firstName}
                       onChange={handleChange}
                     />
@@ -98,7 +101,7 @@ const Loggin= () => {
                       className={`form-control ${errors.lastName ? 'is-invalid' : ''}`} 
                       id="lastName" 
                       name="lastName"
-                      placeholder="Mago" 
+                      placeholder="lastName" 
                       value={formData.lastName}
                       onChange={handleChange}
                     />
@@ -117,7 +120,7 @@ const Loggin= () => {
                     className={`form-control ${errors.email ? 'is-invalid' : ''}`} 
                     id="email" 
                     name="email"
-                    placeholder="juan@example.com" 
+                    placeholder="email@example.com" 
                     value={formData.email}
                     onChange={handleChange}
                   />
@@ -211,10 +214,6 @@ const Loggin= () => {
                 </button>
               </div>
             </form>
-          </div>
-          
-          <div className="text-center py-3 bg-light">
-            ¿Ya tienes una cuenta? <a href="#" className="text-primary">Inicia sesión</a>
           </div>
         </div>
       </div>

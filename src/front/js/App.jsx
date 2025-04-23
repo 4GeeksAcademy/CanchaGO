@@ -1,30 +1,45 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import ListPaddel from './component/ListPaddel.jsx';
 import PaddelsProvider from './context/PaddelContext.jsx';
 import Navbar from './component/NavBar.jsx';
 import ProfessionalFooter from './component/Footer.jsx';
-import Carousel from './component/Carousel.jsx'
+import Carousel from './component/Carousel.jsx';
 import Loggin from './component/Loggin.jsx';
+import StartPage from './component/StartPage.jsx';
+import Login from './component/Login.jsx';
+
+const AppContent = () => {
+  const location = useLocation();
+  const hideLayout = location.pathname === "/"|| location.pathname === "/signup"|| location.pathname === "/login";
+
+  return (
+    <>
+      {!hideLayout && <Navbar />}
+      <Routes>
+        <Route path="/" element={<StartPage />} />
+        <Route path="/home" element={<ListPaddel />} />
+        <Route path="/signup" element={<Loggin />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/miscanchas" element={<Carousel />} />
+      </Routes>
+      {!hideLayout && <ProfessionalFooter />}
+    </>
+  );
+};
 
 function App() {
   return (
     <div className="App">
-        <PaddelsProvider>
-            <Router>
-               <Navbar/> 
-              <Routes>
-                  <Route path="/" element={<ListPaddel/>}/>
-                  <Route path="/loggin" element={<Loggin/>}/>
-                  <Route path="/miscanchas" element={<Carousel/>}/>
-              </Routes>
-            </Router>
-          <ProfessionalFooter/>
-        </PaddelsProvider>
+      <PaddelsProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </PaddelsProvider>
     </div>
   );
 }
 
-export default App
+export default App;

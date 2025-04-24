@@ -14,12 +14,12 @@ class Usuario(db.Model):
     nombre: Mapped[str] = mapped_column(String(120), nullable=False)
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     clave: Mapped[str] = mapped_column(String(120), nullable=False)
-    telefono: Mapped[str] = mapped_column(String(20), nullable=True)
+    telefono: Mapped[str] = mapped_column(String(20), nullable=False)
     nombreUsuario: Mapped[str] = mapped_column(String(80), unique=True, nullable=False)
 
     # Relaciones
     usuario_roles: Mapped[list["UsuarioRol"]] = relationship(
-        'UsuarioRol', back_populates='usuario', lazy='select'
+        'UsuarioRol', back_populates='usuario', lazy='select', cascade="all, delete"
     )
     reservas: Mapped[list["Reserva"]] = relationship(
         'Reserva', back_populates='usuario', lazy='select'
@@ -61,7 +61,7 @@ class UsuarioRol(db.Model):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     idUsuario: Mapped[int] = mapped_column(ForeignKey('usuario.idUsuario'), nullable=False)
-    idClub: Mapped[int] = mapped_column(ForeignKey('club.idClub'), nullable=False)
+    idClub: Mapped[int] = mapped_column(ForeignKey('club.idClub'), nullable=True)
     idRol: Mapped[int] = mapped_column(ForeignKey('rol.idRol'), nullable=False)
 
     # Relaciones
@@ -72,7 +72,7 @@ class UsuarioRol(db.Model):
     def serialize(self):
         return {
             'id': self.id,
-            'usuario': self.usuario.nombreUsuario,
+            'usuario':  self.club.nombre if self.club else None,
             'club': self.club.nombre,
             'rol': self.rol.nombre
         }
@@ -83,6 +83,7 @@ class Club(db.Model):
 
     idClub: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     nombre: Mapped[str] = mapped_column(String(120), nullable=False)
+    email : Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     direccion: Mapped[str] = mapped_column(String(200), nullable=True)
     descripcion: Mapped[str] = mapped_column(String(500), nullable=True)
     imagen: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
@@ -103,6 +104,7 @@ class Club(db.Model):
         return {
             'idClub': self.idClub,
             'nombre': self.nombre,
+            'email' : self.email,
             'direccion': self.direccion,
             'descripcion': self.descripcion,
             'roles': [ur.rol.nombre for ur in self.usuario_roles],

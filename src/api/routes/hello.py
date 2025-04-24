@@ -12,7 +12,7 @@ def handle_hello():
         if user:
             return jsonify({'msg': 'El usuario ya existe', 'user': user.serialize()}), 200
         
-        user = Usuario(email=email, password='secret', is_active=True)
+        user = Usuario(email=email, clave='secret', nombreUsuario="andresperez0401", nombre="Andres Perez")
         db.session.add(user)
         db.session.commit()
         return jsonify({'msg': 'Usuario creado', 'user': user.serialize()}), 201

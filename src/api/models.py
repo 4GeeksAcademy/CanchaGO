@@ -32,7 +32,7 @@ class Usuario(db.Model):
             'email': self.email,
             'telefono': self.telefono,
             'nombreUsuario': self.nombreUsuario,
-            'roles': [ur.rol.nombre for ur in self.usuario_roles],
+            'roles': [ur.rol.nombre for ur in self.usuario_roles if ur.rol is not None],
             'reservas': [r.idReserva for r in self.reservas]
         }
 
@@ -72,8 +72,8 @@ class UsuarioRol(db.Model):
     def serialize(self):
         return {
             'id': self.id,
-            'usuario':  self.club.nombre if self.club else None,
-            'club': self.club.nombre,
+            'usuario':  self.usuario.nombreUsuario,
+            'club': self.club.nombre if self.club else "Sin club",
             'rol': self.rol.nombre
         }
 
@@ -84,6 +84,7 @@ class Club(db.Model):
     idClub: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     nombre: Mapped[str] = mapped_column(String(120), nullable=False)
     email : Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
+    telefono : Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     direccion: Mapped[str] = mapped_column(String(200), nullable=True)
     descripcion: Mapped[str] = mapped_column(String(500), nullable=True)
     imagen: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
@@ -91,13 +92,13 @@ class Club(db.Model):
 
     # Relaciones
     usuario_roles: Mapped[list[UsuarioRol]] = relationship(
-        'UsuarioRol', back_populates='club', lazy='select'
+        'UsuarioRol', back_populates='club', lazy='select',  cascade="all, delete"
     )
     club_deportes: Mapped[list["ClubDeporte"]] = relationship(
-        'ClubDeporte', back_populates='club', lazy='select'
+        'ClubDeporte', back_populates='club', lazy='select',  cascade="all, delete"
     )
     canchas: Mapped[list["Cancha"]] = relationship(
-        'Cancha', back_populates='club', lazy='select'
+        'Cancha', back_populates='club', lazy='select' ,  cascade="all, delete"
     )
 
     def serialize(self):
@@ -105,11 +106,13 @@ class Club(db.Model):
             'idClub': self.idClub,
             'nombre': self.nombre,
             'email' : self.email,
+            'telefono' : self.telefono,
             'direccion': self.direccion,
             'descripcion': self.descripcion,
-            'roles': [ur.rol.nombre for ur in self.usuario_roles],
+            'personal': [ur.usuario.nombreUsuario for ur in self.usuario_roles],
+            'deportes': [cd.deporte.nombre for cd in self.club_deportes],
             'canchas': [c.idCancha for c in self.canchas],
-            'imagen': self.logo.decode('latin1') if self.logo else None
+            'imagen': self.imagen.decode('latin1') if self.imagen else None
        
         }
 

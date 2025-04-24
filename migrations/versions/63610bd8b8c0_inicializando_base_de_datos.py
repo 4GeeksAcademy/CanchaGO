@@ -1,8 +1,8 @@
-"""Migración inicial
+"""Inicializando base de datos
 
-Revision ID: c32ba91135dc
+Revision ID: 63610bd8b8c0
 Revises: 
-Create Date: 2025-04-23 18:18:14.395574
+Create Date: 2025-04-24 13:07:42.486526
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c32ba91135dc'
+revision = '63610bd8b8c0'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -21,10 +21,14 @@ def upgrade():
     op.create_table('club',
     sa.Column('idClub', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('nombre', sa.String(length=120), nullable=False),
+    sa.Column('email', sa.String(length=120), nullable=False),
+    sa.Column('telefono', sa.String(length=120), nullable=False),
     sa.Column('direccion', sa.String(length=200), nullable=True),
     sa.Column('descripcion', sa.String(length=500), nullable=True),
     sa.Column('imagen', sa.LargeBinary(), nullable=True),
-    sa.PrimaryKeyConstraint('idClub')
+    sa.PrimaryKeyConstraint('idClub'),
+    sa.UniqueConstraint('email'),
+    sa.UniqueConstraint('telefono')
     )
     op.create_table('deporte',
     sa.Column('idDeporte', sa.Integer(), autoincrement=True, nullable=False),
@@ -51,7 +55,7 @@ def upgrade():
     sa.Column('nombre', sa.String(length=120), nullable=False),
     sa.Column('email', sa.String(length=120), nullable=False),
     sa.Column('clave', sa.String(length=120), nullable=False),
-    sa.Column('telefono', sa.String(length=20), nullable=True),
+    sa.Column('telefono', sa.String(length=20), nullable=False),
     sa.Column('nombreUsuario', sa.String(length=80), nullable=False),
     sa.PrimaryKeyConstraint('idUsuario'),
     sa.UniqueConstraint('email'),
@@ -81,7 +85,7 @@ def upgrade():
     op.create_table('usuario_rol',
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('idUsuario', sa.Integer(), nullable=False),
-    sa.Column('idClub', sa.Integer(), nullable=False),
+    sa.Column('idClub', sa.Integer(), nullable=True),
     sa.Column('idRol', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['idClub'], ['club.idClub'], ),
     sa.ForeignKeyConstraint(['idRol'], ['rol.idRol'], ),

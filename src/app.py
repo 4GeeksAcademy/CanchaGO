@@ -3,7 +3,7 @@ from flask import Flask, jsonify, send_from_directory
 from flask_migrate import Migrate
 from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
-from api.models import db, Rol
+from api.models import db, Rol, Deporte
 from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
@@ -11,8 +11,11 @@ from datetime import timedelta
 
 # Importa Blueprints directamente
 after_blueprints = []
-from api.routes.hello    import hello_bp
 from api.routes.users    import users_bp
+from api.routes.club     import club_bp
+
+from api.routes.reserva  import reserva_bp
+from api.routes.cancha   import cancha_bp
 
 env = 'development' if os.getenv('FLASK_DEBUG') == '1' else 'production'
 port = int(os.getenv('PORT', 3001))
@@ -42,8 +45,11 @@ setup_admin(app)
 setup_commands(app)
 
 # Registro de Blueprints
-app.register_blueprint(hello_bp)
 app.register_blueprint(users_bp)
+app.register_blueprint(club_bp)
+app.register_blueprint(reserva_bp)
+app.register_blueprint(cancha_bp)
+
 
 #--------------------------------------------------------------------------------------------------------------
 
@@ -56,9 +62,18 @@ def create_roles():
             db.session.add(Rol(nombre=role_name))
     db.session.commit()
 
+#Creamos los deportes
+def create_deportes():
+    #Crea los deportes
+    for deporte_name in ("Futbol", "Tenis", "Padel"):
+        if not Deporte.query.filter_by(nombre=deporte_name).first():
+            db.session.add(Deporte(nombre=deporte_name))
+    db.session.commit()
+
 # instanciamos
 with app.app_context():
     create_roles()
+    create_deportes()
 
 #--------------------------------------------------------------------------------------------------------------
 

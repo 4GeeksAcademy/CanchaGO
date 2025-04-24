@@ -187,7 +187,7 @@ class Cancha(db.Model):
     idCancha: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     nombre: Mapped[str] = mapped_column(String(120), nullable=False)
     descripcion: Mapped[str] = mapped_column(String(500), nullable=True)
-    precioXHora: Mapped[float] = mapped_column(nullable=False)
+    precio: Mapped[float] = mapped_column(nullable=False)
     estado: Mapped[bool] = mapped_column(Boolean(), default=True, nullable=False)
     idClub: Mapped[int] = mapped_column(ForeignKey('club.idClub'), nullable=False)
     idHorario: Mapped[int] = mapped_column(ForeignKey('horario.idHorario'), nullable=False)
@@ -205,7 +205,7 @@ class Cancha(db.Model):
         return {
             'idCancha': self.idCancha,
             'nombre': self.nombre,
-            'precioXHora': self.precioXHora,
+            'precio': self.precio,
             'estado': self.estado,
             'club': self.club.nombre,
             'horario': self.horario.serialize(),

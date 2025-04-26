@@ -78,9 +78,13 @@ def is_db_ready():
     return 'rol' in tables and 'deporte' in tables
 
 # instanciamos
-# with app.app_context():
-#     create_roles()
-#     create_deportes()
+with app.app_context():
+
+    if is_db_ready():
+        # Si la base de datos ya existe, actualizamos el esquema
+        upgrade()
+        create_roles()
+        create_deportes()
 
 #--------------------------------------------------------------------------------------------------------------
 
@@ -106,21 +110,4 @@ def serve_file(path):
     return resp
 
 if __name__ == '__main__':
-
-    with app.app_context():
-        try:
-            # Intentar aplicar migraciones automáticas
-            upgrade()
-        except Exception as e:
-            print(f"No se pudo hacer upgrade todavía: {e}")
-
-        # Solo crear roles y deportes si las tablas existen
-        if is_db_ready():
-            create_roles()
-            create_deportes()
-        else:
-            print("⛔ La base de datos aún no está lista. No se crearon roles ni deportes.")
-
-
-
     app.run(host='0.0.0.0', port=port, debug=(env=='development'))

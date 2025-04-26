@@ -1,6 +1,6 @@
 import os
 from flask import Flask, jsonify, send_from_directory
-from flask_migrate import Migrate
+from flask_migrate import Migrate, upgrade
 from flask_cors import CORS
 from api.utils import APIException, generate_sitemap
 from api.models import db, Rol, Deporte
@@ -8,6 +8,7 @@ from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
+from sqlalchemy import inspect
 
 # Importa Blueprints directamente
 after_blueprints = []
@@ -70,10 +71,16 @@ def create_deportes():
             db.session.add(Deporte(nombre=deporte_name))
     db.session.commit()
 
+def is_db_ready():
+    inspector = inspect(db.engine)
+    # Verificamos si las tablas principales existen
+    tables = inspector.get_table_names()
+    return 'rol' in tables and 'deporte' in tables
+
 # instanciamos
-with app.app_context():
-    create_roles()
-    create_deportes()
+# with app.app_context():
+#     create_roles()
+#     create_deportes()
 
 #--------------------------------------------------------------------------------------------------------------
 
@@ -99,4 +106,21 @@ def serve_file(path):
     return resp
 
 if __name__ == '__main__':
+
+    with app.app_context():
+        try:
+            # Intentar aplicar migraciones automáticas
+            upgrade()
+        except Exception as e:
+            print(f"No se pudo hacer upgrade todavía: {e}")
+
+        # Solo crear roles y deportes si las tablas existen
+        if is_db_ready():
+            create_roles()
+            create_deportes()
+        else:
+            print("⛔ La base de datos aún no está lista. No se crearon roles ni deportes.")
+
+
+
     app.run(host='0.0.0.0', port=port, debug=(env=='development'))

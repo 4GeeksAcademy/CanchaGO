@@ -1,60 +1,97 @@
-import React,{useContext} from 'react'
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-
 const Navbar = () => {
+  const navigate = useNavigate();
+  const [selectedField, setSelectedField] = useState('All');
 
-    const navigate = useNavigate();
+  const username = localStorage.getItem('username'); 
 
-    const handleBack = () => {
-        navigate('/')
-      };
+  const handleLogin = () => {
+    navigate('/signup');
+  };
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate('/');
+  };
+
+  const handleSettings = () => {
+    navigate('/settings');
+  };
+
+  const handleFieldSelect = (field) => {
+    setSelectedField(field);
+  };
+
+  const handleBack = () => {
+    navigate('/');
+  };
 
   return (
+    <nav className="navbar navbar-expand-lg navbar-light bg-light">
+      <div className="container-fluid">
+        <a className="navbar-brand" href="#">CanchaGo</a>
+        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-        <nav className="navbar navbar-expand-lg navbar-light bg-light">
-            <div className="container-fluid">
-                <a className="navbar-brand" href="#">CanchaGo</a>
-                <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span className="navbar-toggler-icon"></span>
+        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+            <li className="nav-item" onClick={handleBack}>
+              <a className="nav-link active" aria-current="page" href="#">Home</a>
+            </li>
+          </ul>
+
+          <div className="d-flex align-items-center">
+            {username ? (
+              <div className="dropdown">
+                <button 
+                  className="btn btn-primary dropdown-toggle d-flex align-items-center" 
+                  type="button" 
+                  id="userDropdown" 
+                  data-bs-toggle="dropdown" 
+                  aria-expanded="false"
+                >
+                  <div 
+                    className="rounded-circle bg-white text-primary d-flex justify-content-center align-items-center"
+                    style={{ width: "40px", height: "40px", marginRight: "8px", fontWeight: "bold" }}
+                  >
+                    {username.charAt(0).toUpperCase()}
+                  </div>
+                  {username}
                 </button>
-                <div className="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li 
-                    className="nav-item"
-                    onClick={handleBack}
-                    >
-                    <a className="nav-link active" aria-current="page" href="#">Home</a>
-                    </li>
-                    <li className="nav-item">
-                    <a className="nav-link" href="#">Link</a>
-                    </li>
-                    <li className="nav-item dropdown">
-                    <a className="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Dropdown
-                    </a>
-                    <ul className="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a className="dropdown-item" href="#">Action</a></li>
-                        <li><a className="dropdown-item" href="#">Another action</a></li>
-                        <li><hr className="dropdown-divider"/></li>
-                        <li><a className="dropdown-item" href="#">Something else here</a></li>
-                    </ul>
-                    </li>
-                    <li className="nav-item">
-                    <a className="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
-                    </li>
+                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                  <li><button className="dropdown-item" onClick={handleSettings}>Settings</button></li>
+                  <li><hr className="dropdown-divider" /></li>
+                  <li><button className="dropdown-item" onClick={handleLogout}>Logout</button></li>
                 </ul>
-                <form className="d-flex">
-                    <input className="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-                    <button className="btn btn-outline-success" type="submit">Search</button>
-                </form>
-                </div>
+              </div>
+            ) : (
+              <button className="btn btn-outline-primary" onClick={handleLogin}>
+                Sign Up / Login
+              </button>
+            )}
+          </div>
+
+          {username && (
+            <div className="ms-3">
+              <select 
+                className="form-select"
+                value={selectedField}
+                onChange={(e) => handleFieldSelect(e.target.value)}
+              >
+                <option value="All">All Fields</option>
+                <option value="Soccer">Soccer Fields</option>
+                <option value="Tennis">Tennis Courts</option>
+                <option value="Basketball">Basketball Courts</option>
+              </select>
             </div>
-        </nav>
-
-    
-
-  )
-}
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+};
 
 export default Navbar;

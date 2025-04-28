@@ -9,7 +9,7 @@ const Footer = () => {
       <Container>
         <Row className="align-items-center">
           {/* Logo + Slogan */}
-          <Col md={4} className="mb-3 mb-md-0 text-center text-md-start">
+          <Col className="mb-3 mb-md-0 text-center text-md-start">
             <div className="d-flex align-items-center justify-content-center justify-content-md-start">
               <img 
                 src={logo}
@@ -17,11 +17,11 @@ const Footer = () => {
                 width="100" 
                 className="me-2"
               />
-              <h5 className="mb-0">CanchaGOve</h5>
+              <h5 className="mb-0">CanchaGO</h5>
             </div>
             <p className="small mt-2 mb-0">
-              ¡Elige tu cancha, reúne a tu equipo y que empiece el partido!"
-               🏀⚽🎾"
+              ¡Elige tu cancha, reúne a tu equipo y que empiece el partido!
+               🏀⚽🎾
             </p>
           </Col>
           {/* Dirección */}
@@ -29,21 +29,6 @@ const Footer = () => {
             <div className="d-flex align-items-center justify-content-center">
               <FaMapMarkerAlt className="me-2" />
               <span>Av. Gran Mariscal de Ayacucho, Cumaná, Venezuela</span>
-            </div>
-          </Col>
-
-          {/* Redes Sociales */}
-          <Col md={4} className="text-center text-md-end">
-            <div className="d-flex justify-content-center justify-content-md-end">
-              <a href="#" className="text-black mx-2">
-                <FaFacebook size={40} />
-              </a>
-              <a href="#" className="text-black mx-2">
-                <FaInstagram size={40} />
-              </a>
-              <a href="#" className="text-black mx-2">
-                <FaLinkedin size={40} />
-              </a>
             </div>
           </Col>
         </Row>

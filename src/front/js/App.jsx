@@ -11,6 +11,8 @@ import Loggin from './component/Loggin.jsx';
 import StartPage from './component/StartPage.jsx';
 import { ToastContainer } from "react-toastify";
 import Login from './component/Login.jsx';
+import injectContext from "./store/appContext.js";
+
 
 const AppContent = () => {
   const location = useLocation();
@@ -42,12 +44,15 @@ const AppContent = () => {
   );
 };
 
+// 2️⃣ Ahora envolvemos ese component con nuestro HOC de Flux/Context:
+const AppContentWithFlux = injectContext(AppContent);
+
 function App() {
   return (
     <div className="App">
       <PaddelsProvider>
         <Router>
-          <AppContent />
+          <AppContentWithFlux />
         </Router>
       </PaddelsProvider>
     </div>

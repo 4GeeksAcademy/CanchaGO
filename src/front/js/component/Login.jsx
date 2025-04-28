@@ -1,8 +1,9 @@
 import React, { useState, useContext } from "react";
 import "../../styles/login.css";
-
+import { Context } from "../store/appContext.js";
 import canchaLogoSinFondo from "../../img/canchago-sinfondo.png";
 import { useAlert } from "../hooks/useAlert.js";
+import { useNavigate } from "react-router-dom";
 
 
 const Login = () => {
@@ -10,32 +11,34 @@ const Login = () => {
     //Manejo del hook para mostrar alertas
     const { error, success } = useAlert();
 
-    const [email, setEmail] = useState("");
+    //Variables del formulario
+    const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [userType, setUserType] = useState("Deportista");
 
-
-
+    //Cotexto y navegacion
+    const { store, actions } = useContext(Context);
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
 
+        e.preventDefault();
         //Validar que los campos no esten vacios
-        if (!email || !password) {
+        if (!username || !password) {
             error("Por favor, completa todos los campos.");
             return;
         }
 
+        //Mandamos los datos al backend
+        let response = await actions.loginUser(username, password, userType);
 
-        // //Mandamos los datos al backend
-        // let response = await actions.Login(email, password, userType);
-
-        // if (response.success) {
-        //     success("Login exitoso");
-        //     navigate("/home");
-        // }
-        // else {
-        //     error(response.message);
-        // }
+        if (response.success) {
+            success("Login exitoso");
+            navigate("/home");
+        }
+        else {
+            error(response.message);
+        }
     };
 
     return (
@@ -56,10 +59,10 @@ const Login = () => {
                     </select>
 
                     <input
-                        type="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        type="username"
+                        placeholder="Nombre de usuario"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
                         className="login-input"
                     />
                     <input

@@ -14,7 +14,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       //----------------------------------------------------------------------------------------------------------------------------------------------------
       //Funcion para iniciar sesion en la base de datos
 
-      loginUser: async (email, clave, rol) => {
+      loginUser: async (username, clave, rol) => {
         try {
           let response = await fetch(process.env.BACKEND_URL + "users/login", {
             method: "POST",
@@ -22,7 +22,7 @@ const getState = ({ getStore, getActions, setStore }) => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              email: email,
+              nombreUsuario: username,
               clave: clave,
               rol: rol,
             }),

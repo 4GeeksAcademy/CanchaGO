@@ -74,6 +74,8 @@ const Login = () => {
                     />
                     <button type="submit" className="btnblue">Ingresar</button>
                 </form>
+                <a href="/signup" >No tienes cuenta? Registrate</a>
+                <a href="/" >Volver al inicio</a>
             </div>
         </div>
     );

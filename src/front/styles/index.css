@@ -1,3 +1,71 @@
-/* 
-    General Styles used on every website (Don't Repeat Yourself)
-*/
+.page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 98vh;
+  width: 97vw;
+  background: linear-gradient(to right, #7ed8f8, #055a92);
+  padding: 0;
+  margin: 0;
+  border: 0;
+}
+
+.homeBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+  max-width: 400px;
+  padding: 30px 20px;
+  gap: 15px;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  margin: 20px;
+}
+
+.logo-container {
+  display: flex;
+  width: 100%;
+  height: 40%;
+  max-width: 250px;
+  margin: 0 auto 15px;
+  overflow: hidden;
+}
+
+.logo-container img {
+  width: 100%;
+  height: auto;
+}
+
+.btngreen,
+.btnblue {
+  padding: 12px 20px;
+  width: 100%;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btngreen {
+  background-color: #009643;
+  color: white;
+}
+
+.btngreen:hover {
+  background-color: #1dfc00;
+  transform: translateY(-2px);
+}
+
+.btnblue {
+  background-color: #064b79;
+  color: white;
+}
+
+.btnblue:hover {
+  background-color: #39a6e6;
+  transform: translateY(-2px);
+}

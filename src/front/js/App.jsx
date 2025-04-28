@@ -9,11 +9,12 @@ import ProfessionalFooter from './component/Footer.jsx';
 import Carousel from './component/Carousel.jsx';
 import Loggin from './component/Loggin.jsx';
 import StartPage from './component/StartPage.jsx';
+import { ToastContainer } from "react-toastify";
 import Login from './component/Login.jsx';
 
 const AppContent = () => {
   const location = useLocation();
-  const hideLayout = location.pathname === "/"|| location.pathname === "/signup"|| location.pathname === "/login";
+  const hideLayout = location.pathname === "/" || location.pathname === "/signup" || location.pathname === "/login";
 
   return (
     <>
@@ -26,6 +27,17 @@ const AppContent = () => {
         <Route path="/miscanchas" element={<Carousel />} />
       </Routes>
       {!hideLayout && <ProfessionalFooter />}
+
+      {/* Para alertsa y notificaciones de la app */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        pauseOnHover
+        draggable
+      />
     </>
   );
 };

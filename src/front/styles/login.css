@@ -29,3 +29,77 @@ select.login-input {
   background-position: right 12px center;
   background-size: 18px;
 }
+
+/* Para LOGGIN (Registro) */
+
+/* Estilos generales del formulario */
+.input-group {
+  position: relative;
+  margin-bottom: 0.8rem;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #055a92;
+  z-index: 1;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #055a92;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.input-error {
+  border-color: #e74c3c !important;
+  background: #fff5f5;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+}
+
+.login-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.login-form {
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 0 10px;
+}
+
+/* Ajustes para los inputs con iconos */
+.login-input {
+  padding-left: 40px !important;
+  position: relative;
+}

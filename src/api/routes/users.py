@@ -173,7 +173,7 @@ def login_user():
         return jsonify({'msg': 'No se recibieron datos'}), 400
     
     # Campos requeridos
-    required_fields = ['nombreUsuario', 'clave']
+    required_fields = ['nombreUsuario', 'clave', 'rol']
 
     # Verificamos que no falte ninguno de los campos requeridos ni que estén vacíos
     empty_fields = [field for field in required_fields if not data.get(field)]
@@ -190,6 +190,23 @@ def login_user():
     if user is None:
         # Usuario no encontrad
         return jsonify({"msg": "Error en el nombre de Usuario o en la clave de acceso"}), 401
+    
+    # Verifica que el rol sea uno de los permitidos
+    rol_obj = Rol.query.filter_by(nombre=data['rol']).first()
+    if not rol_obj:
+        return jsonify({'msg': "El rol: " + data['rol'] + " no existe"}), 400
+    
+    #Validamos que exista el rol en bd
+    rol_prop = Rol.query.filter_by(nombre=data['rol']).first()
+
+    # Revisamos si ya hay un UsuarioRol “Propietario” sin club asignado
+    ur = UsuarioRol.query.filter_by(
+        idUsuario=user.idUsuario,
+        idRol=rol_prop.idRol,
+    ).first()
+
+    if ur is None:
+        return jsonify({"msg": "El usuario: " + data['nombreUsuario'] + ", no tiene el rol: " + data['rol']}), 401
 
     #Armamos la lista de los roles del usuario
     roles = [ur.rol.nombre for ur in user.usuario_roles if ur.rol is not None]

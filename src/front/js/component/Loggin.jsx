@@ -1,223 +1,170 @@
-import React, {useState} from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle, FaFacebookF, FaApple } from 'react-icons/fa';
-import { FaUserAlt } from 'react-icons/fa';
-const Loggin= () => {
-    const navigate = useNavigate();
-    const [formData, setFormData] = useState({
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      terms: false
+import { Context } from "../store/appContext";
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaPhoneAlt } from 'react-icons/fa';
+import { useAlert } from "../hooks/useAlert";
+import canchaLogoSinFondo from "../../img/canchago-sinfondo.png";
+import "../../styles/loggin.css";
+
+const Loggin = () => {
+  const navigate = useNavigate();
+  const { error, success } = useAlert();
+  const { actions } = useContext(Context);
+
+  const [formData, setFormData] = useState({
+    nombre: '',
+    email: '',
+    clave: '',
+    nombreUsuario: '',
+    telefono: '',
+    rol: 'Deportista'
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
     });
-  
-    const [showPassword, setShowPassword] = useState(false);
-    const [errors, setErrors] = useState({});
-  
-    const handleChange = (e) => {
-      const { name, value, type, checked } = e.target;
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value
-      }));
-    };
-  
-    const validateForm = () => {
-      const newErrors = {};
-      
-      if (!formData.firstName.trim()) newErrors.firstName = 'Nombre es requerido';
-      if (!formData.lastName.trim()) newErrors.lastName = 'Apellido es requerido';
-      if (!formData.email.trim()) {
-        newErrors.email = 'Email es requerido';
-      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-        newErrors.email = 'Email no es válido';
-      }
-      if (!formData.password) {
-        newErrors.password = 'Contraseña es requerida';
-      } else if (formData.password.length < 8) {
-        newErrors.password = 'Debe tener al menos 8 caracteres';
-      } else if (!/(?=.*[A-Z])(?=.*[0-9])/.test(formData.password)) {
-        newErrors.password = 'Debe contener una mayúscula y un número';
-      }
-      if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'Las contraseñas no coinciden';
-      }
-      if (!formData.terms) newErrors.terms = 'Debes aceptar los términos';
-      
-      setErrors(newErrors);
-      return Object.keys(newErrors).length === 0;
-    };
-  
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      if (validateForm()) {
-        console.log('Formulario enviado:', formData);
-        // Aquí iría la lógica para enviar los datos al servidor
-        alert('Registro exitoso!');
-      }
-    };
-  
-    const togglePasswordVisibility = () => {
-      setShowPassword(!showPassword);
-    };
-  
-    return (
-      <div className="container py-5">
-        <div className="registration-container mx-auto">
-          <div className="registration-header">
-            <h2>< FaUserAlt className="me-2" /> Crear Cuenta</h2>
-            <p className="mb-0">Únete a nuestra comunidad</p>
-          </div>
-          <button onClick={() => navigate("/login")} className="btn-green">¿Ya tienes una cuenta? </button>
-          
-          <div className="registration-body">
-            <form onSubmit={handleSubmit}>
-              {/* Campos de nombre */}
-              <div className="row mb-3">
-                <div className="col-md-6 mb-3 mb-md-0">
-                  <label htmlFor="firstName" className="form-label">Nombre</label>
-                  <div className="input-group">
-                    <span className="input-group-text"><FaUser /></span>
-                    <input 
-                      type="text" 
-                      className={`form-control ${errors.firstName ? 'is-invalid' : ''}`} 
-                      id="firstName" 
-                      name="firstName"
-                      placeholder="firstName" 
-                      value={formData.firstName}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  {errors.firstName && <div className="invalid-feedback d-block">{errors.firstName}</div>}
-                </div>
-                <div className="col-md-6">
-                  <label htmlFor="lastName" className="form-label">Apellido</label>
-                  <div className="input-group">
-                    <span className="input-group-text"><FaUser /></span>
-                    <input 
-                      type="text" 
-                      className={`form-control ${errors.lastName ? 'is-invalid' : ''}`} 
-                      id="lastName" 
-                      name="lastName"
-                      placeholder="lastName" 
-                      value={formData.lastName}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  {errors.lastName && <div className="invalid-feedback d-block">{errors.lastName}</div>}
-                </div>
-              </div>
-              
-              {/* Email */}
-              <div className="mb-3">
-                <label htmlFor="email" className="form-label">Correo Electrónico</label>
-                <div className="input-group">
-                  <span className="input-group-text"><FaEnvelope /></span>
-                  <input 
-                    type="email" 
-                    className={`form-control ${errors.email ? 'is-invalid' : ''}`} 
-                    id="email" 
-                    name="email"
-                    placeholder="email@example.com" 
-                    value={formData.email}
-                    onChange={handleChange}
-                  />
-                </div>
-                {errors.email && <div className="invalid-feedback d-block">{errors.email}</div>}
-              </div>
-              
-              {/* Contraseña */}
-              <div className="mb-3">
-                <label htmlFor="password" className="form-label">Contraseña</label>
-                <div className="input-group">
-                  <span className="input-group-text"><FaLock /></span>
-                  <input 
-                    type={showPassword ? "text" : "password"} 
-                    className={`form-control ${errors.password ? 'is-invalid' : ''}`} 
-                    id="password" 
-                    name="password"
-                    placeholder="Mínimo 8 caracteres" 
-                    value={formData.password}
-                    onChange={handleChange}
-                  />
-                  <button 
-                    className="btn btn-outline-secondary" 
-                    type="button" 
-                    onClick={togglePasswordVisibility}
-                  >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </button>
-                </div>
-                {errors.password ? (
-                  <div className="invalid-feedback d-block">{errors.password}</div>
-                ) : (
-                  <div className="form-text">Debe contener al menos 8 caracteres, una mayúscula y un número.</div>
-                )}
-              </div>
-              
-              {/* Confirmar contraseña */}
-              <div className="mb-4">
-                <label htmlFor="confirmPassword" className="form-label">Confirmar Contraseña</label>
-                <div className="input-group">
-                  <span className="input-group-text"><FaLock /></span>
-                  <input 
-                    type={showPassword ? "text" : "password"} 
-                    className={`form-control ${errors.confirmPassword ? 'is-invalid' : ''}`} 
-                    id="confirmPassword" 
-                    name="confirmPassword"
-                    placeholder="Repite tu contraseña" 
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                  />
-                </div>
-                {errors.confirmPassword && <div className="invalid-feedback d-block">{errors.confirmPassword}</div>}
-              </div>
-              
-              {/* Términos y condiciones */}
-              <div className="mb-4 form-check">
-                <input 
-                  type="checkbox" 
-                  className={`form-check-input ${errors.terms ? 'is-invalid' : ''}`} 
-                  id="terms" 
-                  name="terms"
-                  checked={formData.terms}
-                  onChange={handleChange}
-                />
-                <label className="form-check-label" htmlFor="terms">
-                  Acepto los <a href="#">Términos y Condiciones</a> y la <a href="#">Política de Privacidad</a>
-                </label>
-                {errors.terms && <div className="invalid-feedback d-block">{errors.terms}</div>}
-              </div>
-              
-              {/* Botón de registro */}
-              <div className="d-grid mb-4">
-                <button type="submit" className="btn btn-register btn-primary text-white">
-                  Registrarse
-                </button>
-              </div>
-              
-              {/* Divisor */}
-              <div className="divider">O regístrate con</div>
-              
-              {/* Botones sociales */}
-              <div className="text-center">
-                <button type="button" className="social-btn">
-                  <FaGoogle className="text-danger me-2" /> Google
-                </button>
-                <button type="button" className="social-btn">
-                  <FaFacebookF className="text-primary me-2" /> Facebook
-                </button>
-                <button type="button" className="social-btn">
-                  <FaApple className="me-2" /> Apple
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    );
   };
 
-export default Loggin
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.nombre.trim()) newErrors.nombre = 'Nombre completo es requerido';
+    if (!formData.email.match(/^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$/)) newErrors.email = 'Email inválido';
+    if (formData.clave.length < 8) newErrors.clave = 'La clave debe tener al menos 8 caracteres';
+    if (!formData.nombreUsuario) newErrors.nombreUsuario = 'Nombre de usuario requerido';
+    if (!formData.telefono.match(/^\d{10,15}$/)) newErrors.telefono = 'Teléfono inválido';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    const response = await actions.createUser(formData);
+    if (response.success) {
+      success("¡Registro exitoso!");
+      navigate("/login");
+    } else {
+      error(response.message);
+    }
+  };
+
+  return (
+    <div className="auth-container">
+      <div className="auth-card">
+        <form onSubmit={handleSubmit} className="auth-form">
+          <div className="auth-logo-container">
+            <img src={canchaLogoSinFondo} alt="CanchaGO" className="auth-logo" />
+          </div>
+
+          {/* Nombre completo */}
+          <div className="input-group">
+            <span className="input-icon"><FaUser /></span>
+            <input
+              type="text"
+              name="nombre"
+              placeholder="Nombre completo"
+              className={`auth-input ${errors.nombre ? 'input-error' : ''}`}
+              value={formData.nombre}
+              onChange={handleChange}
+            />
+            {errors.nombre && <span className="error-message">{errors.nombre}</span>}
+          </div>
+
+          {/* Email */}
+          <div className="input-group">
+            <span className="input-icon"><FaEnvelope /></span>
+            <input
+              type="email"
+              name="email"
+              placeholder="Correo electrónico"
+              className={`auth-input ${errors.email ? 'input-error' : ''}`}
+              value={formData.email}
+              onChange={handleChange}
+            />
+            {errors.email && <span className="error-message">{errors.email}</span>}
+          </div>
+
+          {/* Nombre de usuario */}
+          <div className="input-group">
+            <span className="input-icon"><FaUser /></span>
+            <input
+              type="text"
+              name="nombreUsuario"
+              placeholder="Nombre de usuario"
+              className={`auth-input ${errors.nombreUsuario ? 'input-error' : ''}`}
+              value={formData.nombreUsuario}
+              onChange={handleChange}
+            />
+            {errors.nombreUsuario && <span className="error-message">{errors.nombreUsuario}</span>}
+          </div>
+
+          {/* Teléfono */}
+          <div className="input-group">
+            <span className="input-icon"><FaPhoneAlt /></span>
+            <input
+              type="tel"
+              name="telefono"
+              placeholder="Teléfono"
+              className={`auth-input ${errors.telefono ? 'input-error' : ''}`}
+              value={formData.telefono}
+              onChange={handleChange}
+            />
+            {errors.telefono && <span className="error-message">{errors.telefono}</span>}
+          </div>
+
+          {/* Clave */}
+          <div className="input-group">
+            <span className="input-icon"><FaLock /></span>
+            <input
+              type={showPassword ? "text" : "password"}
+              name="clave"
+              placeholder="Contraseña"
+              className={`auth-input ${errors.clave ? 'input-error' : ''}`}
+              value={formData.clave}
+              onChange={handleChange}
+            />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label="Mostrar contraseña"
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </button>
+            {errors.clave && <span className="error-message">{errors.clave}</span>}
+          </div>
+
+          {/* Rol */}
+          <select
+            name="rol"
+            value={formData.rol}
+            onChange={handleChange}
+            className="auth-select"
+          >
+            <option value="Deportista">Deportista</option>
+            <option value="Propietario">Propietario</option>
+          </select>
+
+          <button type="submit" className="btn-primary">Registrarse</button>
+        </form>
+
+        <div className="auth-links">
+          <button onClick={() => navigate("/login")} className="auth-link">
+            ¿Ya tienes cuenta? Inicia sesión
+          </button>
+          <button onClick={() => navigate("/")} className="auth-link">
+            Volver al inicio
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Loggin;

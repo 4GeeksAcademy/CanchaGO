@@ -6,7 +6,43 @@ const getState = ({ getStore, getActions, setStore }) => {
     actions: {
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
       //Funcion para crear un usuario en la base de datos
-      createUser: (email, password) => {},
+      createUser: async (userData) => {
+        try {
+          const response = await fetch(
+            process.env.BACKEND_URL + "users/signup",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                nombre: userData.nombre,
+                email: userData.email,
+                clave: userData.clave,
+                nombreUsuario: userData.nombreUsuario,
+                telefono: userData.telefono,
+                rol: userData.rol,
+              }),
+            }
+          );
+
+          const data = await response.json();
+          if (response.ok) {
+            return {
+              success: true,
+              message: "Usuario registrado exitosamente",
+            };
+          } else {
+            return {
+              success: false,
+              message: data.msg || "Error en el registro",
+            };
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          return { success: false, message: "Error de conexión" };
+        }
+      },
 
       //Finaliza la funcion para crear un usuario en la base de datos
       //-----------------------------------------------------------------------------------------------------------------------------------------------------

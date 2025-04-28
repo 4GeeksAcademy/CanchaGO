@@ -62,11 +62,13 @@ h3 {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 90vh;
-  width: 97vw;
+  height: 100vh;
+  width: 100vw;
+  min-height: 100vh;
   background: linear-gradient(to right, #7ed8f8, #055a92);
-  padding: 0;
+  padding: 20px 0;
   margin: 0;
+  overflow: auto;
 }
 
 .homeBox {
@@ -75,11 +77,13 @@ h3 {
   justify-content: center;
   align-items: center;
   width: 90%;
-  max-width: 400px;
-  padding: 30px 20px;
+  max-width: 500px;
+  min-height: auto;
+  padding: 30px;
   gap: 15px;
   border-radius: 20px;
   background-color: rgba(255, 255, 255, 0.95);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   margin: 20px;
+  overflow: visible;
 }

@@ -12,11 +12,13 @@ import StartPage from './component/StartPage.jsx';
 import { ToastContainer } from "react-toastify";
 import Login from './component/Login.jsx';
 import injectContext from "./store/appContext.js";
+import Propietario from './component/Propietario.jsx'
+
 
 
 const AppContent = () => {
   const location = useLocation();
-  const hideLayout = location.pathname === "/" || location.pathname === "/signup" || location.pathname === "/login";
+  const hideLayout = location.pathname === "/" || location.pathname === "/signup" || location.pathname === "/login" || location.pathname === "/Propietario";
 
   return (
     <>
@@ -24,6 +26,7 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<StartPage />} />
         <Route path="/home" element={<ListPaddel />} />
+        <Route path ="/Propietario" element={<Propietario/>}/>
         <Route path="/signup" element={<Loggin />} />
         <Route path="/login" element={<Login />} />
         <Route path="/miscanchas" element={<Carousel />} />

@@ -2,6 +2,7 @@ const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
       token: null,
+      role: null, 
     },
     actions: {
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -60,33 +61,44 @@ const getState = ({ getStore, getActions, setStore }) => {
             body: JSON.stringify({
               nombreUsuario: username,
               clave: clave,
-              rol: rol,
+              rol: rol,  
             }),
           });
-
+      
           if (response.ok) {
-            let data = await response.json();
-            setStore({ ...getStore(), token: data.token });
+            let data = await response.json();            
+            
+            const userRole = data.roles && data.roles.length > 0 ? data.roles[0] : null;
+            
+            setStore({ 
+              token: data.token,
+              role: userRole  
+            });
+            
             return {
               success: true,
               message: "Login exitoso",
               token: data.token,
+              role: userRole  
             };
           } else {
             let data = await response.json();
             return {
               success: false,
-              message: data.msg,
+              message: data.msg || "Error en el login",
             };
           }
         } catch (error) {
           console.error("Error en la solicitud:", error);
           return {
             success: false,
-            message: "Error en la solicitud" + error,
+            message: "Error en la solicitud: " + error.message,
           };
         }
       },
+      logoutUser: () => {
+        setStore({ token: null, role: null });
+      }
 
       //Finaliza la funcion para iniciar sesion en la base de datos
       //----------------------------------------------------------------------------------------------------------------------------------------------------

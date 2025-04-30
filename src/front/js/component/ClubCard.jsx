@@ -7,7 +7,7 @@ const ClubCard = ({ club, onDelete }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleViewDetails = () => {
-    navigate(`/canchas/${club.id}`);
+    navigate(`/Canchas/${club.id}`);
   };
 
   const handleDeleteClick = () => {

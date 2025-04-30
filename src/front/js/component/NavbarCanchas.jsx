@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import { Context } from '../store/appContext';
 import { useNavigate } from 'react-router-dom';
 
-const Navbarpropietario = ({ onOpenCrearClub, onOpenCrearCancha }) => {
+const NavbarCanchas = ({ onOpenCrearCancha }) => {
   const { store, actions } = useContext(Context);
-  const { token, role, username } = store;
+  const { username } = store;
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -20,55 +20,42 @@ const Navbarpropietario = ({ onOpenCrearClub, onOpenCrearCancha }) => {
     navigate('/');
   };
 
-  const handleIniciarComoDeportista = () => {
-    navigate('/home');
+  const goToDashboard = () => {
+    navigate('/Propietario');
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary py-3 shadow">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-success py-3 shadow">
       <div className="container-fluid px-4">
-      <button className="btn btn-link navbar-brand fs-3 fw-bold text-white" onClick={goHome}>
+        <button className="btn btn-link navbar-brand fs-3 fw-bold text-white" onClick={goHome}>
           CanchaGo
-        </button>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-        >
-          <span className="navbar-toggler-icon"></span>
         </button>
 
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-              
-            </li>
-          </ul>
+          <div className="d-flex align-items-center ms-auto gap-3">
 
-          <div className="d-flex align-items-center gap-3">
-            {!username && (
-              <button className="btn btn-outline-light btn-lg" onClick={handleIniciarComoDeportista}>
-                Iniciar como Deportista
-              </button>
-            )}
-
-            <button className="btn btn-outline-light btn-lg" onClick={onOpenCrearClub}>
-              Crear Club
+            <button className="btn btn-outline-light btn-lg" onClick={goToDashboard}>
+              <i className="fas fa-chart-line me-2"></i>Dashboard
             </button>
 
+            <button 
+              className="btn btn-light btn-lg" 
+              onClick={onOpenCrearCancha}
+            >
+              <i className="fas fa-plus me-2"></i>Nueva Cancha
+            </button>
 
             {username && (
               <div className="dropdown">
                 <button
-                  className="btn btn-light dropdown-toggle d-flex align-items-center px-3 py-2"
+                  className="btn btn-outline-light dropdown-toggle d-flex align-items-center px-3 py-2"
                   type="button"
                   id="userDropdown"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
                 >
                   <div
-                    className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-2"
+                    className="rounded-circle bg-white text-success d-flex justify-content-center align-items-center me-2"
                     style={{
                       width: "36px",
                       height: "36px",
@@ -102,4 +89,4 @@ const Navbarpropietario = ({ onOpenCrearClub, onOpenCrearCancha }) => {
   );
 };
 
-export default Navbarpropietario;
+export default NavbarCanchas;

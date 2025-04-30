@@ -23,7 +23,7 @@ const AppContent = () => {
   location.pathname === "/signup" || 
   location.pathname === "/login" || 
   location.pathname === "/Propietario" ||
-  location.pathname.startsWith("/canchas/");
+  location.pathname.startsWith("/Canchas/");
 
   return (
     <>
@@ -32,7 +32,7 @@ const AppContent = () => {
         <Route path="/" element={<StartPage />} />
         <Route path="/home" element={<ListPaddel />} />
         <Route path ="/Propietario" element={<Propietario/>}/>
-        <Route path="/canchas/:clubId" element={<ViewCanchas />} />
+        <Route path="/Canchas/:clubId" element={<ViewCanchas />} />
         <Route path="/signup" element={<Loggin />} />
         <Route path="/login" element={<Login />} />
         <Route path="/miscanchas" element={<Carousel />} />

@@ -5,10 +5,20 @@ import ClubCard from './ClubCard.jsx';
 
 const Propietario = () => {
   const [showCrearClubModal, setShowCrearClubModal] = useState(false);
-  const [clubs, setClubs] = useState([]);
+  const [clubs, setClubs] = useState([
+    {
+      id: '1',
+      name: 'Club Deportivo Ejemplo',
+      description: 'El mejor club deportivo de la ciudad',
+      imageUrl: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+      location: 'Av. Principal 123',
+      phone: '555-1234',
+      sports: ['Fútbol', 'Pádel', 'Tenis']
+    }
+  ]);
 
   const handleSaveClub = (newClub) => {
-    setClubs(prev => [...prev, newClub]);
+    setClubs(prev => [...prev, { ...newClub, id: Date.now().toString() }]);
     setShowCrearClubModal(false);
   };
 

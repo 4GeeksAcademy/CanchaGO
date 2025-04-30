@@ -13,19 +13,6 @@ html, body {
   width: 100%;
 }
 
-/* Navbar specific fixes */
-.navbar {
-  width: 100%;
-  padding: 0.5rem 1rem; /* Adjust padding as needed */
-}
-
-.navbar-brand {
-  font-size: 1.5rem;
-}
-
-.navbar-nav {
-  align-items: center;
-}
 
 /* Page container adjustments */
 .page-container {
@@ -60,13 +47,3 @@ h1, h2, h3 {
   letter-spacing: 0.05em;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 0.5rem;
-  }
-  
-  .navbar-brand {
-    font-size: 1.2rem;
-  }
-}

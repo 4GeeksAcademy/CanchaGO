@@ -3,7 +3,7 @@ import { Context } from '../store/appContext';
 import { useNavigate } from 'react-router-dom';
 
 
-const Navbarpropietario = ({ onOpenCrearClub, onOpenCrearCancha }) => {
+const Navbarpropietario = ({ onOpenCrearClub}) => {
   const { store, actions } = useContext(Context);
   const { token, role, username } = store;
   const navigate = useNavigate();

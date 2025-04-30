@@ -125,14 +125,14 @@ const CanchaCard = ({ cancha, onDelete, onEdit }) => {
         show={showEditModal}
         onClose={handleEditClose}
         onSave={handleEditSave}
-        canchaToEdit={cancha} // Pass cancha data to the modal for editing
+        canchaToEdit={cancha} 
       />
 
       {/* Ver Disponibilidad Modal */}
       <DisponibilidadModal
         show={showDisponibilidadModal}
         onClose={handleDisponibilidadClose}
-        cancha={cancha} // Pass cancha data to availability modal
+        cancha={cancha} 
       />
     </>
   );

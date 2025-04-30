@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const CrearClubModal = ({ show, onClose, onSave }) => {
+const CrearClubModal = ({ show, onClose, onSave, clubToEdit }) => {
     if (!show) return null;
 
     const DEFAULT_IMAGE_URL = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXn8_1fUMHpbujy0wY5JANA1_MPUeq-JQPYQ&s';
-
     const sportsOptions = ['Fútbol', 'Baloncesto', 'Tenis', 'Pádel'];
 
     const [clubData, setClubData] = useState({
@@ -18,9 +17,24 @@ const CrearClubModal = ({ show, onClose, onSave }) => {
         sports: []
     });
 
+    useEffect(() => {
+        if (clubToEdit) {
+            setClubData({
+                name: clubToEdit.name || '',
+                description: clubToEdit.description || '',
+                location: clubToEdit.location || '',
+                googleMapsLink: clubToEdit.googleMapsLink || '',
+                email: clubToEdit.email || '',
+                phone: clubToEdit.phone || '',
+                imageUrl: clubToEdit.imageUrl || '',
+                sports: clubToEdit.sports || []
+            });
+        }
+    }, [clubToEdit]);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setClubData((prev) => ({ ...prev, [name]: value }));
+        setClubData(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSportsChange = (sport) => {
@@ -47,16 +61,19 @@ const CrearClubModal = ({ show, onClose, onSave }) => {
         };
         onSave(finalData);
         onClose();
-        setClubData({
-            name: '',
-            description: '',
-            location: '',
-            googleMapsLink: '',
-            email: '',
-            phone: '',
-            imageUrl: '',
-            sports: []
-        });
+
+        if (!clubToEdit) {
+            setClubData({
+                name: '',
+                description: '',
+                location: '',
+                googleMapsLink: '',
+                email: '',
+                phone: '',
+                imageUrl: '',
+                sports: []
+            });
+        }
     };
 
     return (
@@ -88,7 +105,9 @@ const CrearClubModal = ({ show, onClose, onSave }) => {
                         ></button>
                     </div>
 
-                    <h3 className="text-center mb-4">Crear Nuevo Club</h3>
+                    <h3 className="text-center mb-4">
+                        {clubToEdit ? 'Editar Club' : 'Crear Nuevo Club'}
+                    </h3>
 
                     <form onSubmit={handleSubmit}>
                         <div className="row">
@@ -148,9 +167,9 @@ const CrearClubModal = ({ show, onClose, onSave }) => {
                                     type="url"
                                     className="form-control"
                                     name="googleMapsLink"
-                                    placeholder="https://maps.google.com/..."
                                     value={clubData.googleMapsLink}
                                     onChange={handleChange}
+                                    placeholder="https://maps.google.com/..."
                                     required
                                 />
                             </div>
@@ -204,7 +223,7 @@ const CrearClubModal = ({ show, onClose, onSave }) => {
 
                         <div className="d-flex justify-content-center gap-3">
                             <button type="submit" className="btn btn-primary px-4">
-                                Crear Club
+                                {clubToEdit ? 'Guardar Cambios' : 'Crear Club'}
                             </button>
                             <button
                                 type="button"

@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button } from 'react-bootstrap';
+import CrearClubModal from './CrearClubModal.jsx';
 
-const ClubCard = ({ club, onDelete }) => {
+const ClubCard = ({ club, onDelete, onEdit }) => {
   const navigate = useNavigate();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const handleViewDetails = () => {
     navigate(`/Canchas/${club.id}`);
@@ -19,12 +21,25 @@ const ClubCard = ({ club, onDelete }) => {
     setShowDeleteModal(false);
   };
 
+  const handleEditClick = () => {
+    setShowEditModal(true);
+  };
+
+  const handleEditClose = () => {
+    setShowEditModal(false);
+  };
+
+  const handleEditSave = (updatedClub) => {
+    onEdit(updatedClub); // Handle the save/edit logic in the parent component
+    setShowEditModal(false);
+  };
+
   return (
     <>
       <div className="col-md-4 mb-4 d-flex">
         <div className="card shadow flex-fill" style={{ borderRadius: '16px' }}>
-          <img 
-            src={club.imageUrl} 
+          <img
+            src={club.imageUrl}
             className="card-img-top"
             style={{ height: '200px', objectFit: 'cover', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}
             alt={club.name}
@@ -32,7 +47,7 @@ const ClubCard = ({ club, onDelete }) => {
           <div className="card-body d-flex flex-column">
             <h5 className="card-title mb-1">{club.name}</h5>
             <p className="card-text mb-2">{club.description}</p>
-            
+
             <div className="mb-3">
               <strong>Deportes:</strong>
               <div className="d-flex flex-wrap gap-2 mt-1">
@@ -45,6 +60,9 @@ const ClubCard = ({ club, onDelete }) => {
             <div className="mt-auto d-flex justify-content-between">
               <button className="btn btn-outline-primary btn-sm" onClick={handleViewDetails}>
                 Ver Canchas
+              </button>
+              <button className="btn btn-outline-warning btn-sm" onClick={handleEditClick}>
+                Editar
               </button>
               <button className="btn btn-outline-danger btn-sm" onClick={handleDeleteClick}>
                 Eliminar
@@ -74,6 +92,14 @@ const ClubCard = ({ club, onDelete }) => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Edit Club using CrearCanchaModal */}
+      <CrearClubModal
+        show={showEditModal}
+        onClose={handleEditClose}
+        onSave={handleEditSave}
+        clubToEdit={club}
+      />
     </>
   );
 };

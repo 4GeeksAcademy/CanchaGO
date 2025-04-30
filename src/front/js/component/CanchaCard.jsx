@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
+import CrearCanchaModal from './CrearCanchaModal.jsx';
+import DisponibilidadModal from './DisponibilidadModal.jsx';
 
-const CanchaCard = ({ cancha, onDelete }) => {
+const CanchaCard = ({ cancha, onDelete, onEdit }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDisponibilidadModal, setShowDisponibilidadModal] = useState(false);
 
   const handleDeleteClick = () => {
     setShowDeleteModal(true);
@@ -11,6 +15,27 @@ const CanchaCard = ({ cancha, onDelete }) => {
   const confirmDelete = () => {
     onDelete(cancha.id);
     setShowDeleteModal(false);
+  };
+
+  const handleEditClick = () => {
+    setShowEditModal(true);
+  };
+
+  const handleEditClose = () => {
+    setShowEditModal(false);
+  };
+
+  const handleEditSave = (updatedCancha) => {
+    onEdit(updatedCancha);
+    setShowEditModal(false);
+  };
+
+  const handleDisponibilidadClick = () => {
+    setShowDisponibilidadModal(true);
+  };
+
+  const handleDisponibilidadClose = () => {
+    setShowDisponibilidadModal(false);
   };
 
   return (
@@ -52,15 +77,26 @@ const CanchaCard = ({ cancha, onDelete }) => {
           </div>
           <div className="card-footer bg-transparent">
             <div className="d-flex justify-content-between">
-              <button className="btn btn-outline-success btn-sm">
+              <button 
+                className="btn btn-outline-success btn-sm"
+                onClick={handleDisponibilidadClick}
+              >
                 Ver Disponibilidad
               </button>
-              <button 
-                className="btn btn-outline-danger btn-sm" 
-                onClick={handleDeleteClick}
-              >
-                Eliminar
-              </button>
+              <div className="d-flex gap-2">
+                <button 
+                  className="btn btn-outline-warning btn-sm"
+                  onClick={handleEditClick}
+                >
+                  Editar
+                </button>
+                <button 
+                  className="btn btn-outline-danger btn-sm" 
+                  onClick={handleDeleteClick}
+                >
+                  Eliminar
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -83,6 +119,21 @@ const CanchaCard = ({ cancha, onDelete }) => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Edit Cancha Modal */}
+      <CrearCanchaModal
+        show={showEditModal}
+        onClose={handleEditClose}
+        onSave={handleEditSave}
+        canchaToEdit={cancha} // Pass cancha data to the modal for editing
+      />
+
+      {/* Ver Disponibilidad Modal */}
+      <DisponibilidadModal
+        show={showDisponibilidadModal}
+        onClose={handleDisponibilidadClose}
+        cancha={cancha} // Pass cancha data to availability modal
+      />
     </>
   );
 };

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 
-const CrearCanchaModal = ({ show, onClose, onSave }) => {
+const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit }) => {
   const [cancha, setCancha] = useState({
     nombre: '',
     tipo: 'Fútbol 5',
@@ -14,6 +14,25 @@ const CrearCanchaModal = ({ show, onClose, onSave }) => {
     precio: '',
     imagenUrl: ''
   });
+
+  useEffect(() => {
+    if (canchaToEdit) {
+      setCancha(canchaToEdit);
+    } else {
+      setCancha({
+        nombre: '',
+        tipo: 'Fútbol 5',
+        iluminacion: false,
+        techada: false,
+        diasDisponibles: [],
+        horaInicio: '',
+        horaFin: '',
+        frecuencia: '60',
+        precio: '',
+        imagenUrl: ''
+      });
+    }
+  }, [canchaToEdit, show]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -34,19 +53,8 @@ const CrearCanchaModal = ({ show, onClose, onSave }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(cancha); // Changed from onClose to onSave
-    setCancha({
-      nombre: '',
-      tipo: 'Fútbol 5',
-      iluminacion: false,
-      techada: false,
-      diasDisponibles: [],
-      horaInicio: '',
-      horaFin: '',
-      frecuencia: '60',
-      precio: '',
-      imagenUrl: ''
-    });
+    onSave(cancha);
+    onClose();
   };
 
   const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
@@ -54,7 +62,7 @@ const CrearCanchaModal = ({ show, onClose, onSave }) => {
   return (
     <Modal show={show} onHide={onClose} centered size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>Crear Nueva Cancha</Modal.Title>
+        <Modal.Title>{canchaToEdit ? 'Editar Cancha' : 'Crear Nueva Cancha'}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>

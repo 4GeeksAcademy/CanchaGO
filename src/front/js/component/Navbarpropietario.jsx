@@ -2,11 +2,11 @@ import React, { useContext } from 'react';
 import { Context } from '../store/appContext';
 import { useNavigate } from 'react-router-dom';
 
+
 const Navbarpropietario = ({ onOpenCrearClub, onOpenCrearCancha }) => {
   const { store, actions } = useContext(Context);
   const { token, role, username } = store;
   const navigate = useNavigate();
-
   const handleLogout = () => {
     actions.logoutUser();
     navigate('/');
@@ -47,7 +47,7 @@ const Navbarpropietario = ({ onOpenCrearClub, onOpenCrearCancha }) => {
           </ul>
 
           <div className="d-flex align-items-center gap-3">
-            {!username && (
+            {!role == "Deportita" && (
               <button className="btn btn-outline-light btn-lg" onClick={handleIniciarComoDeportista}>
                 Iniciar como Deportista
               </button>

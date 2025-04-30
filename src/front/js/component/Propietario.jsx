@@ -1,33 +1,52 @@
-import React, { useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Context } from '../store/appContext';
+import React, { useState } from 'react';
 import Navbarpropietario from './Navbarpropietario.jsx';
-import CrearCanchaCard from './CrearCanchaCard.jsx';
+import CrearClubModal from './CrearClubModal.jsx';
+import ClubCard from './ClubCard.jsx';
 
 const Propietario = () => {
-  const navigate = useNavigate();
-  const { store } = useContext(Context);
+  const [showCrearClubModal, setShowCrearClubModal] = useState(false);
+  const [clubs, setClubs] = useState([]);
 
-  useEffect(() => {
-    console.log("PROPIETARIO CHECK:", {
-      token: store.token,
-      role: store.role,
-      required: "Propietario"
-    });
-    
-    if (!store.token || store.role !== "Propietario") {
-      console.log("REDIRECTING TO HOME");
-      navigate('/');
-    }
-  }, [navigate, store]);
+  const handleSaveClub = (newClub) => {
+    setClubs(prev => [...prev, newClub]);
+    setShowCrearClubModal(false);
+  };
+
+  const handleDeleteClub = (clubId) => {
+    setClubs(prev => prev.filter(club => club.id !== clubId));
+  };
 
   return (
-    <div>
-      <Navbarpropietario />
-      {/* <div className="min-h-screen w-screen bg-gray-100 flex items-center justify-center">
-        <CrearCanchaCard />
-      </div> */}
-    </div>
+    <>
+      <Navbarpropietario
+        onOpenCrearClub={() => setShowCrearClubModal(true)}
+      />
+
+      {showCrearClubModal && (
+        <CrearClubModal
+          show={showCrearClubModal}
+          onClose={() => setShowCrearClubModal(false)}
+          onSave={handleSaveClub}
+        />
+      )}
+
+      <div className="container mt-4">
+        <h2 className="mb-4">Mis Clubes</h2>
+        <div className="row">
+          {clubs.length === 0 ? (
+            <p>No has creado clubes aún.</p>
+          ) : (
+            clubs.map((club, index) => (
+              <ClubCard 
+                key={index} 
+                club={club} 
+                onDelete={handleDeleteClub}
+              />
+            ))
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 

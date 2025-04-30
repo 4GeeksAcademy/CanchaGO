@@ -2,7 +2,8 @@ const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
       token: null,
-      role: null, 
+      role: null,
+      username: null 
     },
     actions: {
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -67,14 +68,15 @@ const getState = ({ getStore, getActions, setStore }) => {
       
           if (response.ok) {
             let data = await response.json();            
-            
+      
             const userRole = data.roles && data.roles.length > 0 ? data.roles[0] : null;
-            
+      
             setStore({ 
               token: data.token,
-              role: userRole  
+              role: userRole,
+              username: username 
             });
-            
+      
             return {
               success: true,
               message: "Login exitoso",
@@ -96,10 +98,10 @@ const getState = ({ getStore, getActions, setStore }) => {
           };
         }
       },
+      
       logoutUser: () => {
-        setStore({ token: null, role: null });
+        setStore({ token: null, role: null, username: null });
       }
-
       //Finaliza la funcion para iniciar sesion en la base de datos
       //----------------------------------------------------------------------------------------------------------------------------------------------------
     },

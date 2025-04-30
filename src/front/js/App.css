@@ -1,74 +1,41 @@
-html,
-body {
-  margin: 0 auto;
+/* Reset and base styles */
+html, body {
+  margin: 0;
   padding: 0;
-  display: flex;
-  justify-content: center;
-  text-align: center;
+  width: 100%;
+  min-height: 100vh;
 }
 
 .App {
-  padding: 10px;
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Navbar specific fixes */
+.navbar {
+  width: 100%;
+  padding: 0.5rem 1rem; /* Adjust padding as needed */
+}
+
+.navbar-brand {
+  font-size: 1.5rem;
+}
+
+.navbar-nav {
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-h1,
-h2,
-h3 {
-  font-family: "Times New Roman", Georgia, serif; /* Fuente clásica */
-  /* Otras opciones corporativas: */
-  /* font-family: "Garamond", "Baskerville", "Palatino", serif; */
-  font-weight: 600; /* Negrita moderada (no demasiado gruesa) */
-  letter-spacing: 0.05em; /* Espaciado entre letras sutil */
-}
-
-/* Estilos base heredados */
+/* Page container adjustments */
 .page-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  width: 100vw;
   min-height: 100vh;
+  width: 100%;
   background: linear-gradient(to right, #7ed8f8, #055a92);
-  padding: 20px 0;
-  margin: 0;
-  overflow: auto;
+  padding: 2rem 0;
 }
 
 .homeBox {
@@ -78,12 +45,28 @@ h3 {
   align-items: center;
   width: 90%;
   max-width: 500px;
-  min-height: auto;
-  padding: 30px;
-  gap: 15px;
+  padding: 2rem;
+  gap: 1rem;
   border-radius: 20px;
   background-color: rgba(255, 255, 255, 0.95);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  margin: 20px;
-  overflow: visible;
+  margin: 2rem auto;
+}
+
+/* Keep your existing typography styles */
+h1, h2, h3 {
+  font-family: "Times New Roman", Georgia, serif;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.5rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
 }

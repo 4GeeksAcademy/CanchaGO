@@ -3,7 +3,7 @@ const getState = ({ getStore, getActions, setStore }) => {
     store: {
       token: null,
       role: null,
-      username: null 
+      username: null,
     },
     actions: {
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -62,28 +62,52 @@ const getState = ({ getStore, getActions, setStore }) => {
             body: JSON.stringify({
               nombreUsuario: username,
               clave: clave,
-              rol: rol,  
+              rol: rol,
             }),
           });
-      
+
+          //Si la respuesta esta bien
           if (response.ok) {
-            let data = await response.json();            
-      
-            const userRole = data.roles && data.roles.length > 0 ? data.roles[0] : null;
-      
-            setStore({ 
-              token: data.token,
-              role: userRole,
-              username: username 
-            });
-      
-            return {
-              success: true,
-              message: "Login exitoso",
-              token: data.token,
-              role: userRole  
-            };
-          } else {
+            //Transformamos la respuesta a objeto JS
+            let data = await response.json();
+
+            //Validamos los roles que tiene el usuario
+            const userRole =
+              data.roles && data.roles.length > 0 ? data.roles : null;
+
+            let existeRol = false;
+            //Validamos que la lista de roles no este vacia
+            if (userRole !== null) {
+              userRole.forEach((role) => {
+                if (role === rol) {
+                  existeRol = true;
+                  return;
+                }
+              });
+            }
+
+            //Si el rol existe, guardamos el token en el store y el rol
+            if (existeRol) {
+              //Setteamos el store
+              setStore({
+                ...getStore(),
+                token: data.token,
+                role: rol,
+                username: username,
+              });
+
+              return {
+                success: true,
+                message: "Login exitoso",
+              };
+            } else {
+              return {
+                success: false,
+                message: "El rol no existe",
+              };
+            }
+          } //Termina el if de response.ok
+          else {
             let data = await response.json();
             return {
               success: false,
@@ -98,10 +122,10 @@ const getState = ({ getStore, getActions, setStore }) => {
           };
         }
       },
-      
+
       logoutUser: () => {
-        setStore({ token: null, role: null, username: null });
-      }
+        setStore({ ...getStore(), token: null, role: null, username: null });
+      },
       //Finaliza la funcion para iniciar sesion en la base de datos
       //----------------------------------------------------------------------------------------------------------------------------------------------------
     },

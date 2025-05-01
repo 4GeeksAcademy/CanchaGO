@@ -16,37 +16,41 @@ const Login = () => {
     const { store, actions } = useContext(Context);
     const navigate = useNavigate();
 
+    //------------------------------------------------------------------------------------------------------------
+    //Funcion para iniciar sesion en la base de datos
+
     const handleLogin = async (e) => {
         e.preventDefault();
-      
+
         if (!username || !password) {
-          error("Por favor, completa todos los campos.");
-          return;
+            error("Por favor, completa todos los campos.");
+            return;
         }
-      
+
         try {
-          const response = await actions.loginUser(username, password, userType);
-          console.log("LOGIN RESPONSE:", response);
-      
-          if (response?.success) {
-            success("Login exitoso");
-            
-            setTimeout(() => {
-              if (response.role === "Propietario") {
-                navigate("/Propietario"); 
-              } else {
-                navigate("/home");
-              }
-            }, 50);
-          } else {
-            error(response?.message || "Error desconocido");
-            navigate("/");
-          }
+            const response = await actions.loginUser(username, password, userType);
+            console.log("LOGIN RESPONSE:", response);
+
+            //Si la respuesta es correcta, retorna un objecto con la clave success
+            if (response?.success) {
+                success("Login exitoso");
+
+                //Validamos si es propietario o deportista para redigirigir a la pagina correspondiente
+                if (store.role === "Propietario") {
+                    navigate("/Propietario");
+                } else {
+                    navigate("/home");
+                }
+
+            } else {
+                error(response?.message || "Error desconocido");
+                navigate("/");
+            }
         } catch (err) {
-          error("Error durante el login");
-          navigate("/");
+            error("Error durante el login");
+            navigate("/");
         }
-      };
+    };
 
     return (
         <div className="page-container">

@@ -44,11 +44,9 @@ const Login = () => {
 
             } else {
                 error(response?.message || "Error desconocido");
-                navigate("/");
             }
         } catch (err) {
             error("Error durante el login");
-            navigate("/");
         }
     };
 

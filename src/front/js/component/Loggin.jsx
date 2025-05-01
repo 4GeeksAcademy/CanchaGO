@@ -20,7 +20,8 @@ const Loggin = () => {
     rol: ''
   });
 
-  const [selectedRoles, setSelectedRoles] = useState([]);
+
+  const [selectedRoles, setSelectedRoles] = useState(["Deportista"]);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -32,12 +33,21 @@ const Loggin = () => {
   };
 
   const handleRoleToggle = (role) => {
-    const updatedRoles = selectedRoles.includes(role)
-      ? selectedRoles.filter(r => r !== role)
-      : [...selectedRoles, role];
 
-    setSelectedRoles(updatedRoles);
-    setFormData({ ...formData, rol: updatedRoles.join(',') });
+    if (!selectedRoles.includes(role)) {
+      setSelectedRoles([role]);
+      setFormData({ ...formData, rol: role });
+    }
+
+
+
+    //Para cuando se implemente agregar dos roles en simultaneo en el backend
+    // const updatedRoles = selectedRoles.includes(role)
+    //   ? selectedRoles.filter(r => r !== role)
+    //   : [...selectedRoles, role];
+
+    // setSelectedRoles(updatedRoles);
+    // setFormData({ ...formData, rol: updatedRoles.join(',') });
   };
 
 

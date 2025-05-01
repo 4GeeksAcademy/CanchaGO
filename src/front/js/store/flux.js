@@ -128,6 +128,141 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
       //Finaliza la funcion para iniciar sesion en la base de datos
       //----------------------------------------------------------------------------------------------------------------------------------------------------
+
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+      //Funcion para obtener los clubes de un usuario
+
+      getClubsByUser: async () => {
+        try {
+          const response = await fetch(
+            process.env.BACKEND_URL + "club/usuario",
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + getStore().token,
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            setStore({
+              ...getStore(),
+              clubs: data.clubs,
+            });
+            return {
+              success: true,
+              message: "Clubes obtenidos exitosamente",
+            };
+          } else {
+            return {
+              success: false,
+              message: "Error al obtener los clubes, " + data.message,
+            };
+          }
+        } catch (error) {
+          return {
+            success: false,
+            message: "Error al obtener los clubes : " + error.message,
+          };
+        }
+      },
+      //Finaliza la funcion para obtener los clubes de un usuario
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+      //Funcion para crear un club en la base de datos
+
+      createClub: async (clubData) => {
+        try {
+          console.log("Club Data:", clubData);
+          const response = await fetch(
+            process.env.BACKEND_URL + "club/create",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + getStore().token,
+              },
+              body: JSON.stringify({
+                nombre: clubData.nombre,
+                descripcion: clubData.descripcion,
+                deportes: clubData.deportes,
+                imagen: clubData.imagen,
+                direccion: clubData.direccion,
+                googleMapsLink: clubData.googleMapsLink,
+                email: clubData.email,
+                telefono: clubData.telefono,
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            return {
+              success: true,
+              message: "Club creado exitosamente",
+            };
+          } else {
+            return {
+              success: false,
+              message: data.message || "Error al crear el club",
+            };
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          return { success: false, message: "Error de conexión" };
+        }
+      },
+
+      //Finaliza la funcion para crear un club en la base de datos
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+      //Funcion para editar un club en la base de datos
+
+      editClub: async (clubData) => {
+        console.log("Club Data:", clubData);
+        try {
+          const response = await fetch(process.env.BACKEND_URL + "club/edit", {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + getStore().token,
+            },
+            body: JSON.stringify({
+              nombre: clubData.nombre,
+              descripcion: clubData.descripcion,
+              deportes: clubData.deportes,
+              imagen: clubData.imagen,
+              direccion: clubData.direccion,
+              googleMapsLink: clubData.googleMapsLink,
+              email: clubData.email,
+              telefono: clubData.telefono,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            return {
+              success: true,
+              message: "Club editado exitosamente",
+            };
+          } else {
+            return {
+              success: false,
+              message: data.message || "Error al editar el club",
+            };
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          return { success: false, message: "Error de conexión" };
+        }
+      },
     },
   };
 };

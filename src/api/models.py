@@ -65,8 +65,8 @@ class UsuarioRol(db.Model):
     idRol: Mapped[int] = mapped_column(ForeignKey('rol.idRol'), nullable=False)
 
     # Relaciones
-    usuario: Mapped[Usuario] = relationship('Usuario', back_populates='usuario_roles')
-    club: Mapped["Club"] = relationship('Club', back_populates='usuario_roles')
+    usuario: Mapped[Usuario] = relationship('Usuario', back_populates='usuario_roles', cascade="all, delete")	
+    club: Mapped["Club"] = relationship('Club', back_populates='usuario_roles', cascade="all, delete")
     rol: Mapped[Rol] = relationship('Rol', back_populates='usuario_roles')
 
     def serialize(self):
@@ -86,8 +86,9 @@ class Club(db.Model):
     email : Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     telefono : Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     direccion: Mapped[str] = mapped_column(String(200), nullable=True)
+    googleMapsLink: Mapped[str] = mapped_column(String(200), nullable=True)
     descripcion: Mapped[str] = mapped_column(String(500), nullable=True)
-    imagen: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
+    imagen: Mapped[str] = mapped_column(String(120), nullable=True)
 
 
     # Relaciones
@@ -95,7 +96,7 @@ class Club(db.Model):
         'UsuarioRol', back_populates='club', lazy='select',  cascade="all, delete"
     )
     club_deportes: Mapped[list["ClubDeporte"]] = relationship(
-        'ClubDeporte', back_populates='club', lazy='select',  cascade="all, delete"
+        'ClubDeporte', back_populates='club', lazy='select',  cascade="all, delete, delete-orphan"
     )
     canchas: Mapped[list["Cancha"]] = relationship(
         'Cancha', back_populates='club', lazy='select' ,  cascade="all, delete"
@@ -108,11 +109,12 @@ class Club(db.Model):
             'email' : self.email,
             'telefono' : self.telefono,
             'direccion': self.direccion,
+            'googleMapsLink': self.googleMapsLink,
             'descripcion': self.descripcion,
             'personal': [ur.usuario.nombreUsuario for ur in self.usuario_roles],
             'deportes': [cd.deporte.nombre for cd in self.club_deportes],
             'canchas': [c.idCancha for c in self.canchas],
-            'imagen': self.imagen.decode('latin1') if self.imagen else None
+            'imagen': self.imagen if self.imagen else None
        
         }
 
@@ -192,6 +194,7 @@ class Cancha(db.Model):
     idClub: Mapped[int] = mapped_column(ForeignKey('club.idClub'), nullable=False)
     idHorario: Mapped[int] = mapped_column(ForeignKey('horario.idHorario'), nullable=False)
     idDeporte: Mapped[int] = mapped_column(ForeignKey('deporte.idDeporte'), nullable=False)
+    imagen: Mapped[str] = mapped_column(String(120), nullable=True)
 
     # Relaciones
     club: Mapped[Club] = relationship('Club', back_populates='canchas')
@@ -209,7 +212,8 @@ class Cancha(db.Model):
             'estado': self.estado,
             'club': self.club.nombre,
             'horario': self.horario.serialize(),
-            'deporte': self.deporte.nombre
+            'deporte': self.deporte.nombre, 
+            'imagen': self.imagen if self.imagen else None
         }
 
 # -------------------------- Reserva -----------------------------

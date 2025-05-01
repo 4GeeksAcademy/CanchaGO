@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
 import { Context } from '../store/appContext';
 import { useNavigate } from 'react-router-dom';
+import "../../styles/navbarPropietario.css";
+import canchaLogoSinFondo from "../../img/canchago-sinfondo.png";
 
 
-const Navbarpropietario = ({ onOpenCrearClub}) => {
+const Navbarpropietario = ({ onOpenCrearClub }) => {
   const { store, actions } = useContext(Context);
   const { token, role, username } = store;
   const navigate = useNavigate();
@@ -25,11 +27,11 @@ const Navbarpropietario = ({ onOpenCrearClub}) => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary py-3 shadow">
+    <nav className="navbar navbar-expand-lg navbar-dark shadow">
       <div className="container-fluid px-4">
-      <button className="btn btn-link navbar-brand fs-3 fw-bold text-white" onClick={goHome}>
-          CanchaGo
-        </button>
+        <div className="logoContainer">
+          <img src={canchaLogoSinFondo} alt="CanchaGO" />
+        </div>
         <button
           className="navbar-toggler"
           type="button"
@@ -42,16 +44,16 @@ const Navbarpropietario = ({ onOpenCrearClub}) => {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
-              
+
             </li>
           </ul>
 
           <div className="d-flex align-items-center gap-3">
-            {!role == "Deportita" && (
+            {/* {role !== "Deportista" && (
               <button className="btn btn-outline-light btn-lg" onClick={handleIniciarComoDeportista}>
                 Iniciar como Deportista
               </button>
-            )}
+            )} */}
 
             <button className="btn btn-outline-light btn-lg" onClick={onOpenCrearClub}>
               Crear Club

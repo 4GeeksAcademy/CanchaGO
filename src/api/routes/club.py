@@ -67,14 +67,15 @@ def add_club():
     if "Propietario" not in roles:
         return jsonify({"error": "El usuario no tiene permisos para crear un club"}), 401
     
-
     #Obtenemos los datos del club
     club_data = Club(
         nombre = data.get("nombre"),
         descripcion = data.get("descripcion", "Sin descripcion"),
         direccion = data.get("direccion", "Sin direccion"),
+        googleMapsLink = data.get("googleMapsLink", "Sin link"),
         email = data.get("email"),
         telefono = data.get("telefono"),
+        imagen = data.get("imagen", "Sin imagen"),
     ) 
     
     try:
@@ -242,9 +243,165 @@ def get_clubs_by_deporte(deporte):
         
         #Devolvemos los clubes en formato json
         return jsonify({"clubs": [club.serialize() for club in clubes]}), 200
-
     except Exception as e:
         return jsonify({"error": f"Ocurrió un error obteniendo los clubes por deporte: {str(e)}"}), 500
     
 #Finaliza el endpoint para obtener los clubes por deporte
 #--------------------------------------------------------------------------------------------------
+
+
+#--------------------------------------------------------------------------------------------------
+
+# 6) Endpoint para obtener los clubes de un usuario
+# GET: /club/usuario
+
+@club_bp.route('/usuario', methods=['GET'])
+@jwt_required()
+def get_clubs_by_user():
+    try:
+        #Obtenemos el token del usuario que crea el club
+        jwt_data = get_jwt() 
+
+        #Obtenemos los roles del usuario que crea el club
+        roles = jwt_data.get("roles", [])
+
+        if "Propietario" not in roles:
+            return jsonify({"error": "El usuario no tiene permisos para ver clubes"}), 401
+        
+        nombreUsuario = get_jwt_identity()
+
+        #Verificamos que el usuario sea propietario del club a eliminar
+        usuario = Usuario.query.filter_by(nombreUsuario=nombreUsuario).first()
+
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+        
+        #Obtenemos los clubes del usuario de la base de datos
+        clubes = Club.query.join(UsuarioRol).filter(UsuarioRol.idUsuario == usuario.idUsuario).all()
+        
+        #Si no hay clubes en la base de datos, devolvemos un mensaje
+        if not clubes:
+            return jsonify({"message": "No hay clubes para el usuario " + nombreUsuario + " en la base de datos"}), 404
+        
+        #Devolvemos los clubes en formato json
+        return jsonify({"clubs": [club.serialize() for club in clubes]}), 200
+    
+    except Exception as e:
+        return jsonify({"error": f"Ocurrió un error obteniendo los clubes por deporte: {str(e)}"}), 500
+    
+
+#Finaliza el endpoint para obtener los clubes de un usuario
+#--------------------------------------------------------------------------------------------------
+
+
+#--------------------------------------------------------------------------------------------------
+
+# 7) Endpoint para actualizar un club por email
+# PUT: /club/edit
+
+@club_bp.route('/edit', methods=['PUT'])
+@jwt_required()
+def update_club():
+    try:
+        #Obtiene el token del usuario que crea el club
+        jwt_data = get_jwt() 
+
+        #Obtenemos los roles del usuario que crea el club
+        roles = jwt_data.get("roles", [])
+
+        if "Propietario" not in roles:
+            return jsonify({"error": "El usuario no tiene permisos para editar clubes"}), 401
+        
+        nombreUsuario = get_jwt_identity()
+
+        #Verificamos que el usuario sea propietario del club a editar
+        usuario = Usuario.query.filter_by(nombreUsuario=nombreUsuario).first()
+
+        if not usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+        
+        #Leemos la data entrante
+        data = request.get_json() or {}
+        
+        #Leemos el email del club a editar
+        email = data.get("email")
+        if not email:
+            return jsonify({"error": "No se ha proporcionado el email del club a editar"}), 400	
+                                  
+        #Obtenemos el club por id de la base de datos
+        club = Club.query.filter_by(email=email).first()
+
+        #Si no hay clubes en la base de datos, devolvemos un mensaje
+        if not club:
+            return jsonify({"message": "No hay clubes con el email " + email + " en la base de datos"}), 404
+
+        # Verificamos si el usuario es propietario del club
+        propietario = None
+        for usuario_rol in club.usuario_roles:
+            if usuario_rol.usuario.idUsuario == usuario.idUsuario and usuario_rol.rol.nombre == "Propietario":
+                propietario = usuario_rol
+                break
+
+        if not propietario:
+            return jsonify({"error": "El club no pertenece al usuario, no se puede editar"}), 401
+        
+        #---------------------------------------------------------------------------------------------------------
+
+        if data.get("nombre"):
+            club.nombre = data["nombre"]
+
+        existing = Club.query.filter(
+            Club.telefono == data["telefono"],
+            Club.email != email  # 👈 Excluir el club actual
+    	).first()
+        if existing:
+            return jsonify({"error": "El telefono ya está en uso por otro club"}), 400
+        
+        # Campos libres
+        club.direccion = data.get("direccion") if data.get("direccion") not in [None, ""] else "Sin dirección"
+        club.googleMapsLink = data.get("googleMapsLink") if data.get("googleMapsLink") not in [None, ""] else "Sin link"
+        club.descripcion = data.get("descripcion") if data.get("descripcion") not in [None, ""] else "Sin descripción"
+        club.imagen = data.get("imagen") if data.get("imagen") not in [None, ""] else "Sin imagen"
+
+          # ————— Validación y actualización de deportes —————
+        if data.get("deportes"):
+            nuevos_deportes = data.get("deportes") or []
+
+            # 1) Validar que existan en DB
+            deportes_bd = {d.nombre: d for d in Deporte.query.all()}
+            invalidos = [d for d in nuevos_deportes if d not in deportes_bd]
+            if invalidos:
+                return jsonify({"error": f"Deportes inválidos: {invalidos}"}), 400
+
+            # 2) Detectar cuáles deportes se quieren eliminar
+            actuales = {cd.deporte.nombre: cd.deporte for cd in club.club_deportes}
+
+            #Aqui en base a los id, obtenemos o separamos los que no estan en nuevos deportes
+            to_remove = set(actuales.keys()) - set(nuevos_deportes)
+
+            # 3) Para cada deporte a eliminar, verificar si hay canchas con ese deporte
+            for dep_nombre in to_remove:
+                dep_obj = actuales[dep_nombre]
+                for cancha in club.canchas:
+                    if cancha.deporte.idDeporte == dep_obj.idDeporte:
+                        return jsonify({
+                            "error": (
+                                f'No se puede quitar el deporte "{dep_nombre}" '
+                                "porque tiene canchas asociadas."
+                            )
+                        }), 400
+
+            # 4) Pasó la validación, así que vaciamos y repoblamos la relación
+            club.club_deportes.clear()
+            for nombre_dep in nuevos_deportes:
+                dep_obj = deportes_bd[nombre_dep]
+                club.club_deportes.append(
+                    ClubDeporte(idClub=club.idClub, idDeporte=dep_obj.idDeporte)
+                )
+
+        db.session.commit()
+        return jsonify({"message": "Club actualizado exitosamente", "club": club.serialize()}), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": f"Ocurrió un error editando el club: {str(e)}"}), 500

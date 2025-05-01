@@ -2,7 +2,7 @@
 .auth-container {
   min-height: 100vh;
   display: flex;
-  width: 97vw;
+  width: 100vw;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -268,7 +268,7 @@
     align-items: center;
     gap: 0.75rem;
   }
-  
+
   .role-button {
     width: auto;
     min-width: 200px;

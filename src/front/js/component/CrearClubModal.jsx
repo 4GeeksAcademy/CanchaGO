@@ -1,55 +1,48 @@
 import React, { useState, useEffect } from 'react';
 
 const CrearClubModal = ({ show, onClose, onSave, clubToEdit }) => {
-    if (!show) return null;
 
-    const DEFAULT_IMAGE_URL = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXn8_1fUMHpbujy0wY5JANA1_MPUeq-JQPYQ&s';
-    const sportsOptions = ['Fútbol', 'Baloncesto', 'Tenis', 'Pádel'];
+    const DEFAULT_IMAGE_URL =
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXn8_1fUMHpbujy0wY5JANA1_MPUeq-JQPYQ&s';
+    const sportsOptions = ['Futbol', 'Tenis', 'Padel'];
 
     const [clubData, setClubData] = useState({
-        name: '',
-        description: '',
-        location: '',
+        nombre: '',
+        descripcion: '',
+        direccion: '',
         googleMapsLink: '',
         email: '',
-        phone: '',
-        imageUrl: '',
-        sports: []
+        telefono: '',
+        imagen: '',
+        deportes: []
     });
 
     useEffect(() => {
         if (clubToEdit) {
             setClubData({
-                name: clubToEdit.name || '',
-                description: clubToEdit.description || '',
-                location: clubToEdit.location || '',
+                nombre: clubToEdit.nombre || '',
+                descripcion: clubToEdit.descripcion || '',
+                direccion: clubToEdit.direccion || '',
                 googleMapsLink: clubToEdit.googleMapsLink || '',
                 email: clubToEdit.email || '',
-                phone: clubToEdit.phone || '',
-                imageUrl: clubToEdit.imageUrl || '',
-                sports: clubToEdit.sports || []
+                telefono: clubToEdit.telefono || '',
+                imagen: clubToEdit.imagen || '',
+                deportes: clubToEdit.deportes || []
             });
         }
     }, [clubToEdit]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setClubData(prev => ({ ...prev, [name]: value }));
+        setClubData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSportsChange = (sport) => {
-        setClubData(prev => {
-            if (prev.sports.includes(sport)) {
-                return {
-                    ...prev,
-                    sports: prev.sports.filter(s => s !== sport)
-                };
-            } else {
-                return {
-                    ...prev,
-                    sports: [...prev.sports, sport]
-                };
-            }
+        setClubData((prev) => {
+            const updated = prev.deportes.includes(sport)
+                ? prev.deportes.filter((s) => s !== sport)
+                : [...prev.deportes, sport];
+            return { ...prev, deportes: updated };
         });
     };
 
@@ -57,24 +50,47 @@ const CrearClubModal = ({ show, onClose, onSave, clubToEdit }) => {
         e.preventDefault();
         const finalData = {
             ...clubData,
-            imageUrl: clubData.imageUrl.trim() || DEFAULT_IMAGE_URL
+            imagen: clubData.imagen.trim() || DEFAULT_IMAGE_URL
         };
-        onSave(finalData);
-        onClose();
+
+        //Validamos campos antes de enviar
+        if (validateFields()) {
+            onSave(finalData);
+            onClose();
+        }
+
 
         if (!clubToEdit) {
             setClubData({
-                name: '',
-                description: '',
-                location: '',
+                nombre: '',
+                descripcion: '',
+                direccion: '',
                 googleMapsLink: '',
                 email: '',
-                phone: '',
-                imageUrl: '',
-                sports: []
+                telefono: '',
+                imagen: '',
+                deportes: []
             });
         }
     };
+
+    //Funcion para valdiar campos del formulario
+    const validateFields = () => {
+        const requiredFields = ['nombre', 'telefono', 'email'];
+        for (const field of requiredFields) {
+            if (!clubData[field]) {
+                error(`El campo ${field} es obligatorio.`);
+                return false;
+            }
+        }
+        if (clubData.deportes.length === 0) {
+            error('Debes seleccionar al menos un deporte.');
+            return false;
+        }
+        return true;
+    }
+
+    if (!show) return null;
 
     return (
         <div
@@ -95,139 +111,163 @@ const CrearClubModal = ({ show, onClose, onSave, clubToEdit }) => {
             }}
         >
             <div className="modal-dialog modal-dialog-centered modal-lg" role="document">
-                <div className="modal-content p-4">
-                    <div className="text-end mb-3">
+                <div className="modal-content rounded-3 shadow-lg p-4">
+                    {/* Modal Header */}
+                    <div className="modal-header border-0 mb-3 align-items-center">
+                        <h3 className="modal-title text-uppercase fw-bold text-primary">
+                            {clubToEdit ? 'Editar Club' : 'Crear Nuevo Club'}
+                        </h3>
                         <button
                             type="button"
                             className="btn-close"
                             aria-label="Close"
                             onClick={onClose}
-                        ></button>
+                        />
                     </div>
 
-                    <h3 className="text-center mb-4">
-                        {clubToEdit ? 'Editar Club' : 'Crear Nuevo Club'}
-                    </h3>
-
-                    <form onSubmit={handleSubmit}>
-                        <div className="row">
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Nombre del Club*</label>
+                    {/* Modal Body */}
+                    <form onSubmit={handleSubmit} className="needs-validation" noValidate>
+                        <div className="row g-3">
+                            <div className="col-md-6">
+                                <label htmlFor="nombre" className="form-label">
+                                    Nombre del Club <span className="text-danger">*</span>
+                                </label>
                                 <input
                                     type="text"
+                                    id="nombre"
+                                    name="nombre"
                                     className="form-control"
-                                    name="name"
-                                    value={clubData.name}
+                                    value={clubData.nombre}
                                     onChange={handleChange}
+                                    placeholder=""
                                     required
                                 />
                             </div>
 
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Teléfono*</label>
+                            <div className="col-md-6">
+                                <label htmlFor="telefono" className="form-label">
+                                    Teléfono <span className="text-danger">*</span>
+                                </label>
                                 <input
                                     type="tel"
+                                    id="telefono"
+                                    name="telefono"
                                     className="form-control"
-                                    name="phone"
-                                    value={clubData.phone}
+                                    value={clubData.telefono}
                                     onChange={handleChange}
+                                    placeholder=""
                                     required
                                 />
                             </div>
-                        </div>
 
-                        <div className="mb-3">
-                            <label className="form-label">Descripción*</label>
-                            <textarea
-                                className="form-control"
-                                name="description"
-                                rows="3"
-                                value={clubData.description}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
+                            <div className="col-12">
+                                <label htmlFor="descripcion" className="form-label">
+                                    Descripción
+                                </label>
+                                <textarea
+                                    id="descripcion"
+                                    name="descripcion"
+                                    className="form-control"
+                                    rows="3"
+                                    value={clubData.descripcion}
+                                    onChange={handleChange}
+                                    placeholder=""
+                                />
+                            </div>
 
-                        <div className="row">
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Dirección Física*</label>
+                            <div className="col-md-6">
+                                <label htmlFor="direccion" className="form-label">
+                                    Dirección Física
+                                </label>
                                 <input
                                     type="text"
+                                    id="direccion"
+                                    name="direccion"
                                     className="form-control"
-                                    name="location"
-                                    value={clubData.location}
+                                    value={clubData.direccion}
                                     onChange={handleChange}
-                                    required
+                                    placeholder=""
                                 />
                             </div>
 
-                            <div className="col-md-6 mb-3">
-                                <label className="form-label">Enlace de Google Maps*</label>
+                            <div className="col-md-6">
+                                <label htmlFor="googleMapsLink" className="form-label">
+                                    Enlace Google Maps
+                                </label>
                                 <input
                                     type="url"
-                                    className="form-control"
+                                    id="googleMapsLink"
                                     name="googleMapsLink"
+                                    className="form-control"
                                     value={clubData.googleMapsLink}
                                     onChange={handleChange}
-                                    placeholder="https://maps.google.com/..."
+                                    placeholder=""
+                                />
+                            </div>
+
+                            <div className="col-md-6">
+                                <label htmlFor="email" className="form-label">
+                                    Email <span className="text-danger">*</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    className="form-control"
+                                    value={clubData.email}
+                                    onChange={handleChange}
+                                    placeholder=""
                                     required
                                 />
                             </div>
-                        </div>
 
-                        <div className="mb-3">
-                            <label className="form-label">Email*</label>
-                            <input
-                                type="email"
-                                className="form-control"
-                                name="email"
-                                value={clubData.email}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
+                            <div className="col-md-6">
+                                <label htmlFor="imagen" className="form-label">
+                                    Imagen (URL) <small className="text-muted">Opcional</small>
+                                </label>
+                                <input
+                                    type="url"
+                                    id="imagen"
+                                    name="imagen"
+                                    className="form-control"
+                                    value={clubData.imagen}
+                                    onChange={handleChange}
+                                    placeholder=""
+                                />
+                            </div>
 
-                        <div className="mb-3">
-                            <label className="form-label">Imagen (URL) optional</label>
-                            <input
-                                type="url"
-                                className="form-control"
-                                name="imageUrl"
-                                placeholder="https://example.com/image.jpg"
-                                value={clubData.imageUrl}
-                                onChange={handleChange}
-                            />
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="form-label">Deportes Disponibles*</label>
-                            <div className="row">
-                                {sportsOptions.map((sport) => (
-                                    <div key={sport} className="col-md-4 mb-2">
-                                        <div className="form-check">
+                            <div className="col-12">
+                                <label className="form-label">Deportes</label>
+                                <div className="d-flex gap-3 flex-wrap">
+                                    {sportsOptions.map((sport) => (
+                                        <div key={sport} className="form-check">
                                             <input
                                                 className="form-check-input"
                                                 type="checkbox"
                                                 id={`sport-${sport}`}
-                                                checked={clubData.sports.includes(sport)}
+                                                checked={clubData.deportes.includes(sport)}
                                                 onChange={() => handleSportsChange(sport)}
                                             />
-                                            <label className="form-check-label" htmlFor={`sport-${sport}`}>
+                                            <label
+                                                className="form-check-label text-capitalize"
+                                                htmlFor={`sport-${sport}`}
+                                            >
                                                 {sport}
                                             </label>
                                         </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
-                        <div className="d-flex justify-content-center gap-3">
-                            <button type="submit" className="btn btn-primary px-4">
+                        {/* Modal Footer */}
+                        <div className="modal-footer border-0 mt-4 justify-content-center">
+                            <button type="submit" className="btn btn-primary px-5">
                                 {clubToEdit ? 'Guardar Cambios' : 'Crear Club'}
                             </button>
                             <button
                                 type="button"
-                                className="btn btn-outline-danger px-4"
+                                className="btn btn-outline-secondary px-5"
                                 onClick={onClose}
                             >
                                 Cancelar

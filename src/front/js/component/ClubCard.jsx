@@ -29,8 +29,8 @@ const ClubCard = ({ club, onDelete, onEdit }) => {
     setShowEditModal(false);
   };
 
-  const handleEditSave = (updatedClub) => {
-    onEdit(updatedClub); // Handle the save/edit logic in the parent component
+  const handleEditSave = async (updatedClub) => {
+    await onEdit(updatedClub); // Handle the save/edit logic in the parent component
     setShowEditModal(false);
   };
 
@@ -39,19 +39,19 @@ const ClubCard = ({ club, onDelete, onEdit }) => {
       <div className="col-md-4 mb-4 d-flex">
         <div className="card shadow flex-fill" style={{ borderRadius: '16px' }}>
           <img
-            src={club.imageUrl}
+            src={club.imagen}
             className="card-img-top"
             style={{ height: '200px', objectFit: 'cover', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}
             alt={club.name}
           />
           <div className="card-body d-flex flex-column">
-            <h5 className="card-title mb-1">{club.name}</h5>
-            <p className="card-text mb-2">{club.description}</p>
+            <h5 className="card-title mb-1">{club.nombre}</h5>
+            <p className="card-text mb-2">{club.descripcion}</p>
 
             <div className="mb-3">
               <strong>Deportes:</strong>
               <div className="d-flex flex-wrap gap-2 mt-1">
-                {club.sports.map((sport, index) => (
+                {club.deportes.map((sport, index) => (
                   <span key={index} className="badge bg-primary">{sport}</span>
                 ))}
               </div>
@@ -70,7 +70,7 @@ const ClubCard = ({ club, onDelete, onEdit }) => {
             </div>
           </div>
           <div className="card-footer text-muted text-center">
-            <small>{club.location} | {club.phone}</small>
+            <small>{club.direccion} | {club.telefono}</small>
           </div>
         </div>
       </div>
@@ -94,12 +94,14 @@ const ClubCard = ({ club, onDelete, onEdit }) => {
       </Modal>
 
       {/* Edit Club using CrearCanchaModal */}
-      <CrearClubModal
-        show={showEditModal}
-        onClose={handleEditClose}
-        onSave={handleEditSave}
-        clubToEdit={club}
-      />
+      {showEditModal && (
+        <CrearClubModal
+          show={showEditModal}
+          onClose={handleEditClose}
+          onSave={handleEditSave}
+          clubToEdit={club}
+        />
+      )}
     </>
   );
 };

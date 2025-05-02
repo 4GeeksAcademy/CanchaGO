@@ -1,0 +1,40 @@
+import React from 'react';
+import { Modal, Button } from 'react-bootstrap';
+
+const Disponibilidad = ({ show, onClose, cancha }) => {
+  const hasReservations = cancha.reservas && cancha.reservas.length > 0;
+
+  return (
+    <Modal show={show} onHide={onClose} centered size="md">
+      <Modal.Header closeButton>
+        <Modal.Title>Disponibilidad de {cancha?.nombre}</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p><strong>Días disponibles:</strong> {cancha.diasDisponibles.join(', ') || 'No definidos'}</p>
+        <p><strong>Horario:</strong> {cancha.horaInicio} - {cancha.horaFin}</p>
+        <p><strong>Frecuencia:</strong> Cada {cancha.frecuencia} minutos</p>
+        <p><strong>Precio por turno:</strong> ${cancha.precio}</p>
+        
+        {hasReservations ? (
+          <>
+            <h5>Horarios Reservados:</h5>
+            <ul>
+              {cancha.reservas.map((reserva, index) => (
+                <li key={index}>
+                  {reserva.fecha} - {reserva.horaInicio} a {reserva.horaFin}
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p><strong>¡Esta cancha está disponible en los horarios indicados!</strong></p>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={onClose}>Cerrar</Button>
+      </Modal.Footer>
+    </Modal>
+  );
+};
+
+export default Disponibilidad;

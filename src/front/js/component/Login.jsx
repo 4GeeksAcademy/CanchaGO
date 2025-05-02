@@ -6,42 +6,47 @@ import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAlert } from "../hooks/useAlert.js";
 import { useNavigate } from "react-router-dom";
 
-
 const Login = () => {
-
-    //Manejo del hook para mostrar alertas
     const { error, success } = useAlert();
-
-    //Para ver o no la clave con el boton
     const [showPassword, setShowPassword] = useState(false);
-
-    //Variables del formulario
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [userType, setUserType] = useState("Deportista");
 
-    //Cotexto y navegacion
     const { store, actions } = useContext(Context);
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
+    //------------------------------------------------------------------------------------------------------------
+    //Funcion para iniciar sesion en la base de datos
 
+    const handleLogin = async (e) => {
         e.preventDefault();
-        //Validar que los campos no esten vacios
+
         if (!username || !password) {
             error("Por favor, completa todos los campos.");
             return;
         }
 
-        //Mandamos los datos al backend
-        let response = await actions.loginUser(username, password, userType);
+        try {
+            const response = await actions.loginUser(username, password, userType);
+            console.log("LOGIN RESPONSE:", response);
 
-        if (response.success) {
-            success("Login exitoso");
-            navigate("/home");
-        }
-        else {
-            error(response.message);
+            //Si la respuesta es correcta, retorna un objecto con la clave success
+            if (response?.success) {
+                success("Login exitoso");
+
+                //Validamos si es propietario o deportista para redigirigir a la pagina correspondiente
+                if (store.role === "Propietario") {
+                    navigate("/Propietario");
+                } else {
+                    navigate("/home");
+                }
+
+            } else {
+                error(response?.message || "Error desconocido");
+            }
+        } catch (err) {
+            error("Error durante el login");
         }
     };
 
@@ -63,7 +68,7 @@ const Login = () => {
                     </select>
 
                     <input
-                        type="username"
+                        type="text"
                         placeholder="Nombre de usuario"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
@@ -72,7 +77,7 @@ const Login = () => {
                     <div className="input-group">
                         <input
                             type={showPassword ? "text" : "password"}
-                            placeholder="clave"
+                            placeholder="Clave"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             className="login-input"
@@ -88,12 +93,11 @@ const Login = () => {
                     </div>
                     <button type="submit" className="btnblue">Ingresar</button>
                 </form>
-                <a href="/signup" >No tienes cuenta? Registrate</a>
-                <a href="/" >Volver al inicio</a>
+                <a href="/signup">No tienes cuenta? Registrate</a>
+                <a href="/">Volver al inicio</a>
             </div>
         </div>
     );
 };
-
 
 export default Login;

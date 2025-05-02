@@ -1,8 +1,8 @@
-"""Inicializando base de datos
+"""empty message
 
-Revision ID: 63610bd8b8c0
+Revision ID: 59ea25d06a14
 Revises: 
-Create Date: 2025-04-24 13:07:42.486526
+Create Date: 2025-05-01 20:29:15.709413
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '63610bd8b8c0'
+revision = '59ea25d06a14'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -24,8 +24,9 @@ def upgrade():
     sa.Column('email', sa.String(length=120), nullable=False),
     sa.Column('telefono', sa.String(length=120), nullable=False),
     sa.Column('direccion', sa.String(length=200), nullable=True),
+    sa.Column('googleMapsLink', sa.String(length=200), nullable=True),
     sa.Column('descripcion', sa.String(length=500), nullable=True),
-    sa.Column('imagen', sa.LargeBinary(), nullable=True),
+    sa.Column('imagen', sa.String(length=120), nullable=True),
     sa.PrimaryKeyConstraint('idClub'),
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('telefono')
@@ -65,11 +66,12 @@ def upgrade():
     sa.Column('idCancha', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('nombre', sa.String(length=120), nullable=False),
     sa.Column('descripcion', sa.String(length=500), nullable=True),
-    sa.Column('precioXHora', sa.Float(), nullable=False),
+    sa.Column('precio', sa.Float(), nullable=False),
     sa.Column('estado', sa.Boolean(), nullable=False),
     sa.Column('idClub', sa.Integer(), nullable=False),
     sa.Column('idHorario', sa.Integer(), nullable=False),
     sa.Column('idDeporte', sa.Integer(), nullable=False),
+    sa.Column('imagen', sa.String(length=120), nullable=True),
     sa.ForeignKeyConstraint(['idClub'], ['club.idClub'], ),
     sa.ForeignKeyConstraint(['idDeporte'], ['deporte.idDeporte'], ),
     sa.ForeignKeyConstraint(['idHorario'], ['horario.idHorario'], ),

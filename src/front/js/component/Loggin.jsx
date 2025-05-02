@@ -17,9 +17,11 @@ const Loggin = () => {
     clave: '',
     nombreUsuario: '',
     telefono: '',
-    rol: 'Deportista'
+    rol: ''
   });
 
+
+  const [selectedRoles, setSelectedRoles] = useState(["Deportista"]);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -30,6 +32,25 @@ const Loggin = () => {
     });
   };
 
+  const handleRoleToggle = (role) => {
+
+    if (!selectedRoles.includes(role)) {
+      setSelectedRoles([role]);
+      setFormData({ ...formData, rol: role });
+    }
+
+
+
+    //Para cuando se implemente agregar dos roles en simultaneo en el backend
+    // const updatedRoles = selectedRoles.includes(role)
+    //   ? selectedRoles.filter(r => r !== role)
+    //   : [...selectedRoles, role];
+
+    // setSelectedRoles(updatedRoles);
+    // setFormData({ ...formData, rol: updatedRoles.join(',') });
+  };
+
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.nombre.trim()) newErrors.nombre = 'Nombre completo es requerido';
@@ -37,6 +58,7 @@ const Loggin = () => {
     if (formData.clave.length < 8) newErrors.clave = 'La clave debe tener al menos 8 caracteres';
     if (!formData.nombreUsuario) newErrors.nombreUsuario = 'Nombre de usuario requerido';
     if (!formData.telefono.match(/^\d{10,15}$/)) newErrors.telefono = 'Teléfono inválido';
+    if (selectedRoles.length === 0) newErrors.rol = 'Selecciona al menos un rol';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -62,7 +84,6 @@ const Loggin = () => {
             <img src={canchaLogoSinFondo} alt="CanchaGO" className="auth-logo" />
           </div>
 
-          {/* Nombre completo */}
           <div className="input-group">
             <span className="input-icon"><FaUser /></span>
             <input
@@ -76,7 +97,6 @@ const Loggin = () => {
             {errors.nombre && <span className="error-message">{errors.nombre}</span>}
           </div>
 
-          {/* Email */}
           <div className="input-group">
             <span className="input-icon"><FaEnvelope /></span>
             <input
@@ -90,7 +110,6 @@ const Loggin = () => {
             {errors.email && <span className="error-message">{errors.email}</span>}
           </div>
 
-          {/* Nombre de usuario */}
           <div className="input-group">
             <span className="input-icon"><FaUser /></span>
             <input
@@ -104,7 +123,6 @@ const Loggin = () => {
             {errors.nombreUsuario && <span className="error-message">{errors.nombreUsuario}</span>}
           </div>
 
-          {/* Teléfono */}
           <div className="input-group">
             <span className="input-icon"><FaPhoneAlt /></span>
             <input
@@ -118,7 +136,6 @@ const Loggin = () => {
             {errors.telefono && <span className="error-message">{errors.telefono}</span>}
           </div>
 
-          {/* Clave */}
           <div className="input-group">
             <span className="input-icon"><FaLock /></span>
             <input
@@ -140,16 +157,34 @@ const Loggin = () => {
             {errors.clave && <span className="error-message">{errors.clave}</span>}
           </div>
 
-          {/* Rol */}
-          <select
-            name="rol"
-            value={formData.rol}
-            onChange={handleChange}
-            className="auth-select"
-          >
-            <option value="Deportista">Deportista</option>
-            <option value="Propietario">Propietario</option>
-          </select>
+          <div className="role-selection-container">
+            <label className="role-selection-label">
+              <i className="fas fa-user-tag" />
+              Selecciona tu(s) rol(es):
+            </label>
+
+            <div className="role-buttons-container">
+              {["Deportista", "Propietario"].map((role) => (
+                <button
+                  key={role}
+                  type="button"
+                  onClick={() => handleRoleToggle(role)}
+                  className={`role-button ${selectedRoles.includes(role) ? 'selected' : ''}`}
+                >
+                  <i className={`fas ${role === "Deportista" ? "fa-person-running" : "fa-building-user"}`} />
+                  {role}
+                </button>
+              ))}
+            </div>
+
+            {errors.rol && (
+              <div className="role-error">
+                <i className="fas fa-exclamation-circle" />
+                {errors.rol}
+              </div>
+            )}
+          </div>
+
 
           <button type="submit" className="btn-primary">Registrarse</button>
         </form>

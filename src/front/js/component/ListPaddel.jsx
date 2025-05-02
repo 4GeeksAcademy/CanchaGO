@@ -8,11 +8,11 @@ const ListPaddel = () => {
   console.log("Una sola propiedad", data.paddels[0])
 
   return (
-    <div className='container' style={{ overflowX: 'auto' }}>
+    <div className='container pt-4' style={{ overflowX: 'auto' }}>
       
         <div className='d-flex flex-row flex-nowrap' style={{ width: 'max-content' }}>
             {data.paddels.map(item => (
-                <div key={item.id}>
+                <div className="px-2" key={item.id}>
                     <PaddelCard
                         paddel={item}  
                     />

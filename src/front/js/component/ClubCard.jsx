@@ -16,8 +16,8 @@ const ClubCard = ({ club, onDelete, onEdit }) => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
-    onDelete(club.id);
+  const confirmDelete = async () => {
+    await onDelete(club.email);
     setShowDeleteModal(false);
   };
 
@@ -81,7 +81,7 @@ const ClubCard = ({ club, onDelete, onEdit }) => {
           <Modal.Title>Confirmar Eliminación</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          ¿Estás seguro que deseas eliminar el club "{club.name}"? Esta acción no se puede deshacer.
+          ¿Estás seguro que deseas eliminar el club "{club.nombre}"? Esta acción no se puede deshacer.
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>

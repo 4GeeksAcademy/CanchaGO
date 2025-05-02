@@ -171,10 +171,10 @@ def get_club_by_id(id):
 #--------------------------------------------------------------------------------------------------
 
 # 4) Endpoint para eliminar un club por id
-# DELETE: /club/<id>
-@club_bp.route('/<int:id>', methods=['DELETE'])
+# DELETE: /club
+@club_bp.route('', methods=['DELETE'])
 @jwt_required()
-def delete_club(id):
+def delete_club():
     try:
 
         #Obtiene el token del usuario que crea el club
@@ -186,7 +186,6 @@ def delete_club(id):
         if "Propietario" not in roles:
             return jsonify({"error": "El usuario no tiene permisos para eliminar clubes"}), 401
         
-
         nombreUsuario = get_jwt_identity()
 
         #Verificamos que el usuario sea propietario del club a eliminar
@@ -194,25 +193,44 @@ def delete_club(id):
 
         if not usuario:
             return jsonify({"error": "Usuario no encontrado"}), 404
+        
+        #Leemos la data entrante
+        data = request.get_json() or {}
+
+        email = data.get("email")
+        if not email:
+            return jsonify({"error": "No se ha proporcionado el email del club a eliminar"}), 400
                                   
         #Obtenemos el club por id de la base de datos
-        club = Club.query.filter_by(idClub=id).first()
+        club = Club.query.filter_by(email=email).first()
 
         #Si no hay clubes en la base de datos, devolvemos un mensaje
         if not club:
-            return jsonify({"message": "No hay clubes con el id " + id + " en la base de datos"}), 404
+            return jsonify({"message": "No hay clubes con el email " + email + " en la base de datos"}), 404
+
+       
+        rol_prop = Rol.query.filter_by(nombre="Propietario").first()
 
         # Verificamos si el usuario es propietario del club
-        propietario = None
-        for usuario_rol in club.usuario_roles:
-            if usuario_rol.usuario.idUsuario == usuario.idUsuario and usuario_rol.rol.nombre == "Propietario":
-                propietario = usuario_rol
-                break
+        ur_current = UsuarioRol.query.filter_by(
+            idUsuario=usuario.idUsuario,
+            idClub=club.idClub,
+            idRol=rol_prop.idRol
+        ).first()
 
-        if not propietario:
-            return jsonify({"error": "El club no pertenece al usuario, no se puede eliminar"}), 401
+        if not ur_current:
+            return jsonify({"error": "El club no pertenece al usuario"}), 403
 
-    
+        # Revisamos si ya hay un UsuarioRol “Propietario” sin club asignado
+        all_propietarios = UsuarioRol.query.filter_by(
+            idUsuario=usuario.idUsuario,
+            idRol=rol_prop.idRol
+        ).all()
+
+        if len(all_propietarios) == 1:
+            # Sólo una fila: le quitamos el idClub, pero mantenemos el rol
+            ur_current.idClub = None
+
         #Eliminamos el club de la base de datos
         db.session.delete(club)
         db.session.commit()
@@ -281,7 +299,7 @@ def get_clubs_by_user():
         
         #Si no hay clubes en la base de datos, devolvemos un mensaje
         if not clubes:
-            return jsonify({"message": "No hay clubes para el usuario " + nombreUsuario + " en la base de datos"}), 404
+            return jsonify({"message": "No hay clubes para el usuario " + nombreUsuario + " en la base de datos"}), 204
         
         #Devolvemos los clubes en formato json
         return jsonify({"clubs": [club.serialize() for club in clubes]}), 200

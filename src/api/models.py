@@ -65,7 +65,7 @@ class UsuarioRol(db.Model):
     idRol: Mapped[int] = mapped_column(ForeignKey('rol.idRol'), nullable=False)
 
     # Relaciones
-    usuario: Mapped[Usuario] = relationship('Usuario', back_populates='usuario_roles', cascade="all, delete")	
+    usuario: Mapped[Usuario] = relationship('Usuario', back_populates='usuario_roles')	
     club: Mapped["Club"] = relationship('Club', back_populates='usuario_roles', cascade="all, delete")
     rol: Mapped[Rol] = relationship('Rol', back_populates='usuario_roles')
 
@@ -93,13 +93,13 @@ class Club(db.Model):
 
     # Relaciones
     usuario_roles: Mapped[list[UsuarioRol]] = relationship(
-        'UsuarioRol', back_populates='club', lazy='select',  cascade="all, delete"
+        'UsuarioRol', back_populates='club', lazy='select',  cascade="all, delete, delete-orphan"
     )
     club_deportes: Mapped[list["ClubDeporte"]] = relationship(
         'ClubDeporte', back_populates='club', lazy='select',  cascade="all, delete, delete-orphan"
     )
     canchas: Mapped[list["Cancha"]] = relationship(
-        'Cancha', back_populates='club', lazy='select' ,  cascade="all, delete"
+        'Cancha', back_populates='club', lazy='select' ,  cascade="all, delete, delete-orphan"
     )
 
     def serialize(self):

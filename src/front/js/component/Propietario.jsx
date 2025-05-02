@@ -14,17 +14,17 @@ const Propietario = () => {
   const { error, success } = useAlert();
 
   useEffect(() => {
-    const fetchClubs = async () => {
-      const res = await actions.getClubsByUser();
-      if (res.success) {
-        //     success(res.message);
-      } else {
-        //    error(res.message || "Error al obtener los clubes");
-      }
-    };
     fetchClubs();
   }, []);
 
+  const fetchClubs = async () => {
+    const res = await actions.getClubsByUser();
+    if (res.success) {
+      //     success(res.message);
+    } else {
+      //    error(res.message || "Error al obtener los clubes");
+    }
+  };
 
   //Funcion para crear un club
   const handleSaveClub = async (newClub) => {
@@ -33,9 +33,7 @@ const Propietario = () => {
     if (response.success) {
       success(response.message);
 
-      // Actualizar la lista de clubes
-      const res = await actions.getClubsByUser();
-      if (!res.success) error("Error actualizando lista");
+      fetchClubs(); // Actualizar la lista de clubes después de crear uno
 
     } else {
       error(response.message || "Error al crear el club");
@@ -43,8 +41,18 @@ const Propietario = () => {
   };
 
   //Funcion para eliminar un club
-  const handleDeleteClub = (clubId) => {
-    setClubs(prev => prev.filter(club => club.id !== clubId));
+  const handleDeleteClub = async (email) => {
+
+    let response = await actions.deleteClub(email);
+
+    if (response.success) {
+      success(response.message);
+
+      fetchClubs(); // Actualizar la lista de clubes después de eliminar unos
+
+    } else {
+      error(response.message || "Error al eliminar el club");
+    }
   };
 
 
@@ -54,9 +62,7 @@ const Propietario = () => {
     if (response.success) {
       success(response.message);
 
-      // Actualizar la lista de clubes
-      const res = await actions.getClubsByUser();
-      if (!res.success) error("Error actualizando lista");
+      fetchClubs(); // Actualizar la lista de clubes después de editar uno
 
     } else {
       error(response.message || "Error al editar el club");

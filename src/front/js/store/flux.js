@@ -4,6 +4,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       token: null,
       role: null,
       username: null,
+      clubs: [],
     },
     actions: {
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -148,14 +149,27 @@ const getState = ({ getStore, getActions, setStore }) => {
           const data = await response.json();
 
           if (response.ok) {
-            setStore({
-              ...getStore(),
-              clubs: data.clubs,
-            });
-            return {
-              success: true,
-              message: "Clubes obtenidos exitosamente",
-            };
+            if (response.status === 204) {
+              setStore({
+                ...getStore(),
+                clubs: [],
+              });
+              return {
+                success: success,
+                message:
+                  "No tienes clubes registrados para el usuario " +
+                  getStore().username,
+              };
+            } else {
+              setStore({
+                ...getStore(),
+                clubs: data.clubs,
+              });
+              return {
+                success: true,
+                message: "Clubes obtenidos exitosamente",
+              };
+            }
           } else {
             return {
               success: false,
@@ -263,6 +277,51 @@ const getState = ({ getStore, getActions, setStore }) => {
           return { success: false, message: "Error de conexión" };
         }
       },
+
+      //Finaliza la funcion para editar un club en la base de datos
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+      //Funcion para eliminar un club en la base de datos
+
+      deleteClub: async (email) => {
+        try {
+          const response = await fetch(process.env.BACKEND_URL + "club", {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + getStore().token,
+            },
+            body: JSON.stringify({
+              email: email,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            setStore({
+              ...getStore(),
+              clubs: getStore().clubs.filter((c) => c.email !== email),
+            });
+            return {
+              success: true,
+              message: "Club eliminado exitosamente",
+            };
+          } else {
+            return {
+              success: false,
+              message: data.message || "Error al eliminar el club",
+            };
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          return { success: false, message: "Error de conexión" };
+        }
+      },
+
+      //Finaliza la funcion para eliminar un club en la base de datos
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
     },
   };
 };

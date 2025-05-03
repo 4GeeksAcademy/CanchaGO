@@ -113,7 +113,7 @@ class Club(db.Model):
             'descripcion': self.descripcion,
             'personal': [ur.usuario.nombreUsuario for ur in self.usuario_roles],
             'deportes': [cd.deporte.nombre for cd in self.club_deportes],
-            'canchas': [c.idCancha for c in self.canchas],
+            'canchas': [c.serialize() for c in self.canchas],
             'imagen': self.imagen if self.imagen else None
        
         }
@@ -198,7 +198,7 @@ class Cancha(db.Model):
 
     # Relaciones
     club: Mapped[Club] = relationship('Club', back_populates='canchas')
-    horario: Mapped[Horario] = relationship('Horario', back_populates='canchas')
+    horario: Mapped[Horario] = relationship('Horario', back_populates='canchas', cascade="all, delete", uselist=False)
     deporte: Mapped[Deporte] = relationship('Deporte', back_populates='canchas')
     reservas: Mapped[list["Reserva"]] = relationship(
         'Reserva', back_populates='cancha', lazy='select'

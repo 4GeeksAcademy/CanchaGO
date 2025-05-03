@@ -19,11 +19,11 @@ import ViewCanchas from './component/ViewCanchas.jsx';
 
 const AppContent = () => {
   const location = useLocation();
-  const hideLayout = location.pathname === "/" || 
-  location.pathname === "/signup" || 
-  location.pathname === "/login" || 
-  location.pathname === "/Propietario" ||
-  location.pathname.startsWith("/Canchas/");
+  const hideLayout = location.pathname === "/" ||
+    location.pathname === "/signup" ||
+    location.pathname === "/login" ||
+    location.pathname === "/Propietario" ||
+    location.pathname.startsWith("/Canchas/");
 
   return (
     <>
@@ -31,8 +31,8 @@ const AppContent = () => {
       <Routes>
         <Route path="/" element={<StartPage />} />
         <Route path="/home" element={<ListPaddel />} />
-        <Route path ="/Propietario" element={<Propietario/>}/>
-        <Route path="/Canchas/:clubId" element={<ViewCanchas />} />
+        <Route path="/Propietario" element={<Propietario />} />
+        <Route path="/Canchas/:clubEmail" element={<ViewCanchas />} />
         <Route path="/signup" element={<Loggin />} />
         <Route path="/login" element={<Login />} />
         <Route path="/miscanchas" element={<Carousel />} />
@@ -59,7 +59,7 @@ const AppContentWithFlux = injectContext(AppContent);
 // Add this class to your main App container
 function App() {
   return (
-    <div className="App d-flex flex-column min-vh-100"> 
+    <div className="App d-flex flex-column min-vh-100">
       <PaddelsProvider>
         <Router>
           <AppContentWithFlux />

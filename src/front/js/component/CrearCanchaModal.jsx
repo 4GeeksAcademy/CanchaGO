@@ -1,47 +1,71 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
+import { useAlert } from "../hooks/useAlert.js";
 
-const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit }) => {
+const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
+
+
+  const DEFAULT_IMAGE_URL =
+    'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg';
+
+
+  const { error, success } = useAlert();
+
   const [cancha, setCancha] = useState({
     nombre: '',
-    tipo: 'Fútbol 5',
-    iluminacion: false,
-    techada: false,
-    diasDisponibles: [],
+    deporte: '',
+    dias: [],
     horaInicio: '',
     horaFin: '',
     frecuencia: '60',
     precio: '',
-    imagenUrl: ''
+    imagen: '',
+    estado: true,
+    emailClub: club?.email || ''
   });
 
   useEffect(() => {
     if (canchaToEdit) {
-      setCancha(canchaToEdit);
+      // Formatear datos del backend para edición
+      const horaInicio = canchaToEdit.horario?.horarioInicio?.split(':').slice(0, 2).join(':') || '00:00';
+      const horaFin = canchaToEdit.horario?.horarioFin?.split(':').slice(0, 2).join(':') || '00:00';
+
+      setCancha({
+        ...canchaToEdit,
+        horaInicio,
+        horaFin,
+        frecuencia: canchaToEdit.horario?.frecuencia?.replace('min', '') || '60',
+        dias: canchaToEdit.horario?.diasDisponibles?.split(',') || [],
+        emailClub: canchaToEdit.emailClub || club?.email || '' // Prioridad: canchaToEdit > club > ''
+      });
     } else {
+      // Inicialización para nueva cancha
       setCancha({
         nombre: '',
-        tipo: 'Fútbol 5',
-        iluminacion: false,
-        techada: false,
-        diasDisponibles: [],
-        horaInicio: '',
-        horaFin: '',
+        deporte: club?.deportes?.[0] || '', // Primer deporte del club como valor por defecto
+        dias: [],
+        horaInicio: '00:00',
+        horaFin: '00:00',
         frecuencia: '60',
         precio: '',
-        imagenUrl: ''
+        imagen: '',
+        estado: true,
+        emailClub: club?.email || ''
       });
     }
-  }, [canchaToEdit, show]);
+
+    console.log('Datos del club:', club); // Para debug
+  }, [canchaToEdit, show, club]);
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (name === 'diasDisponibles') {
+    if (name === 'dias') {
       setCancha((prev) => {
-        const dias = prev.diasDisponibles.includes(value)
-          ? prev.diasDisponibles.filter((dia) => dia !== value)
-          : [...prev.diasDisponibles, value];
-        return { ...prev, diasDisponibles: dias };
+        const dias = prev.dias.includes(value)
+          ? prev.dias.filter((dia) => dia !== value)
+          : [...prev.dias, value];
+        return { ...prev, dias: dias };
       });
     } else {
       setCancha((prev) => ({
@@ -53,11 +77,49 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(cancha);
+
+    const canchaToSave = {
+      ...cancha,
+      dias: cancha.dias.join(',')
+    };
+
+    const finalData = {
+      ...canchaToSave,
+      imagen: cancha.imagen.trim() || DEFAULT_IMAGE_URL,
+      frecuencia: canchaToSave.frecuencia === '60' ? "1h" : "30min",
+    };
+
+    if (cancha.dias.length === 0) {
+      error('Debes seleccionar al menos un día disponible para la cancha.');
+      return;
+    }
+
+
+    onSave(finalData);
     onClose();
   };
 
-  const diasSemana = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+
+  // Días de la semana en español
+  const diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
+
+  // 0–23 en “HH”
+  const hours = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+
+  // minutos según frecuencia (30 → [00,30], 60 → [00])
+  const minutes = cancha.frecuencia === '30' ? ['00', '30'] : ['00'];
+
+
+  const handleTimePartChange = (field, part, value) => {
+    setCancha(prev => {
+      // prev[field] es "HH:MM"
+      const [h, m] = prev[field]?.split(':') ?? ['00', '00'];
+      const newHour = part === 'hour' ? value : h;
+      const newMinute = part === 'minute' ? value : m;
+      return { ...prev, [field]: `${newHour}:${newMinute}` };
+    });
+  };
 
   return (
     <Modal show={show} onHide={onClose} centered size="lg">
@@ -71,15 +133,15 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit }) => {
             <Form.Control
               type="url"
               name="imagenUrl"
-              value={cancha.imagenUrl}
+              value={cancha.imagen}
               onChange={handleChange}
               placeholder="https://ejemplo.com/imagen.jpg"
             />
-            {cancha.imagenUrl && (
+            {cancha.imagen && (
               <div className="mt-2 text-center">
-                <img 
-                  src={cancha.imagenUrl} 
-                  alt="Vista previa" 
+                <img
+                  src={cancha.imagen}
+                  alt="Vista previa"
                   className="img-fluid rounded"
                   style={{ maxHeight: '200px' }}
                 />
@@ -101,16 +163,15 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit }) => {
 
           <Form.Group className="mb-3">
             <Form.Label>Tipo de cancha</Form.Label>
-            <Form.Select name="tipo" value={cancha.tipo} onChange={handleChange}>
-              <option value="Fútbol 5">Fútbol 5</option>
-              <option value="Fútbol 7">Fútbol 7</option>
-              <option value="Fútbol 11">Fútbol 11</option>
-              <option value="Pádel">Pádel</option>
-              <option value="Tenis">Tenis</option>
+            <Form.Select name="deporte" value={cancha?.deporte || ''} onChange={handleChange}>
+              {club?.deportes.map((deporte, idx) => (
+                <option key={`${deporte}-${idx}`} value={deporte}>{deporte}</option>
+              ))}
             </Form.Select>
+
           </Form.Group>
 
-          <Form.Check
+          {/* <Form.Check
             type="checkbox"
             label="Iluminación"
             name="iluminacion"
@@ -126,7 +187,7 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit }) => {
             checked={cancha.techada}
             onChange={handleChange}
             className="mb-3"
-          />
+          /> */}
 
           <Form.Group className="mb-3">
             <Form.Label>Días disponibles</Form.Label>
@@ -137,8 +198,8 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit }) => {
                   type="checkbox"
                   label={dia}
                   value={dia}
-                  name="diasDisponibles"
-                  checked={cancha.diasDisponibles.includes(dia)}
+                  name="dias"
+                  checked={(cancha.dias || []).includes(dia)}
                   onChange={handleChange}
                 />
               ))}
@@ -147,23 +208,53 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit }) => {
 
           <Form.Group className="mb-3">
             <Form.Label>Horario disponible</Form.Label>
-            <div className="d-flex gap-3">
-              <Form.Control
-                type="time"
-                name="horaInicio"
-                value={cancha.horaInicio}
-                onChange={handleChange}
-                required
-              />
-              <Form.Control
-                type="time"
-                name="horaFin"
-                value={cancha.horaFin}
-                onChange={handleChange}
-                required
-              />
+            <div className="d-flex gap-4">
+              {/* BLOQUE DESDE */}
+              <div className="text-center">
+                <small className="text-muted d-block mb-1">Desde</small>
+                <div className="d-flex gap-1 justify-content-center">
+                  <select
+                    className="form-select p-1.5 text-sm rounded w-16"
+                    value={cancha.horaInicio?.split(':')[0] || '00'}
+                    onChange={e => handleTimePartChange('horaInicio', 'hour', e.target.value)}
+                  >
+                    {hours.map(h => <option key={h} value={h}>{h}</option>)}
+                  </select>
+                  <span className="align-self-center">:</span>
+                  <select
+                    className="form-select p-1.5 text-sm rounded w-16"
+                    value={cancha.horaInicio?.split(':')[1] || '00'}
+                    onChange={e => handleTimePartChange('horaInicio', 'minute', e.target.value)}
+                  >
+                    {minutes.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              {/* BLOQUE HASTA */}
+              <div className="text-center">
+                <small className="text-muted d-block mb-1">Hasta</small>
+                <div className="d-flex gap-1 justify-content-center">
+                  <select
+                    className="form-select p-1.5 text-sm rounded w-16"
+                    value={cancha.horaFin?.split(':')[0] || '00'}
+                    onChange={e => handleTimePartChange('horaFin', 'hour', e.target.value)}
+                  >
+                    {hours.map(h => <option key={h} value={h}>{h}</option>)}
+                  </select>
+                  <span className="align-self-center">:</span>
+                  <select
+                    className="form-select p-1.5 text-sm rounded w-16"
+                    value={cancha.horaFin?.split(':')[1] || '00'}
+                    onChange={e => handleTimePartChange('horaFin', 'minute', e.target.value)}
+                  >
+                    {minutes.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                </div>
+              </div>
             </div>
           </Form.Group>
+
 
           <Form.Group className="mb-3">
             <Form.Label>Frecuencia por turno (minutos)</Form.Label>
@@ -175,7 +266,6 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit }) => {
             >
               <option value="30">30</option>
               <option value="60">60</option>
-              <option value="90">90</option>
             </Form.Select>
           </Form.Group>
 

@@ -151,6 +151,7 @@ def crear_cancha():
             nombre=data['nombre'],
             precio=data['precio'],
             descripcion=data.get('descripcion', ''),
+            imagen=data.get('imagen', "Sin imagen"),
 
             #Despues se puede manejar como enumerados, de principio boolean
             estado=True,  
@@ -176,3 +177,46 @@ def crear_cancha():
     
 #Finaliza el endpoint para crear una cancha
 #----------------------------------------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------------------------------------
+# 4) Endpoint para eliminar una cancha por su id
+# DELETE: /canchas/<int:idCancha>	
+# 
+# 
+
+@cancha_bp.route('/<int:idCancha>', methods=['DELETE'])
+@jwt_required()
+def eliminar_cancha(idCancha):
+    cancha = Cancha.query.get(idCancha)
+    if not cancha:
+        return jsonify({'error': 'Cancha no encontrada'}), 404
+    
+    # Verifica que el usuario tenga el rol de Propietario y que sea el dueño del club
+    jwt_data = get_jwt()
+    user = Usuario.query.filter_by(nombreUsuario = get_jwt_identity()).first()	
+
+    roles = jwt_data.get("roles", [])
+    if "Propietario" not in roles:
+        return jsonify({"error": "El usuario no tiene permisos para eliminar una cancha"}), 401
+    
+    # Verificamos si el usuario es propietario del club
+    propietario = None
+    for usuario_rol in cancha.club.usuario_roles:
+        if usuario_rol.usuario.idUsuario == user.idUsuario and usuario_rol.rol.nombre == "Propietario":
+            propietario = usuario_rol
+            break
+    
+    if not propietario:
+        return jsonify({"error": "No se puede eliminar la cancha, el usuario: {user.nombreUsuario} ,no es el propietario del club :  {cancha.club.nombre}"}), 401
+
+    try:
+        db.session.delete(cancha)
+        db.session.commit()
+        return jsonify({'mensaje': 'Cancha eliminada exitosamente'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+    
+#Finaliza el endpoint para eliminar una cancha    
+#----------------------------------------------------------------------------------------------------	

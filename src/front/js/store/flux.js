@@ -322,6 +322,90 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       //Finaliza la funcion para eliminar un club en la base de datos
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+      //Funcion para crear una cancha en la base de datos
+
+      createCancha: async (canchaData) => {
+        try {
+          const response = await fetch(process.env.BACKEND_URL + "cancha", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + getStore().token,
+            },
+            body: JSON.stringify({
+              nombre: canchaData.nombre,
+              deporte: canchaData.deporte,
+              dias: canchaData.dias,
+              horaInicio: canchaData.horaInicio,
+              horaFin: canchaData.horaFin,
+              frecuencia: canchaData.frecuencia,
+              precio: canchaData.precio,
+              imagen: canchaData.imagen,
+              estado: canchaData.estado,
+              emailClub: canchaData.emailClub,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            return {
+              success: true,
+              message: "Cancha creada exitosamente",
+            };
+          } else {
+            return {
+              success: false,
+              message: data.error || "Error al crear la cancha",
+            };
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          return { success: false, message: "Error de conexión" };
+        }
+      },
+
+      //Finaliza la funcion para crear una cancha en la base de datos
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+      //Funcion para eliminar una cancha en la base de datos
+      deleteCancha: async (idCancha) => {
+        console.log("ID de cancha a eliminar:", idCancha); // Agregado para depuración
+        try {
+          const response = await fetch(
+            process.env.BACKEND_URL + "cancha/" + idCancha,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + getStore().token,
+              },
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            return {
+              success: true,
+              message: "Cancha eliminada exitosamente",
+            };
+          } else {
+            return {
+              success: false,
+              message: data.error || "Error al eliminar la cancha",
+            };
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          return { success: false, message: "Error de conexión" };
+        }
+      },
+      //Finaliza la funcion para eliminar una cancha en la base de datos
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
     },
   };
 };

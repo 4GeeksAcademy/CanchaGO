@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Context } from '../store/appContext';
 import { useNavigate } from 'react-router-dom';
+import canchaLogoSinFondo from "../../img/canchago-sinfondo.png";
 
 const NavbarCanchas = ({ onOpenCrearCancha }) => {
   const { store, actions } = useContext(Context);
@@ -27,19 +28,19 @@ const NavbarCanchas = ({ onOpenCrearCancha }) => {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-success py-3 shadow">
       <div className="container-fluid px-4">
-        <button className="btn btn-link navbar-brand fs-3 fw-bold text-white" onClick={goHome}>
-          CanchaGo
-        </button>
+        <div className="logoContainer">
+          <img src={canchaLogoSinFondo} alt="CanchaGO" />
+        </div>
 
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <div className="d-flex align-items-center ms-auto gap-3">
 
             <button className="btn btn-outline-light btn-lg" onClick={goToDashboard}>
-              <i className="fas fa-chart-line me-2"></i>Dashboard
+              <i className="fas fa-chart-line me-2"></i>Volver
             </button>
 
-            <button 
-              className="btn btn-light btn-lg" 
+            <button
+              className="btn btn-light btn-lg"
               onClick={onOpenCrearCancha}
             >
               <i className="fas fa-plus me-2"></i>Nueva Cancha

@@ -9,7 +9,7 @@ const ClubCard = ({ club, onDelete, onEdit }) => {
   const [showEditModal, setShowEditModal] = useState(false);
 
   const handleViewDetails = () => {
-    navigate(`/Canchas/${club.id}`);
+    navigate(`/Canchas/${club.email}`);
   };
 
   const handleDeleteClick = () => {

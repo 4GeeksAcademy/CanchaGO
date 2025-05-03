@@ -42,11 +42,11 @@ const Navbar = () => {
                   style={{
                     appearance: 'none',
                     backgroundColor: '#f4f1ee',
-                    color: '#495057', // Slightly darker text for contrast
+                    color: '#495057', 
                     cursor: 'pointer',
                     fontWeight: '500',
-                    borderRadius: '30px', // Slightly more rounded corners
-                    paddingRight: '30px', // Space for custom arrow
+                    borderRadius: '30px', 
+                    paddingRight: '30px', 
                     transition: 'all 0.3s ease',
                   }}
                 >

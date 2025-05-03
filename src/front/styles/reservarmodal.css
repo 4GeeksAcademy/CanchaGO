@@ -1,0 +1,3 @@
+.modal-header .btn-close {
+    filter: invert(30%) sepia(93%) saturate(1200%) hue-rotate(340deg);
+}

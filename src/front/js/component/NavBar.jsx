@@ -12,11 +12,9 @@ const Navbar = () => {
 
   const handleLogin = () => navigate('/signup');
   const handleLogout = () => { actions.logoutUser(); navigate('/'); };
-  const handleSettings = () => navigate('/settings');
+  const handleReservas = () => navigate('/MisReservas');
   const handleFieldSelect = (field) => setSelectedField(field);
-  const goHome = () => {
-    navigate('/');
-  };
+  const goHome = () => navigate('/');
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-2">
@@ -32,7 +30,7 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0"></ul>
 
-          <div className="d-flex align-items-center gap-3">
+          <div className="d-flex align-items-center gap-3 ms-auto">
             <div className="me-2 position-relative" style={{ minWidth: '160px' }}>
               <div className="input-group">
                 <select
@@ -42,11 +40,11 @@ const Navbar = () => {
                   style={{
                     appearance: 'none',
                     backgroundColor: '#f4f1ee',
-                    color: '#495057', 
+                    color: '#495057',
                     cursor: 'pointer',
                     fontWeight: '500',
-                    borderRadius: '30px', 
-                    paddingRight: '30px', 
+                    borderRadius: '30px',
+                    paddingRight: '30px',
                     transition: 'all 0.3s ease',
                   }}
                 >
@@ -55,13 +53,11 @@ const Navbar = () => {
                   <option value="Tennis">Cancha de Tennis</option>
                   <option value="Padel">Cancha de Padel</option>
                 </select>
-
-
               </div>
             </div>
 
             {username && userRole === "Deportista" ? (
-              <div className="dropdown ms-2">
+              <div className="dropdown">
                 <button
                   className="btn dropdown-toggle d-flex align-items-center px-3 py-2 rounded-pill"
                   type="button"
@@ -90,14 +86,14 @@ const Navbar = () => {
 
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                   <li>
-                    <button className="dropdown-item" onClick={handleSettings}>
-                      <i className="fas fa-cog me-2"></i>Settings
+                    <button className="dropdown-item" onClick={handleReservas}>
+                      <i className="fas fa-calendar-alt me-2"></i> Mis Reservas
                     </button>
                   </li>
                   <li><hr className="dropdown-divider" /></li>
                   <li>
                     <button className="dropdown-item text-danger" onClick={handleLogout}>
-                      <i className="fas fa-sign-out-alt me-2"></i>Logout
+                      <i className="bi bi-box-arrow-right me-2"></i>Logout
                     </button>
                   </li>
                 </ul>

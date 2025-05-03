@@ -1,6 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import ViewCanchaCard from './ViewCanchaCard.jsx';
+import NavbarSinFiltro from './NavbarSinFiltro.jsx';
 
 const ViewClubCanchas = () => {
 
@@ -32,6 +33,8 @@ const ViewClubCanchas = () => {
   ];
 
   return (
+    <>
+    <NavbarSinFiltro />
     <div className="container mt-4">
       <div className="text-center mb-4">
         <h2 className="display-5 fw-semibold text-dark">Canchas de Club Padel Arena</h2>
@@ -46,6 +49,7 @@ const ViewClubCanchas = () => {
         ))}
       </div>
     </div>
+    </>
   );  
 };
 

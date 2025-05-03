@@ -1,5 +1,6 @@
 import React from 'react';
 import PaddelCard from './PaddelCard.jsx';
+import Navbar from './NavBar.jsx';
 
 const ListPaddel = () => {
     const hardcodedPaddels = [
@@ -26,6 +27,8 @@ const ListPaddel = () => {
     ];
 
     return (
+        <>
+        <Navbar />
         <div className='py-2'>
             <h1 className="text-3xl font-bold text-center mb-6">Clubs</h1>
             <div className='container py-4 pb-5' style={{ overflowX: 'auto' }}>
@@ -38,6 +41,7 @@ const ListPaddel = () => {
                 </div>
             </div>
         </div>
+        </>
     );
 };
 

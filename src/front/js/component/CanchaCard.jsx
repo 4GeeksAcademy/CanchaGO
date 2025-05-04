@@ -60,7 +60,7 @@ const CanchaCard = ({ cancha, onDelete, onEdit, club }) => {
             <p className="mb-2"><strong>Deporte:</strong> {cancha.deporte}</p>
             <p className="mb-2">
               <strong>Días Disponible:</strong>
-              {cancha.horario.diasDisponibles ? (
+              {cancha?.horario?.diasDisponibles ? (
                 cancha.horario.diasDisponibles.split(',').map((dia, index) => (
                   <span key={index} className="badge bg-primary mx-1">{dia.trim()}</span>
                 ))

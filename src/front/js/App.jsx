@@ -14,6 +14,8 @@ import Login from './component/Login.jsx';
 import injectContext from "./store/appContext.js";
 import Propietario from './component/Propietario.jsx'
 import ViewCanchas from './component/ViewCanchas.jsx';
+import ViewClubCanchas from './component/ViewClubCanchas.jsx';
+import MisReservas from './component/MisReservas.jsx';
 
 
 
@@ -27,15 +29,16 @@ const AppContent = () => {
 
   return (
     <>
-      {!hideLayout && <Navbar />}
       <Routes>
         <Route path="/" element={<StartPage />} />
         <Route path="/home" element={<ListPaddel />} />
         <Route path="/Propietario" element={<Propietario />} />
         <Route path="/Canchas/:clubEmail" element={<ViewCanchas />} />
+        <Route path="/club/:paddelId/canchas" element={<ViewClubCanchas />} />
         <Route path="/signup" element={<Loggin />} />
         <Route path="/login" element={<Login />} />
         <Route path="/miscanchas" element={<Carousel />} />
+        <Route path="/MisReservas" element={<MisReservas />} />
       </Routes>
       {!hideLayout && <ProfessionalFooter />}
 

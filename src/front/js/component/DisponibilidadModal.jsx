@@ -10,7 +10,7 @@ const Disponibilidad = ({ show, onClose, cancha }) => {
         <Modal.Title>Disponibilidad de {cancha?.nombre}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p><strong>Días disponibles:</strong> {cancha.dias.join(', ') || 'No definidos'}</p>
+        <p><strong>Días disponibles:</strong> {cancha?.diasDisponibles?.length ? cancha.diasDisponibles.join(', ') : 'No definidos'}</p>
         <p><strong>Horario:</strong> {cancha.horaInicio} - {cancha.horaFin}</p>
         <p><strong>Frecuencia:</strong> Cada {cancha.frecuencia} minutos</p>
         <p><strong>Precio por turno:</strong> ${cancha.precio}</p>

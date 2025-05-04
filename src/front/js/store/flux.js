@@ -373,7 +373,6 @@ const getState = ({ getStore, getActions, setStore }) => {
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
       //Funcion para eliminar una cancha en la base de datos
       deleteCancha: async (idCancha) => {
-        console.log("ID de cancha a eliminar:", idCancha); // Agregado para depuración
         try {
           const response = await fetch(
             process.env.BACKEND_URL + "cancha/" + idCancha,

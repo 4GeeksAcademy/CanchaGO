@@ -4,15 +4,17 @@ import { Modal, Button } from 'react-bootstrap';
 const Disponibilidad = ({ show, onClose, cancha }) => {
   const hasReservations = cancha.reservas && cancha.reservas.length > 0;
 
+  const formatHora = h => h ? h.slice(0, 5) : '';
+
   return (
     <Modal show={show} onHide={onClose} centered size="md">
       <Modal.Header closeButton>
         <Modal.Title>Disponibilidad de {cancha?.nombre}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <p><strong>Días disponibles:</strong> {cancha?.diasDisponibles?.length ? cancha.diasDisponibles.join(', ') : 'No definidos'}</p>
-        <p><strong>Horario:</strong> {cancha.horaInicio} - {cancha.horaFin}</p>
-        <p><strong>Frecuencia:</strong> Cada {cancha.frecuencia} minutos</p>
+        <p><strong>Días disponibles:</strong> {cancha?.horario?.diasDisponibles?.split(',').map(d => d.trim()).join(', ') || 'No definidos'}</p>
+        <p><strong>Horario:</strong> {formatHora(cancha.horario?.horarioInicio)} - {formatHora(cancha.horario?.horarioFin)}</p>
+        <p><strong>Frecuencia:</strong> Cada {cancha.horario.frecuencia} </p>
         <p><strong>Precio por turno:</strong> ${cancha.precio}</p>
 
         {hasReservations ? (

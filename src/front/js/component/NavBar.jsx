@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext';
+import canchaLogoSinFondo from "../../img/canchago-sinfondo.png";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -10,18 +11,18 @@ const Navbar = () => {
   const username = store.username;
   const userRole = store.role;
 
-  const handleLogin = () => navigate('/signup');
+  const handleLogin = () => navigate('/login');
   const handleLogout = () => { actions.logoutUser(); navigate('/'); };
   const handleSettings = () => navigate('/settings');
   const handleReservas = () => navigate('/MisReservas');
   const handleFieldSelect = (field) => setSelectedField(field);
-  const goHome = () => navigate('/');
+  const goHome = () => navigate('/home');
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-2">
       <div className="container-fluid">
-        <button className="btn btn-link navbar-brand fs-3 fw-bold text-white" onClick={goHome}>
-          CanchaGo
-        </button>
+        <div className="logoContainer" onClick={goHome}>
+          <img src={canchaLogoSinFondo} alt="CanchaGO" />
+        </div>
 
         <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
           <span className="navbar-toggler-icon"></span>
@@ -30,8 +31,8 @@ const Navbar = () => {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0"></ul>
 
-          <div className="d-flex align-items-center gap-3 ms-auto">
-            <div className="me-2 position-relative" style={{ minWidth: '160px' }}>
+          <div className="d-flex align-items-center justify-content-center gap-3 ms-auto">
+            {/* <div className="me-2 position-relative" style={{ minWidth: '160px' }}>
               <div className="input-group">
                 <select
                   className="form-select rounded-pill border-0 ps-3 pe-5 py-2 shadow-sm"
@@ -48,13 +49,12 @@ const Navbar = () => {
                     transition: 'all 0.3s ease',
                   }}
                 >
-                  <option value="All">Elige Cancha</option>
-                  <option value="Futbol">Cancha de Futbol</option>
-                  <option value="Tennis">Cancha de Tennis</option>
-                  <option value="Padel">Cancha de Padel</option>
+                  <option value="Futbol">Futbol</option>
+                  <option value="Tennis">Tenis</option>
+                  <option value="Padel">Padel</option>
                 </select>
               </div>
-            </div>
+            </div> */}
 
             {username && userRole === "Deportista" ? (
               <div className="dropdown">

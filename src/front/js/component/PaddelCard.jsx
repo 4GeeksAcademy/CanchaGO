@@ -1,7 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Context } from '../store/appContext';
+import { useContext, useState, useEffect } from 'react';
 
-const PaddelCard = ({ paddel }) => {
+const PaddelCard = ({ paddel, selectedSport }) => {
   const navigate = useNavigate();
 
   const handleOpenMaps = () => {
@@ -18,11 +20,11 @@ const PaddelCard = ({ paddel }) => {
   };
 
   const handleViewCanchas = () => {
-    navigate(`/club/${paddel.id}/canchas`);
+    navigate(`/club/${encodeURI(paddel.email) + "-" + selectedSport}/canchas`);
   };
 
   return (
-    <div className="card shadow" style={{ borderRadius: '16px', width: '300px' }}>
+    <div className="card shadow" style={{ borderRadius: '16px', width: '300px' }} onClick={handleViewCanchas}>
       <img
         src={paddel.imagen}
         className="card-img-top"
@@ -36,7 +38,7 @@ const PaddelCard = ({ paddel }) => {
       />
       <div className="card-body d-flex flex-column">
         <h5 className="card-title mb-1">{paddel.nombre}</h5>
-        <p className="card-text mb-2">{paddel.descripcion}</p>
+        <p className="card-text mb-2">{paddel.descripcion !== "" ? paddel.descripcion : " Sin Descipción "}</p>
 
         <strong>Deportes:</strong>
         <div className="d-flex flex-wrap gap-2 mt-1 mb-3">

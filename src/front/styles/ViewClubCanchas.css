@@ -1,0 +1,84 @@
+/* Fondo gris alrededor de la sección */
+.view-club-page {
+  background-color: #f0f2f5;
+  padding: 2rem 0;
+}
+
+/* Contenedor blanco centrado con sombra pro */
+.view-club-container {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.12);
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+/* Header con botón "Volver", nombre, dirección y pill de deporte */
+.view-club-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+.view-club-header .back-btn {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translateY(0.25rem);
+}
+.view-club-header .club-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #212529;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+.view-club-header .club-address {
+  font-size: 1rem;
+  color: #6c757d;
+  margin-bottom: 0.75rem;
+}
+.view-club-header .sport-pill {
+  display: inline-block;
+  background: #28a745;
+  color: #fff;
+  padding: 0.4rem 1.2rem;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+.view-club-header .sport-pill:hover {
+  transform: translateY(-2px);
+}
+
+/* Grid de canchas con scroll vertical y overflow visible para hover */
+.cancha-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  max-height: 75vh;
+  overflow-y: auto;
+  overflow-x: visible; /* permite que los hover escalen sin cortarse */
+  padding-right: 0.5rem;
+}
+.cancha-grid .col {
+  overflow: visible; /* deja ver las transformaciones de los hijos */
+}
+.cancha-grid::-webkit-scrollbar {
+  width: 6px;
+}
+.cancha-grid::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+/* Mensaje cuando no hay canchas */
+.no-canchas {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 2rem;
+}

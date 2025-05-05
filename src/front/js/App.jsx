@@ -34,7 +34,7 @@ const AppContent = () => {
         <Route path="/home" element={<ListPaddel />} />
         <Route path="/Propietario" element={<Propietario />} />
         <Route path="/Canchas/:clubEmail" element={<ViewCanchas />} />
-        <Route path="/club/:paddelId/canchas" element={<ViewClubCanchas />} />
+        <Route path="/club/:paddelEmail/canchas" element={<ViewClubCanchas />} />
         <Route path="/signup" element={<Loggin />} />
         <Route path="/login" element={<Login />} />
         <Route path="/miscanchas" element={<Carousel />} />

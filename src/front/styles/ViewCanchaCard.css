@@ -1,0 +1,97 @@
+/* Card con bordes redondeados, sombra suave y suave escala en hover */
+.view-cancha-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+.view-cancha-card:hover {
+  transform: scale(1.04);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+  z-index: 5; /* sobrepone sobre hermanos */
+}
+
+/* Imagen de la cancha */
+.view-cancha-card .cancha-img {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+.view-cancha-card .cancha-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Cuerpo de la card */
+.view-cancha-card .cancha-body {
+  padding: 1.25rem;
+  flex: 1;
+}
+.view-cancha-card .cancha-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 0.5rem;
+}
+.view-cancha-card .cancha-price {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #28a745;
+  margin-bottom: 0.75rem;
+}
+.view-cancha-card .cancha-schedule {
+  font-size: 0.95rem;
+  color: #6c757d;
+  font-style: italic;
+  margin-bottom: 0.75rem;
+}
+.view-cancha-card .cancha-days {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+.view-cancha-card .cancha-days .badge {
+  background: #007bff;
+  color: #fff;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.25rem;
+  font-size: 0.8rem;
+}
+
+/* Footer con botones pill */
+.view-cancha-card .cancha-footer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+}
+.view-cancha-card .btn {
+  flex: 1;
+  border-radius: 999px;
+  font-weight: 500;
+  transition: background 0.3s, color 0.3s;
+}
+.view-cancha-card .btn.details {
+  background: transparent;
+  border: 1px solid #6c757d;
+  color: #6c757d;
+}
+.view-cancha-card .btn.details:hover {
+  background: #6c757d;
+  color: #fff;
+}
+.view-cancha-card .btn.book {
+  background: #007bff;
+  border: none;
+  color: #fff;
+}
+.view-cancha-card .btn.book:hover {
+  background: #0056b3;
+}

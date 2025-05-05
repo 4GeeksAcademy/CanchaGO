@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext';
+import canchaLogoSinFondo from "../../img/canchago-sinfondo.png";
 
 const NavbarSinFiltro = () => {
     const navigate = useNavigate();
@@ -12,14 +13,14 @@ const NavbarSinFiltro = () => {
     const handleLogin = () => navigate('/signup');
     const handleLogout = () => { actions.logoutUser(); navigate('/'); };
     const handleReservas = () => navigate('/MisReservas');
-    const goHome = () => navigate('/');
+    const goHome = () => navigate('/home');
 
     return (
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-2">
             <div className="container-fluid">
-                <button className="btn btn-link navbar-brand fs-3 fw-bold text-white" onClick={goHome}>
-                    CanchaGo
-                </button>
+                <div className="logoContainer" onClick={goHome}>
+                    <img src={canchaLogoSinFondo} alt="CanchaGO" />
+                </div>
 
                 <button
                     className="navbar-toggler"

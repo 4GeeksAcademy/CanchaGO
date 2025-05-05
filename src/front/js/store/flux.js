@@ -5,6 +5,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       role: null,
       username: null,
       clubs: [],
+      clubsDeportista: [],
     },
     actions: {
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -125,7 +126,13 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
 
       logoutUser: () => {
-        setStore({ ...getStore(), token: null, role: null, username: null });
+        setStore({
+          ...getStore(),
+          token: null,
+          role: null,
+          username: null,
+          clubs: [],
+        });
       },
       //Finaliza la funcion para iniciar sesion en la base de datos
       //----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -223,7 +230,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           } else {
             return {
               success: false,
-              message: data.message || "Error al crear el club",
+              message: data.error || "Error al crear el club",
             };
           }
         } catch (error) {
@@ -404,6 +411,46 @@ const getState = ({ getStore, getActions, setStore }) => {
         }
       },
       //Finaliza la funcion para eliminar una cancha en la base de datos
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+      //Funcion para obtener todos los clubes disponibles en la base de datos
+
+      getAllClubs: async () => {
+        try {
+          const response = await fetch(process.env.BACKEND_URL + "club/all", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + getStore().token,
+            },
+          });
+
+          const data = await response.json();
+
+          if (response.ok) {
+            setStore({
+              ...getStore(),
+              clubsDeportista: data.clubs,
+            });
+            return {
+              success: true,
+              message: "Clubes obtenidos exitosamente",
+              clubs: data.clubs,
+            };
+          } else {
+            return {
+              success: false,
+              message: data.error || "Error al obtener los clubes",
+            };
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          return { success: false, message: "Error de conexión" };
+        }
+      },
+
+      //Finaliza la funcion para obtener todos los clubes disponibles en la base de datos
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
     },
   };

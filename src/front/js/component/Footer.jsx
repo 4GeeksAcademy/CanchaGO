@@ -1,7 +1,7 @@
 import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import { FaFacebook, FaInstagram, FaLinkedin, FaMapMarkerAlt } from "react-icons/fa";
-import logo from "../../img/logo.jpg";
+import canchaLogoSinFondo from "../../img/canchago-sinfondo.png";
 
 const Footer = () => {
   return (
@@ -10,13 +10,9 @@ const Footer = () => {
         <Row className="align-items-center">
           <Col md={4} className="mb-2 mb-md-0 text-center text-md-start">
             <div className="d-flex align-items-center justify-content-center justify-content-md-start">
-              <img
-                src={logo}
-                alt="Logo Empresa"
-                width="80"
-                className="me-2"
-              />
-              <h5 className="mb-0 small">CanchaGOve</h5>
+              <div className="logoContainer">
+                <img src={canchaLogoSinFondo} alt="CanchaGO" />
+              </div>
             </div>
             <p className="small mt-1 mb-0">
               <span className="text-nowrap">
@@ -28,7 +24,7 @@ const Footer = () => {
           <Col md={4} className="mb-2 mb-md-0 text-center">
             <div className="d-flex align-items-center justify-content-center">
               <FaMapMarkerAlt className="me-1 small" />
-              <span className="small">Av. Gran Mariscal de Ayacucho, Cumaná, Venezuela</span>
+              <span className="small">WorldWide</span>
             </div>
           </Col>
 
@@ -50,7 +46,7 @@ const Footer = () => {
         <Row className="mt-2">
           <Col className="text-center">
             <p className="small mb-0 text-muted">
-              © {new Date().getFullYear()} CanchaGOve. Todos los derechos reservados.
+              © {new Date().getFullYear()} CanchaGO. Todos los derechos reservados.
             </p>
           </Col>
         </Row>

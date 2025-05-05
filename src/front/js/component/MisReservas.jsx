@@ -80,7 +80,6 @@ const MisReservas = () => {
                                                         <span><strong>Precio:</strong> ${reserva.pricePerHour}</span>
                                                     )}
                                                 </Card.Text>
-
                                             </div>
                                             <Button
                                                 variant="primary"

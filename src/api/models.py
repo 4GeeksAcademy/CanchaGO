@@ -1,7 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Integer, Date, Time, ForeignKey, Boolean
+from sqlalchemy import String, Integer, Date, Time, ForeignKey, Boolean, Float
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import LargeBinary
+import uuid
 
 
 db = SQLAlchemy()
@@ -220,28 +221,41 @@ class Cancha(db.Model):
 class Reserva(db.Model):
     __tablename__ = 'reserva'
 
-    idReserva: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    idReserva: Mapped[str] = mapped_column(String(16), primary_key=True)
     idCancha: Mapped[int] = mapped_column(ForeignKey('cancha.idCancha'), nullable=False)
     idUsuario: Mapped[int] = mapped_column(ForeignKey('usuario.idUsuario'), nullable=False)
     fecha: Mapped[Date] = mapped_column(Date, nullable=False)
-    horaInicio: Mapped[str] = mapped_column(Time, nullable=False)
-    horaFin: Mapped[str] = mapped_column(Time, nullable=False)
+    horaInicio: Mapped[Time] = mapped_column(Time, nullable=False)
+    horaFin: Mapped[Time] = mapped_column(Time, nullable=False)
     estado: Mapped[str] = mapped_column(String(50), nullable=False)
-    monto: Mapped[float] = mapped_column(nullable=False)
+    monto: Mapped[float] = mapped_column(Float, nullable=False)
     metodoPago: Mapped[str] = mapped_column(String(50), nullable=False)
 
     # Relaciones
     cancha: Mapped[Cancha] = relationship('Cancha', back_populates='reservas')
     usuario: Mapped[Usuario] = relationship('Usuario', back_populates='reservas')
 
+    @staticmethod
+    def generate_unique_id(session):
+        while True:
+            raw_uuid = uuid.uuid4().hex[:16]  # 16 caracteres, sin guiones
+            exists = session.query(Reserva).filter_by(idReserva=raw_uuid).first()
+            if not exists:
+                return raw_uuid
+
+    def __init__(self, **kwargs):
+        session = db.session  # asegúrate de tener el contexto
+        kwargs.setdefault('idReserva', self.generate_unique_id(session))
+        super().__init__(**kwargs)
+
     def serialize(self):
         return {
             'idReserva': self.idReserva,
             'cancha': self.cancha.nombre,
             'usuario': self.usuario.nombreUsuario,
-            'fecha': str(self.fecha),
-            'horaInicio': str(self.horaInicio),
-            'horaFin': str(self.horaFin),
+            'fecha': self.fecha.strftime("%d/%m/%Y") if self.fecha else None,
+            'horaInicio': self.horaInicio.strftime("%H:%M") if self.horaInicio else None,
+            'horaFin': self.horaFin.strftime("%H:%M") if self.horaFin else None,
             'estado': self.estado,
             'monto': self.monto,
             'metodoPago': self.metodoPago

@@ -17,7 +17,7 @@ const Loggin = () => {
     clave: '',
     nombreUsuario: '',
     telefono: '',
-    rol: ''
+    rol: 'Deportista'
   });
 
 

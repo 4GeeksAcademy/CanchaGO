@@ -24,7 +24,7 @@ const PaddelCard = ({ paddel, selectedSport }) => {
   };
 
   return (
-    <div className="card shadow" style={{ borderRadius: '16px', width: '300px' }} onClick={handleViewCanchas}>
+    <div className="card shadow" style={{ borderRadius: '16px', width: '300px' }} >
       <img
         src={paddel.imagen}
         className="card-img-top"
@@ -35,6 +35,7 @@ const PaddelCard = ({ paddel, selectedSport }) => {
           borderTopRightRadius: '16px'
         }}
         alt={paddel.nombre}
+        onClick={handleViewCanchas}
       />
       <div className="card-body d-flex flex-column">
         <h5 className="card-title mb-1">{paddel.nombre}</h5>
@@ -46,6 +47,7 @@ const PaddelCard = ({ paddel, selectedSport }) => {
             <span key={i} className="badge bg-primary">{sport}</span>
           ))}
         </div>
+
 
         <div className="mt-auto d-flex justify-content-between">
           <button className="btn btn-outline-primary btn-sm" onClick={handleViewCanchas}>

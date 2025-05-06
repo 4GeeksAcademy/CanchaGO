@@ -132,7 +132,7 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
             <Form.Label>URL de la imagen</Form.Label>
             <Form.Control
               type="url"
-              name="imagenUrl"
+              name="imagen"
               value={cancha.imagen}
               onChange={handleChange}
               placeholder="https://ejemplo.com/imagen.jpg"

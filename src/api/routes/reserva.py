@@ -278,4 +278,4 @@ def disponibilidad():
         'idCancha': id_cancha,
         'fecha': fecha_str,
         'horarios_disponibles': slots_libres
-    }), 200
+    }), 200, 

@@ -44,7 +44,7 @@ const ReservarModal = ({ show, onClose, cancha, onReserve }) => {
     const displaySlots = useMemo(() => {
         if (rawDate === todayRaw) {
             const now = new Date();
-            const threshold = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+            const threshold = new Date(now.getTime() + 1 * 60 * 60 * 1000);
             return slots.filter(slot => {
                 const [h, m] = slot.split(':').map(Number);
                 const slotDate = new Date(`${rawDate}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`);

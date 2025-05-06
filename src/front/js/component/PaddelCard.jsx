@@ -2,13 +2,20 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext';
 import { useContext, useState, useEffect } from 'react';
+import { useAlert } from '../hooks/useAlert.js';
 
 const PaddelCard = ({ paddel, selectedSport }) => {
   const navigate = useNavigate();
+  const { store, actions } = useContext(Context);
+  const { success, error } = useAlert();
 
   const handleOpenMaps = () => {
-    if (paddel.mapsUrl) {
-      window.open(paddel.mapsUrl, '_blank');
+    const link = paddel.googleMapsLink;
+
+    if (link && link.trim() !== '' && link !== 'Sin Link') {
+      window.open(link, '_blank');
+    } else {
+      error('Este club no tiene enlace de Google Maps disponible, pana 😕');
     }
   };
 

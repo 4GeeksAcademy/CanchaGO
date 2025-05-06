@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
 from api.models import db, Reserva, Usuario, Cancha
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
+from api.extra.horario import validar_hora, calcular_intervalos, FRECUENCIAS_PERMITIDAS, DIAS_PERMITIDOS
 
 reserva_bp = Blueprint('reserva_bp', __name__, url_prefix='/reserva')
 
@@ -19,7 +20,6 @@ def crear_reserva():
     hora_inicio = data.get('horaInicio')
     hora_fin = data.get('horaFin')
     id_cancha = data.get('idCancha')
-    id_deportista = data.get('idUsuario')
     estado = data.get('estado')
     metodo_pago = data.get('metodoPago')
     monto = data.get('monto')
@@ -216,5 +216,66 @@ def obtener_reservas():
 
 
 
+#---------------------------------------------------------------------------------------------------------------
+# Endpoint para obtener horarios disponibles de una cancha en una fecha determinada
+@reserva_bp.route('/cancha/disponibilidad', methods=['POST'])
+def disponibilidad():
 
+    # 1) Leer datos del body (JSON)
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Se esperaba un JSON en el body'}), 400
 
+    id_cancha = data.get('idCancha')
+    fecha_str = data.get('fecha')  # dd/mm/yyyy
+    if not id_cancha or not fecha_str:
+        return jsonify({'error': 'Parámetros incompletos'}), 400
+
+    # 2) Validar cancha y fecha
+    cancha = Cancha.query.get(id_cancha)
+    if not cancha:
+        return jsonify({'error': 'Cancha no existe'}), 404
+    try:
+        fecha_dt = datetime.strptime(fecha_str, "%d/%m/%Y").date()
+    except ValueError:
+        return jsonify({'error': 'Formato de fecha inválido'}), 400
+
+    # 3) Obtener configuración de horario
+    hi = cancha.horario.horarioInicio  # datetime.time
+    hf = cancha.horario.horarioFin
+    freq = (cancha.horario.frecuencia or '1h').lower()
+    freq_min = FRECUENCIAS_PERMITIDAS.get(freq, 60)  # Default a 1h si no existe
+
+    # 4) Obtener reservas del día
+    reservas = Reserva.query.filter_by(idCancha=id_cancha, fecha=fecha_dt).all()
+    ocupados = [(r.horaInicio, r.horaFin) for r in reservas]
+
+    # 5) Generar slots disponibles
+    slots_libres = []
+    slot_actual = datetime.combine(fecha_dt, hi)
+    fin_horario = datetime.combine(fecha_dt, hf)
+
+    while slot_actual + timedelta(minutes=freq_min) <= fin_horario:
+        slot_inicio = slot_actual.time()
+        slot_fin = (slot_actual + timedelta(minutes=freq_min)).time()
+
+        # Verificar solapamiento con reservas
+        libre = True
+        for inicio_reserva, fin_reserva in ocupados:
+            if (
+                slot_inicio < fin_reserva
+                and slot_fin > inicio_reserva
+            ):
+                libre = False
+                break
+
+        if libre:
+            slots_libres.append(slot_inicio.strftime("%H:%M"))
+
+        slot_actual += timedelta(minutes=freq_min)
+
+    return jsonify({
+        'idCancha': id_cancha,
+        'fecha': fecha_str,
+        'horarios_disponibles': slots_libres
+    }), 200

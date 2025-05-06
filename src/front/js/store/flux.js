@@ -6,6 +6,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       username: null,
       clubs: [],
       clubsDeportista: [],
+      horarios_cancha: [],
     },
     actions: {
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -451,6 +452,61 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
 
       //Finaliza la funcion para obtener todos los clubes disponibles en la base de datos
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+      //Funcion para obtener los horarios de una cancha en la base de datos
+
+      getHorariosCancha: async (idCancha, fecha) => {
+        try {
+          const response = await fetch(
+            process.env.BACKEND_URL + "reserva/cancha/disponibilidad",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                idCancha,
+                fecha,
+              }),
+            }
+          );
+
+          const data = await response.json();
+
+          if (response.ok) {
+            setStore({
+              ...getStore(),
+              horarios_cancha: data,
+            });
+
+            return {
+              success: true,
+              message: "Horarios obtenidos exitosamente",
+              horarios: data.horarios,
+            };
+          } else {
+            return {
+              success: false,
+              message: data.error || "Error al obtener los horarios",
+            };
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          return { success: false, message: "Error de conexión" };
+        }
+      },
+
+      //Funcion para limpiar los horarios de una cancha en la base de datos
+      clearHorariosCancha: () => {
+        setStore({
+          ...getStore(),
+          horarios_cancha: [],
+        });
+      },
+
+      //Finaliza la funcion para obtener los horarios de una cancha en la base de datos
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
     },
   };

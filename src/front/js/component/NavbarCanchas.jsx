@@ -12,23 +12,16 @@ const NavbarCanchas = ({ onOpenCrearCancha }) => {
     actions.logoutUser();
     navigate('/');
   };
+  const handleSettings = () => navigate('/Configuraciones');
+  const goHome = () => navigate('/');
+  const goToDashboard = () => navigate('/Propietario');
+  const handleReservas = () => navigate('/Reservas');
 
-  const handleSettings = () => {
-    navigate('/settings');
-  };
-
-  const goHome = () => {
-    navigate('/');
-  };
-
-  const goToDashboard = () => {
-    navigate('/Propietario');
-  };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-success py-3 shadow">
       <div className="container-fluid px-4">
-        <div className="logoContainer">
+        <div className="logoContainer" onClick={goHome}>
           <img src={canchaLogoSinFondo} alt="CanchaGO" />
         </div>
 
@@ -70,14 +63,20 @@ const NavbarCanchas = ({ onOpenCrearCancha }) => {
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                   <li>
-                    <button className="dropdown-item" onClick={handleSettings}>
-                      <i className="fas fa-cog me-2"></i>Settings
+                    <button className="dropdown-item" onClick={handleReservas}>
+                      <i className="fas fa-calendar-alt me-2"></i> Mis Reservas
                     </button>
                   </li>
+                  <li>
+                    <button className="dropdown-item" onClick={handleSettings}>
+                      <i className="fas fa-cog me-2"></i> Configuraciones
+                    </button>
+                  </li>
+
                   <li><hr className="dropdown-divider" /></li>
                   <li>
                     <button className="dropdown-item text-danger" onClick={handleLogout}>
-                      <i className="fas fa-sign-out-alt me-2"></i>Logout
+                      <i className="fas fa-sign-out-alt me-2"></i> Logout
                     </button>
                   </li>
                 </ul>

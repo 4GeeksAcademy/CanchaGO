@@ -6,48 +6,63 @@ import Navbar from './NavBar.jsx';
 import '../../styles/ListPaddel.css';
 
 const ListPaddel = () => {
-
-    //Importamos el contexto de la app
     const { store, actions } = useContext(Context);
-
-    // Importamos el hook de alertas
     const { success, error } = useAlert();
 
-    // Opciones de filtro de deporte
     const availableSports = ['Padel', 'Futbol', 'Tenis'];
-
-    // Solo un deporte seleccionado a la vez
     const [selectedSport, setSelectedSport] = useState('Padel');
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const cardsPerPage = 8;
+
+    const getPagination = () => {
+        const range = [];
+        const maxPagesToShow = 5;
+      
+        if (totalPages <= maxPagesToShow) {
+          for (let i = 1; i <= totalPages; i++) range.push(i);
+        } else {
+          if (currentPage <= 3) {
+            range.push(1, 2, 3, 4, '...', totalPages);
+          } else if (currentPage >= totalPages - 2) {
+            range.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+          } else {
+            range.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+          }
+        }
+        return range;
+      };
+      
+
     useEffect(() => {
-
         cargarClubs();
-
     }, []);
 
+    useEffect(() => {
+        setCurrentPage(1); 
+    }, [selectedSport]);
+
     const cargarClubs = async () => {
-
-        //Cargamos los clubes desde la API
         let response = await actions.getAllClubs();
-
-        if (response.success) {
-            //  success("Clubs cargados correctamente");
-        }
-        else {
+        if (!response.success) {
             error(response.message || "Error al cargar los clubes");
         }
+    };
 
-    }
-
-    // Cambiar deporte seleccionado
     const handleSelectSport = (sport) => {
         setSelectedSport(sport);
     };
 
-    // Filtrar clubes según deporte
+    // Filtrar clubes por deporte
     const filteredClubs = store.clubsDeportista.filter(item =>
         item.deportes.includes(selectedSport)
     );
+
+    // Calcular paginación
+    const indexOfLast = currentPage * cardsPerPage;
+    const indexOfFirst = indexOfLast - cardsPerPage;
+    const currentClubs = filteredClubs.slice(indexOfFirst, indexOfLast);
+    const totalPages = Math.ceil(filteredClubs.length / cardsPerPage);
 
     return (
         <>
@@ -55,7 +70,6 @@ const ListPaddel = () => {
             <div className="list-paddel-container">
                 <h1 className="list-paddel-title">Clubs</h1>
 
-                {/* Filtro de deportes */}
                 <div className="filter-container">
                     {availableSports.map((sport) => (
                         <button
@@ -68,16 +82,53 @@ const ListPaddel = () => {
                     ))}
                 </div>
 
-                {/* Contenedor de clubes filtrados */}
                 <div className="clubs-scroll-container">
                     {filteredClubs.length > 0 ? (
-                        <div className="clubs-wrapper">
-                            {filteredClubs.map(item => (
-                                <div className="club-card-wrapper" key={item.idClub}>
-                                    <PaddelCard paddel={item} selectedSport={selectedSport} />
-                                </div>
-                            ))}
-                        </div>
+                        <>
+                            <div className="clubs-wrapper">
+                                {currentClubs.map(item => (
+                                    <div className="club-card-wrapper" key={item.idClub}>
+                                        <PaddelCard paddel={item} selectedSport={selectedSport} />
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Pagination controls */}
+                            {totalPages > 1 && (
+                                <div className="pagination-controls">
+                                <button
+                                  className="page-btn"
+                                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                  disabled={currentPage === 1}
+                                >
+                                  ←
+                                </button>
+                              
+                                {getPagination().map((page, index) =>
+                                  page === '...' ? (
+                                    <span key={index} className="page-ellipsis">...</span>
+                                  ) : (
+                                    <button
+                                      key={page}
+                                      className={`page-btn ${currentPage === page ? 'active' : ''}`}
+                                      onClick={() => setCurrentPage(page)}
+                                    >
+                                      {page}
+                                    </button>
+                                  )
+                                )}
+                              
+                                <button
+                                  className="page-btn"
+                                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                  disabled={currentPage === totalPages}
+                                >
+                                  →
+                                </button>
+                              </div>
+                              
+                            )}
+                        </>
                     ) : (
                         <div className="no-results">No hay clubs para {selectedSport}</div>
                     )}

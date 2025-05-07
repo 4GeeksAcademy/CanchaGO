@@ -13,23 +13,18 @@ const Navbarpropietario = ({ onOpenCrearClub }) => {
     actions.logoutUser();
     navigate('/');
   };
+  const goHome = () => navigate('/');
+  const handleSettings = () => navigate('/Configuraciones');
+  const handleReservas = () => navigate('/Reservas');
 
-  const handleSettings = () => {
-    navigate('/settings');
-  };
-
-  const goHome = () => {
-    navigate('/');
-  };
-
-  const handleIniciarComoDeportista = () => {
-    navigate('/home');
-  };
+  // const handleIniciarComoDeportista = () => {
+  //   navigate('/home');
+  // };
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark shadow">
       <div className="container-fluid px-4">
-        <div className="logoContainer">
+        <div className="logoContainer" onClick={goHome}>
           <img src={canchaLogoSinFondo} alt="CanchaGO" />
         </div>
         <button
@@ -49,7 +44,7 @@ const Navbarpropietario = ({ onOpenCrearClub }) => {
           </ul>
 
           <div className="d-flex align-items-center gap-3">
-            {/* {role !== "Deportista" && (
+            {/* {role == "Deportista" && (
               <button className="btn btn-outline-light btn-lg" onClick={handleIniciarComoDeportista}>
                 Iniciar como Deportista
               </button>
@@ -84,14 +79,19 @@ const Navbarpropietario = ({ onOpenCrearClub }) => {
                 </button>
                 <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                   <li>
+                    <button className="dropdown-item" onClick={handleReservas}>
+                      <i className="fas fa-calendar-alt me-2"></i> Mis Reservas
+                    </button>
+                  </li>
+                  <li>
                     <button className="dropdown-item" onClick={handleSettings}>
-                      <i className="fas fa-cog me-2"></i>Settings
+                      <i className="fas fa-cog me-2"></i> Configuraciones
                     </button>
                   </li>
                   <li><hr className="dropdown-divider" /></li>
                   <li>
                     <button className="dropdown-item text-danger" onClick={handleLogout}>
-                      <i className="fas fa-sign-out-alt me-2"></i>Logout
+                      <i className="bi bi-box-arrow-right me-2"></i> Logout
                     </button>
                   </li>
                 </ul>

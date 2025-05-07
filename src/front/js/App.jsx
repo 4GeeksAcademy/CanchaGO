@@ -16,7 +16,7 @@ import Propietario from './component/Propietario.jsx'
 import ViewCanchas from './component/ViewCanchas.jsx';
 import ViewClubCanchas from './component/ViewClubCanchas.jsx';
 import MisReservas from './component/MisReservas.jsx';
-
+import ReservasPropietario from './component/ReservasPropietario.jsx';
 
 
 const AppContent = () => {
@@ -26,6 +26,7 @@ const AppContent = () => {
     location.pathname === "/login" ||
     location.pathname === "/Propietario" ||
     location.pathname.startsWith("/Canchas/");
+    location.pathname === "/Reservas"
 
   return (
     <>
@@ -39,6 +40,7 @@ const AppContent = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/miscanchas" element={<Carousel />} />
         <Route path="/MisReservas" element={<MisReservas />} />
+        <Route path="/Reservas" element={<ReservasPropietario />} />
       </Routes>
       {!hideLayout && <ProfessionalFooter />}
 

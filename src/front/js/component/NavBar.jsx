@@ -13,10 +13,9 @@ const Navbar = () => {
 
   const handleLogin = () => navigate('/login');
   const handleLogout = () => { actions.logoutUser(); navigate('/'); };
-  const handleSettings = () => navigate('/settings');
+  const handleSettings = () => navigate('/Configuraciones');
   const handleReservas = () => navigate('/MisReservas');
-  const handleFieldSelect = (field) => setSelectedField(field);
-  const goHome = () => navigate('/home');
+  const goHome = () => navigate('/');
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-2">
       <div className="container-fluid">
@@ -32,29 +31,7 @@ const Navbar = () => {
           <ul className="navbar-nav me-auto mb-2 mb-lg-0"></ul>
 
           <div className="d-flex align-items-center justify-content-center gap-3 ms-auto">
-            {/* <div className="me-2 position-relative" style={{ minWidth: '160px' }}>
-              <div className="input-group">
-                <select
-                  className="form-select rounded-pill border-0 ps-3 pe-5 py-2 shadow-sm"
-                  value={selectedField}
-                  onChange={(e) => handleFieldSelect(e.target.value)}
-                  style={{
-                    appearance: 'none',
-                    backgroundColor: '#f4f1ee',
-                    color: '#495057', // Slightly darker text for contrast
-                    cursor: 'pointer',
-                    fontWeight: '500',
-                    borderRadius: '30px', // Slightly more rounded corners
-                    paddingRight: '30px', // Space for custom arrow
-                    transition: 'all 0.3s ease',
-                  }}
-                >
-                  <option value="Futbol">Futbol</option>
-                  <option value="Tennis">Tenis</option>
-                  <option value="Padel">Padel</option>
-                </select>
-              </div>
-            </div> */}
+
 
             {username && userRole === "Deportista" ? (
               <div className="dropdown">
@@ -90,10 +67,15 @@ const Navbar = () => {
                       <i className="fas fa-calendar-alt me-2"></i> Mis Reservas
                     </button>
                   </li>
+                  <li>
+                    <button className="dropdown-item" onClick={handleSettings}>
+                      <i className="fas fa-cog me-2"></i> Configuraciones
+                    </button>
+                  </li>
                   <li><hr className="dropdown-divider" /></li>
                   <li>
                     <button className="dropdown-item text-danger" onClick={handleLogout}>
-                      <i className="bi bi-box-arrow-right me-2"></i>Logout
+                      <i className="bi bi-box-arrow-right me-2"></i> Logout
                     </button>
                   </li>
                 </ul>

@@ -4,9 +4,11 @@ import { useAlert } from "../hooks/useAlert.js";
 
 const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
 
-
-  const DEFAULT_IMAGE_URL =
-    'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg';
+  const DEFAULT_IMAGES = {
+    Padel: 'https://www.padelprofi.com/wp-content/uploads/2023/04/high-angle-palette-balls-field22-877x1024.jpg', 
+    Futbol: 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
+    Tenis: 'https://images.pexels.com/photos/209977/pexels-photo-209977.jpeg'
+  };
 
 
   const { error, success } = useAlert();
@@ -85,9 +87,10 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
 
     const finalData = {
       ...canchaToSave,
-      imagen: cancha.imagen.trim() || DEFAULT_IMAGE_URL,
+      imagen: cancha.imagen.trim() || DEFAULT_IMAGES[cancha.deporte] || '',
       frecuencia: canchaToSave.frecuencia === '60' ? "1h" : "30min",
     };
+    
 
     if (cancha.dias.length === 0) {
       error('Debes seleccionar al menos un día disponible para la cancha.');

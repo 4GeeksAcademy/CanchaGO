@@ -42,7 +42,7 @@ const CanchaCard = ({ cancha, onDelete, onEdit, club }) => {
     <>
       <div className="col-md-4 mb-4">
         <div className="card h-100 shadow" style={{ borderRadius: '12px' }}>
-          {cancha.imagenUrl && (
+          {cancha.imagen && (
             <div className="card-img-top" style={{ height: '180px', overflow: 'hidden' }}>
               <img
                 src={cancha.imagen}

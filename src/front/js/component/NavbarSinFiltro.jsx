@@ -14,6 +14,8 @@ const NavbarSinFiltro = () => {
     const handleLogout = () => { actions.logoutUser(); navigate('/'); };
     const handleReservas = () => navigate('/MisReservas');
     const goHome = () => navigate('/home');
+    const handleSettings = () => navigate('/Configuraciones');
+
 
     return (
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-2">
@@ -71,6 +73,11 @@ const NavbarSinFiltro = () => {
                                     <li>
                                         <button className="dropdown-item" onClick={handleReservas}>
                                             <i className="fas fa-calendar-alt me-2"></i> Mis Reservas
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <button className="dropdown-item" onClick={handleSettings}>
+                                            <i className="fas fa-cog me-2"></i> Configuraciones
                                         </button>
                                     </li>
                                     <li><hr className="dropdown-divider" /></li>

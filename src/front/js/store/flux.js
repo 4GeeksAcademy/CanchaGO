@@ -1,7 +1,7 @@
 const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
-      token: null,
+      token: localStorage.getItem("token"),
       role: null,
       username: null,
       clubs: [],
@@ -92,6 +92,8 @@ const getState = ({ getStore, getActions, setStore }) => {
             //Si el rol existe, guardamos el token en el store y el rol
             if (existeRol) {
               //Setteamos el store
+
+              localStorage.setItem("token", data.token);
               setStore({
                 ...getStore(),
                 token: data.token,
@@ -127,6 +129,7 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
 
       logoutUser: () => {
+        localStorage.removeItem("token");
         setStore({
           ...getStore(),
           token: null,
@@ -508,6 +511,50 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       //Finaliza la funcion para obtener los horarios de una cancha en la base de datos
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+      //Stripe
+
+      // Dentro de las actions de tu flux
+      createCheckoutSession: async (reservaData) => {
+        const { token } = getStore();
+        const res = await fetch(
+          process.env.BACKEND_URL + "reserva/create-checkout-session",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(reservaData),
+          }
+        );
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error creando checkout");
+        return data.sessionId;
+      },
+
+      confirmReserva: async (sessionId) => {
+        const { token } = getStore();
+        const res = await fetch(
+          process.env.BACKEND_URL + "reserva/confirm-reserva",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ session_id: sessionId }),
+          }
+        );
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Error confirmando reserva");
+        return data.reserva;
+      },
+
+      // — Reserva temporal —
+      setTempReserva: (data) => setStore({ ...getStore(), tempReserva: data }),
+      clearTempReserva: () => setStore({ ...getStore(), tempReserva: null }),
     },
   };
 };

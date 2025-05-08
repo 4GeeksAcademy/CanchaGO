@@ -1,186 +1,112 @@
-from flask import Blueprint, request, jsonify
-from api.models import db, Reserva, Usuario, Cancha
+from flask import Blueprint, request, jsonify, redirect
+from api.models import db, Reserva, Usuario, Cancha, Club
 from datetime import datetime, timedelta
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
+import json
 from api.extra.horario import validar_hora, calcular_intervalos, FRECUENCIAS_PERMITIDAS, DIAS_PERMITIDOS
+import stripe
+import os
 
 reserva_bp = Blueprint('reserva_bp', __name__, url_prefix='/reserva')
-
+stripe.api_key = os.getenv('STRIPE_API_KEY')
 
 #---------------------------------------------------------------------------------------------------------------
-# Endpoint para crear una reserva
-
-@reserva_bp.route('/crear', methods=['POST'])
-@jwt_required()
-def crear_reserva():
-
-    #Obtenemos los datos del cuerpo de la solicitud
-    data = request.get_json()
-    fecha = data.get('fecha')
-    hora_inicio = data.get('horaInicio')
-    hora_fin = data.get('horaFin')
-    id_cancha = data.get('idCancha')
-    estado = data.get('estado')
-    metodo_pago = data.get('metodoPago')
-    monto = data.get('monto')
-
-
-    #1) Validamos que esten todos los campos requeridos
-    # Campos requeridos
+# Función interna para crear reservas (reutilizable)
+def crear_reserva_interna(data, stripe_payment_id=None):
+    # Validación de campos requeridos
     required_fields = ['fecha', 'horaInicio', 'horaFin', 'idCancha', 'estado', 'metodoPago', 'monto']
-
-    # Verificamos que no falte ninguno de los campos requeridos ni que estén vacíos
     empty_fields = [field for field in required_fields if not data.get(field)]
-
     if empty_fields:
-        return jsonify({
-            'msg': 'Algunos campos están vacíos o faltan',
-            'Campos Vacios o Faltantes': empty_fields
-        }), 400
-        
+        return jsonify({'msg': 'Campos vacíos o faltantes', 'Campos Vacios o Faltantes': empty_fields}), 400
 
+    # Verificar rol Deportista
+    jwt_data = get_jwt()
+    if "Deportista" not in jwt_data.get("roles", []):
+        return jsonify({"error": "El usuario no tiene el rol Deportista"}), 401
 
-    # 2) Verificamos la identidad del usuario que crea la reserva y que sea Deportista
-    #Obtiene el token del usuario que crea el club
-    jwt_data = get_jwt() 
-
-    #Obtenemos los roles del usuario que crea el club
-    roles = jwt_data.get("roles", [])
-
-    if "Deportista" not in roles:
-        return jsonify({"error": "El usuario no tiene el rol Deportista, por ende no puede crear una reserva"}), 401
-    
-
-
-    # 3) Verificamos que exista el usuario obtenido del token
-    nombreUsuario = get_jwt_identity()
-    usuario = Usuario.query.filter_by(nombreUsuario=nombreUsuario).first()
+    # Validar usuario
+    usuario = Usuario.query.filter_by(nombreUsuario=get_jwt_identity()).first()
     if not usuario:
-        return jsonify({"error": "El usuario: " + nombreUsuario + ", no existe"}), 404
-    
+        return jsonify({"error": "Usuario no encontrado"}), 404
 
-
-    #4) Validar que el idCancha exista en la base de datos
-    cancha = Cancha.query.filter_by(idCancha=data['idCancha']).first()
+    # Validar cancha
+    cancha = Cancha.query.get(data['idCancha'])
     if not cancha:
-        return jsonify({"error": "La cancha con id " + str(data['idCancha']) + " no existe"}), 404
-    
+        return jsonify({"error": "Cancha no encontrada"}), 404
 
-
-     # 5) Validar y parsear fecha (dd/mm/aaaa), de igual forma validar que la fecha sea un dia dispoinible de la cancha
+    # Validar fecha
     try:
         fecha_dt = datetime.strptime(data['fecha'], "%d/%m/%Y").date()
+        if fecha_dt < datetime.now().date():
+            return jsonify({'error': 'La fecha no puede ser anterior a hoy'}), 400
     except ValueError:
-        return jsonify({
-            'error': 'Formato de fecha inválido. Debe ser dd/mm/aaaa'
-        }), 400
-    
-    if fecha_dt < datetime.now().date():
-        return jsonify({
-            'error': 'La fecha no puede ser menor a la fecha actual'
-        }), 400
-    
-    # ——————— Validar día disponible ———————
-    # a) Mapeo weekday → nombre en español
+        return jsonify({'error': 'Formato de fecha inválido (dd/mm/aaaa)'}), 400
+
+    # Validar día de la semana
     dias_semana = {
         0: "Lunes", 1: "Martes", 2: "Miercoles",
         3: "Jueves", 4: "Viernes", 5: "Sabado", 6: "Domingo"
     }
     dia_reserva = dias_semana[fecha_dt.weekday()]
-
-    #b)Obtener los días disponibles de la cancha
-    dias_disp = []
-    if cancha.horario.diasDisponibles:
-        # Partimos, quitamos espacios y normalizamos a minúsculas  
-        dias_disp = [d.strip().lower() for d in cancha.horario.diasDisponibles.split(',')]
-
-    # c) Chequear si está permitido
+    dias_disp = [d.strip().lower() for d in cancha.horario.diasDisponibles.split(',')] if cancha.horario.diasDisponibles else []
+    
     if dia_reserva.lower() not in dias_disp:
-        return jsonify({
-            'error': f' La cancha no se puede reservar los {dia_reserva}. ' +
-                     f'Días disponibles: {cancha.horario.diasDisponibles}'
-        }), 400
-    # ————————————————————————————————
+        return jsonify({'error': f'Día no disponible: {dia_reserva}'}), 400
 
-
-
-    # 6) Parsear horaInicio y horaFin y descartar segundos
+    # Validar horas
     def parse_hora(h):
         for fmt in ("%H:%M:%S", "%H:%M"):
             try:
-                t = datetime.strptime(h, fmt).time()
-                # Tiramos los segundos y microsegundos
-                return t.replace(second=0, microsecond=0)
+                return datetime.strptime(h, fmt).time().replace(second=0, microsecond=0)
             except ValueError:
                 pass
         return None
 
     hora_inicio = parse_hora(data['horaInicio'])
-    hora_fin    = parse_hora(data['horaFin'])
-    if not hora_inicio or not hora_fin:
-        return jsonify({'error': 'Formato de hora inválido. Debe ser HH:MM o HH:MM:SS'}), 400
+    hora_fin = parse_hora(data['horaFin'])
     
+    if not hora_inicio or not hora_fin:
+        return jsonify({'error': 'Formato de hora inválido (HH:MM o HH:MM:SS)'}), 400
 
-
-    # 7) Validar que exista reserva y este disponible el horario
+    # Validar disponibilidad de horario
     reservas_existentes = Reserva.query.filter(
         Reserva.idCancha == data['idCancha'],
         Reserva.fecha == fecha_dt,
         (Reserva.horaInicio < hora_fin) & (Reserva.horaFin > hora_inicio)
     ).all()
+    
     if reservas_existentes:
-        return jsonify({"error": "La cancha ya está reservada en ese horario."}), 400 
-    
-    # ——— 7.1) Validar hora inicio y fin de la cancha———
-    hi_sched = cancha.horario.horarioInicio  
-    hf_sched = cancha.horario.horarioFin     
+        return jsonify({"error": "Horario ya reservado"}), 400
+
+    # Validar horario de la cancha
+    hi_sched = cancha.horario.horarioInicio
+    hf_sched = cancha.horario.horarioFin
     if hora_inicio < hi_sched or hora_fin > hf_sched:
-        return jsonify({
-            'error': f'Reserva fuera de horario: solo puedes entre '
-                     f'{hi_sched.strftime("%H:%M")} y {hf_sched.strftime("%H:%M")}'
-        }), 400
+        return jsonify({'error': f'Horario válido: {hi_sched.strftime("%H:%M")} a {hf_sched.strftime("%H:%M")}'}), 400
 
-    # ——— 7.2) Respetar frecuencia ———
-    freq = cancha.horario.frecuencia.lower()  # p.ej. "1h" o "0.5h" o "30m"
+    # Validar frecuencia
+    freq = cancha.horario.frecuencia.lower()
+    if freq == '1h' and (hora_inicio.minute != 0 or hora_fin.minute != 0):
+        return jsonify({'error': 'Con frecuencia 1h, minutos deben ser 00'}), 400
+    elif freq == '30m' and (hora_inicio.minute not in (0,30) or hora_fin.minute not in (0,30)):
+        return jsonify({'error': 'Con frecuencia 30m, minutos deben ser 00 o 30'}), 400
 
-    # Si la frecuencia es 1 hora exacta, minutos deben ser 00
-    if freq == '1h':
-        if hora_inicio.minute != 0 or hora_fin.minute != 0:
-            return jsonify({'error': 'Con frecuencia 1h, minutos deben ser 00'}), 400
-
-    # Si la frecuencia es media hora, minutos pueden ser 00 o 30
-    elif freq in ('30m'):
-        if hora_inicio.minute not in (0,30) or hora_fin.minute not in (0,30):
-            return jsonify({'error': 'Con frecuencia media hora, minutos deben ser 00 o 30'}), 400
-
-
-
-    # 8) Validar el monto mayor a 0
-    monto = data.get('monto')
-    # Verificar que el monto sea un número mayor a cero
+    # Validar monto
     try:
-        monto = float(monto)
+        monto = float(data['monto'])
         if monto <= 0:
-            return jsonify({'error': 'El monto debe ser mayor a cero'}), 400
+            return jsonify({'error': 'Monto debe ser mayor a 0'}), 400
     except ValueError:
-        return jsonify({'error': ' Monto inválido'}), 400
+        return jsonify({'error': 'Monto inválido'}), 400
+
+    # Validar estado y método de pago
+    if data['estado'] not in ['Pendiente', 'Confirmada', 'Cancelada']:
+        return jsonify({'error': 'Estado de reserva inválido'}), 400
     
+    if data['metodoPago'] not in ['Efectivo', 'Tarjeta de credito', 'Transferencia', 'Tarjeta de debito']:
+        return jsonify({'error': 'Método de pago inválido'}), 400
 
-    
-    # 9) Validar el estado de la reserva
-    estados_validos = ['Pendiente', 'Confirmada','Cancelada']
-    if data['estado'] not in estados_validos:
-        return jsonify({'error': 'Estado inválido. Debe ser Pendiente, Confirmada o Cancelada'}), 400
-    
-
-
-    # 10) Validar el método de pago
-    metodos_pago_validos = ['Efectivo', 'Tarjeta de credito', 'Transferencia', 'Tarjeta de debito']
-    if data['metodoPago'] not in metodos_pago_validos:
-        return jsonify({'error': 'Método de pago inválido. Debe ser Efectivo, Tarjeta de credito, Transferencia o Tarjeta de debito'}), 400
-    
-
-
+    # Crear reserva
     nueva_reserva = Reserva(
         fecha=fecha_dt,
         horaInicio=hora_inicio,
@@ -189,93 +115,213 @@ def crear_reserva():
         idUsuario=usuario.idUsuario,
         estado=data['estado'],
         metodoPago=data['metodoPago'],
-        monto=data['monto']
+        monto=monto,
+        stripe_payment_id=stripe_payment_id
     )
 
     db.session.add(nueva_reserva)
     db.session.commit()
 
-    return jsonify({"message": "Reserva creada exitosamente.", "reserva": nueva_reserva.serialize()}), 201
-
-
-#Finalizamos el endpoint para crear una reserva
-#---------------------------------------------------------------------------------------------------------------
-
-
+    return jsonify({"message": "Reserva creada exitosamente", "reserva": nueva_reserva.serialize()}), 201
 
 #---------------------------------------------------------------------------------------------------------------
-# Endpoint para obtener todas las reservas en bd
+# Endpoints principales
+
+@reserva_bp.route('/crear', methods=['POST'])
+@jwt_required()
+def crear_reserva():
+    return crear_reserva_interna(request.get_json())
+
+@reserva_bp.route('/create-checkout-session', methods=['POST'])
+@jwt_required()
+def create_checkout_session():
+    try:
+        data = request.get_json()
+        required_fields = ['idCancha', 'monto', 'fecha', 'frecuencia', 'slots', 'nombreCancha']
+        
+        if not all(field in data for field in required_fields):
+            return jsonify({"error": "Datos incompletos"}), 400
+        
+        email_usuario = Usuario.query.filter_by(nombreUsuario=get_jwt_identity()).first().email
+        if not email_usuario:
+            return jsonify({"error": "Usuario no encontrado"}), 404
+        
+        cancha = Cancha.query.get(data['idCancha'])
+        if not cancha:
+            return jsonify({"error": "Cancha no encontrada"}), 404
+        
+        club = Club.query.get(cancha.idClub)
+        if not club:
+            return jsonify({"error": "Club no encontrado"}), 404
+        
+        # Convertir slots en rangos completos tipo "14:00 - 15:00"
+        slots_rango = []
+        frecuencia = data['frecuencia']
+        for index,slot in enumerate(data['slots'], start=1):
+            hora_inicio = datetime.strptime(slot, "%H:%M")
+            if frecuencia == 60:
+                hora_fin = hora_inicio + timedelta(hours=1)
+            elif frecuencia == 30:
+                hora_fin = hora_inicio + timedelta(minutes=30)
+            else:
+                return jsonify({'error': 'Frecuencia inválida'}), 400
+            slots_rango.append(f" {index} - [ {hora_inicio.strftime('%H:%M')} - {hora_fin.strftime('%H:%M')} ]")
+
+
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            customer_email=email_usuario,
+            line_items=[{
+                'price_data': {
+                    'currency': 'usd',
+                    'product_data': {'name': "Reserva de : [ " + data['nombreCancha'] + " ] en " + club.nombre,
+                                     'images': [cancha.imagen] if cancha.imagen else [], 
+                                     'description': (
+                                                    f"📅 {data['fecha']} | ⏰ {', '.join(slots_rango)} "
+                                    ),},
+                    'unit_amount': int(float(data['monto']) * 100),
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url  = f"{os.getenv('FRONTEND_URL')}/reserva-exitosa?session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url   = f"{os.getenv('FRONTEND_URL')}/reservar-cancelado",
+            metadata     = {
+                'user':       get_jwt_identity(),
+                'idCancha':   str(data['idCancha']),
+                'fecha':      data['fecha'],
+                'slots':      json.dumps(data['slots']),      
+                'frecuencia': str(data['frecuencia']),   
+                'monto':      str(data['monto']),
+                'estado':     'Confirmada',
+                'metodoPago': 'Tarjeta de credito'
+            }
+        )
+        return jsonify({'sessionId': session.id}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@reserva_bp.route('/confirm-reserva', methods=['POST'])
+@jwt_required()
+def confirm_reserva():
+    payload = request.get_json() or {}
+    session_id = payload.get('session_id')
+    if not session_id:
+        return jsonify({'error': 'Falta session_id'}), 400
+
+    # Recupera la sesión
+    try:
+        session = stripe.checkout.Session.retrieve(session_id)
+    except stripe.error.InvalidRequestError:
+        return jsonify({'error': 'Sesión Stripe no encontrada'}), 400
+
+    if session.payment_status != 'paid':
+        return jsonify({'error': 'Pago no completado'}), 400
+
+    # Extrae metadata y crea la reserva
+    meta = session.metadata
+    slots       = json.loads(meta['slots'])          # lista de "HH:MM"
+    freq_minutes= int(meta['frecuencia'])
+    base_data   = {
+      'user':       meta['user'],
+      'idCancha':   int(meta['idCancha']),
+      'fecha':      meta['fecha'],
+      'estado':     'Confirmada',
+      'metodoPago': 'Tarjeta de credito'
+    }
+    reservas_creadas = []
+    for start in slots:
+        # calcula horaFin sumando freq_minutes
+        h, m = map(int, start.split(':'))
+        dt = datetime.combine(datetime.today(), datetime.strptime(start, "%H:%M").time())
+        dt_end = dt + timedelta(minutes=freq_minutes)
+        end = dt_end.time().strftime("%H:%M")
+
+        data_slot = {
+            **base_data,
+            'horaInicio': start,
+            'horaFin':    end,
+            'monto':      float(meta['monto']) / len(slots)  # prorratea si quieres
+        }
+        resp, status = crear_reserva_interna(data_slot, stripe_payment_id=session_id)
+        if status == 201:
+            reservas_creadas.append(resp.get_json()['reserva'])
+        else:
+            # si falla en uno, aborta todo
+            return resp, status
+
+    return jsonify({
+        'message': 'Todas las reservas creadas',
+        'reservas': reservas_creadas
+    }), 201
+    
+
+
+#---------------------------------------------------------------------------------------------------------------
+# Otros endpoints
 
 @reserva_bp.route('/all', methods=['GET'])
 def obtener_reservas():
     reservas = Reserva.query.all()
     return jsonify([reserva.serialize() for reserva in reservas]), 200
 
-#Finalizamos el endpoint para obtener todas las reservas en bd
-#---------------------------------------------------------------------------------------------------------------
-
-
-
-#---------------------------------------------------------------------------------------------------------------
-# Endpoint para obtener horarios disponibles de una cancha en una fecha determinada
 @reserva_bp.route('/cancha/disponibilidad', methods=['POST'])
 def disponibilidad():
-
-    # 1) Leer datos del body (JSON)
-    data = request.get_json()
-    if not data:
-        return jsonify({'error': 'Se esperaba un JSON en el body'}), 400
-
-    id_cancha = data.get('idCancha')
-    fecha_str = data.get('fecha')  # dd/mm/yyyy
-    if not id_cancha or not fecha_str:
-        return jsonify({'error': 'Parámetros incompletos'}), 400
-
-    # 2) Validar cancha y fecha
-    cancha = Cancha.query.get(id_cancha)
-    if not cancha:
-        return jsonify({'error': 'Cancha no existe'}), 404
     try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'error': 'Se requiere un JSON'}), 400
+
+        id_cancha = data.get('idCancha')
+        fecha_str = data.get('fecha')
+        
+        if not id_cancha or not fecha_str:
+            return jsonify({'error': 'Parámetros incompletos'}), 400
+
+        cancha = Cancha.query.get(id_cancha)
+        if not cancha:
+            return jsonify({'error': 'Cancha no encontrada'}), 404
+
         fecha_dt = datetime.strptime(fecha_str, "%d/%m/%Y").date()
+        
+        # Configuración de horario
+        hi = cancha.horario.horarioInicio
+        hf = cancha.horario.horarioFin
+        freq_min = FRECUENCIAS_PERMITIDAS.get(cancha.horario.frecuencia.lower(), 60)
+        
+        # Obtener reservas existentes
+        reservas = Reserva.query.filter_by(idCancha=id_cancha, fecha=fecha_dt).all()
+        ocupados = [(r.horaInicio, r.horaFin) for r in reservas]
+        
+        # Generar slots disponibles
+        slots = []
+        current_time = datetime.combine(fecha_dt, hi)
+        end_time = datetime.combine(fecha_dt, hf)
+        
+        while current_time + timedelta(minutes=freq_min) <= end_time:
+            slot_start = current_time.time()
+            slot_end = (current_time + timedelta(minutes=freq_min)).time()
+            
+            disponible = True
+            for inicio, fin in ocupados:
+                if slot_start < fin and slot_end > inicio:
+                    disponible = False
+                    break
+            
+            if disponible:
+                slots.append(slot_start.strftime("%H:%M"))
+            
+            current_time += timedelta(minutes=freq_min)
+        
+        return jsonify({
+            'idCancha': id_cancha,
+            'fecha': fecha_str,
+            'horarios_disponibles': slots
+        }), 200
+        
     except ValueError:
         return jsonify({'error': 'Formato de fecha inválido'}), 400
-
-    # 3) Obtener configuración de horario
-    hi = cancha.horario.horarioInicio  # datetime.time
-    hf = cancha.horario.horarioFin
-    freq = (cancha.horario.frecuencia or '1h').lower()
-    freq_min = FRECUENCIAS_PERMITIDAS.get(freq, 60)  # Default a 1h si no existe
-
-    # 4) Obtener reservas del día
-    reservas = Reserva.query.filter_by(idCancha=id_cancha, fecha=fecha_dt).all()
-    ocupados = [(r.horaInicio, r.horaFin) for r in reservas]
-
-    # 5) Generar slots disponibles
-    slots_libres = []
-    slot_actual = datetime.combine(fecha_dt, hi)
-    fin_horario = datetime.combine(fecha_dt, hf)
-
-    while slot_actual + timedelta(minutes=freq_min) <= fin_horario:
-        slot_inicio = slot_actual.time()
-        slot_fin = (slot_actual + timedelta(minutes=freq_min)).time()
-
-        # Verificar solapamiento con reservas
-        libre = True
-        for inicio_reserva, fin_reserva in ocupados:
-            if (
-                slot_inicio < fin_reserva
-                and slot_fin > inicio_reserva
-            ):
-                libre = False
-                break
-
-        if libre:
-            slots_libres.append(slot_inicio.strftime("%H:%M"))
-
-        slot_actual += timedelta(minutes=freq_min)
-
-    return jsonify({
-        'idCancha': id_cancha,
-        'fecha': fecha_str,
-        'horarios_disponibles': slots_libres
-    }), 200, 
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

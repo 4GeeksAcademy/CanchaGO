@@ -3,10 +3,15 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import { Context } from '../store/appContext';
 import { useAlert } from '../hooks/useAlert.js';
 import '../../styles/reservarmodal.css';
+import { loadStripe } from '@stripe/stripe-js';
+import { useNavigate } from 'react-router-dom';
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PK);
 
 const ReservarModal = ({ show, onClose, cancha, onReserve }) => {
     const { store, actions } = useContext(Context);
     const { success, error } = useAlert();
+    const navigate = useNavigate();
 
     // Fecha raw de hoy (YYYY-MM-DD) usando hora local sin toISOString
     const today = new Date();
@@ -21,7 +26,6 @@ const ReservarModal = ({ show, onClose, cancha, onReserve }) => {
     const [slots, setSlots] = useState([]);
     const [selected, setSelected] = useState([]);
     const [showConfirm, setShowConfirm] = useState(false);
-    const pricePerHour = 20000;
 
     // Carga de slots al abrir modal o cambiar fecha
     useEffect(() => {
@@ -68,11 +72,38 @@ const ReservarModal = ({ show, onClose, cancha, onReserve }) => {
         setShowConfirm(true);
     };
 
-    const confirm = () => {
-        const reserva = { idCancha: cancha.idCancha, fecha: formattedDate, times: selected, total: selected.length * pricePerHour };
-        onReserve(reserva);
-        setShowConfirm(false);
-        onClose();
+    const confirm = async () => {
+        // 1) Extrae la frecuencia en minutos
+        const freqStr = cancha?.horario?.frecuencia;
+        let freqMin;
+
+        if (freqStr?.endsWith('h')) {
+            freqMin = parseInt(freqStr, 10) * 60;
+        } else if (freqStr?.endsWith('min')) {
+            freqMin = parseInt(freqStr, 10);
+        } else {
+            error('Frecuencia inválida: ' + freqStr);
+            return;
+        }
+        // 2) Prepara la data con todas las franjas
+        const reservaData = {
+            idCancha: cancha.idCancha,
+            nombreCancha: cancha.nombre,
+            fecha: formattedDate,
+            slots: selected,       // ej. ["16:00","17:00","18:00"]
+            frecuencia: freqMin,        // ej. 60 o 30
+            monto: selected.length * cancha.precio
+        };
+
+        try {
+            const sessionId = await actions.createCheckoutSession(reservaData);
+            const stripe = await stripePromise;
+            const result = await stripe.redirectToCheckout({ sessionId });
+            if (result && result.error) throw result.error;
+        } catch (e) {
+            error(e.message);
+            onClose();
+        }
     };
 
     return (
@@ -126,7 +157,7 @@ const ReservarModal = ({ show, onClose, cancha, onReserve }) => {
                 <Modal.Body>
                     <p><strong>Fecha:</strong> {formattedDate}</p>
                     <p><strong>Horas:</strong> {selected.join(', ')}</p>
-                    <p><strong>Total:</strong> ${selected.length * pricePerHour}</p>
+                    <p><strong>Total:</strong> ${selected.length * cancha.precio}</p>
                 </Modal.Body>
                 <Modal.Footer className="justify-content-end">
                     <Button variant="secondary" onClick={() => setShowConfirm(false)}>Volver</Button>

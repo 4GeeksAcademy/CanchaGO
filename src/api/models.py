@@ -230,6 +230,7 @@ class Reserva(db.Model):
     estado: Mapped[str] = mapped_column(String(50), nullable=False)
     monto: Mapped[float] = mapped_column(Float, nullable=False)
     metodoPago: Mapped[str] = mapped_column(String(50), nullable=False)
+    stripe_payment_id: Mapped[str] = mapped_column(String(255), nullable=True)
 
     # Relaciones
     cancha: Mapped[Cancha] = relationship('Cancha', back_populates='reservas')
@@ -258,5 +259,6 @@ class Reserva(db.Model):
             'horaFin': self.horaFin.strftime("%H:%M") if self.horaFin else None,
             'estado': self.estado,
             'monto': self.monto,
-            'metodoPago': self.metodoPago
+            'metodoPago': self.metodoPago,
+            'stripe_payment_id': self.stripe_payment_id
         }

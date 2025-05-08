@@ -9,6 +9,7 @@ from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
 from sqlalchemy import inspect
+import stripe
 
 # Importa Blueprints directamente
 after_blueprints = []
@@ -24,7 +25,7 @@ base_dir = os.path.dirname(os.path.realpath(__file__))
 static_dir = os.path.join(base_dir, '../public')
 
 app = Flask(__name__, static_folder=None)
-CORS(app)
+CORS(app, origins=os.getenv("FRONTEND_URL"))
 app.url_map.strict_slashes = False
 
 # Configuración de BD
@@ -50,6 +51,10 @@ app.register_blueprint(users_bp)
 app.register_blueprint(club_bp)
 app.register_blueprint(reserva_bp)
 app.register_blueprint(cancha_bp)
+
+# Stripe
+stripe.api_key = os.getenv('STRIPE_API_KEY')  # Clave secreta desde .env
+
 
 
 #--------------------------------------------------------------------------------------------------------------

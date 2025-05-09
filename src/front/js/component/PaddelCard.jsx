@@ -1,77 +1,74 @@
+// PaddelCard.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Context } from '../store/appContext';
-import { useContext, useState, useEffect } from 'react';
 import { useAlert } from '../hooks/useAlert.js';
+import '../../styles/PaddelCard.css';
 
 const PaddelCard = ({ paddel, selectedSport }) => {
   const navigate = useNavigate();
-  const { store, actions } = useContext(Context);
-  const { success, error } = useAlert();
+  const { error } = useAlert();
 
   const handleOpenMaps = () => {
     const link = paddel.googleMapsLink;
-
-    if (link && link.trim() !== '' && link !== 'Sin Link') {
+    if (link?.trim() && link !== 'Sin Link') {
       window.open(link, '_blank');
     } else {
-      error('Este club no tiene enlace de Google Maps disponible, pana 😕');
+      error('Enlace de mapa no disponible');
     }
   };
 
-  const handleImageClick = () => {
-    navigate('/miscanchas')
-  };
-  const handleLooginClick = () => {
-    navigate('/loggin')
-  };
-
   const handleViewCanchas = () => {
-    navigate(`/club/${encodeURI(paddel.email) + "-" + selectedSport}/canchas`);
+    navigate(`/club/${encodeURI(paddel.email)}-${selectedSport}/canchas`);
   };
 
   return (
-    <div className="card shadow" style={{ borderRadius: '16px', width: '300px' }} >
-      <img
-        src={paddel.imagen}
-        className="card-img-top"
-        style={{
-          height: '200px',
-          objectFit: 'cover',
-          borderTopLeftRadius: '16px',
-          borderTopRightRadius: '16px'
-        }}
-        alt={paddel.nombre}
-        onClick={handleViewCanchas}
-      />
-      <div className="card-body d-flex flex-column">
-        <h5 className="card-title mb-1">{paddel.nombre}</h5>
-        <p className="card-text mb-2">{paddel.descripcion !== "" ? paddel.descripcion : " Sin Descipción "}</p>
+    <div className="card hover-card">
+      <div className="image-container">
+        <img
+          src={paddel.imagen}
+          className="card-image"
+          alt={paddel.nombre}
+          onClick={handleViewCanchas}
+        />
+        <div className="sport-overlay">{selectedSport}</div>
+      </div>
 
-        <strong>Deportes:</strong>
-        <div className="d-flex flex-wrap gap-2 mt-1 mb-3">
-          {paddel?.deportes?.map((sport, i) => (
-            <span key={i} className="badge bg-primary">{sport}</span>
-          ))}
+      <div className="card-body">
+        <h5 className="card-title">{paddel.nombre}</h5>
+        <p className="card-description">
+          {paddel.descripcion || "Descripción no disponible"}
+        </p>
+
+        <div className="sports-container">
+          <strong>Deportes:</strong>
+          <div className="badges-container">
+            {paddel.deportes?.map((sport, i) => (
+              <span key={i} className="sport-badge">{sport}</span>
+            ))}
+          </div>
         </div>
 
-
-        <div className="mt-auto d-flex justify-content-between">
-          <button className="btn btn-outline-primary btn-sm" onClick={handleViewCanchas}>
+        <div className="buttons-container">
+          <button className="btn btn-primary" onClick={handleViewCanchas}>
             Ver Canchas
           </button>
-          <button className="btn btn-outline-secondary btn-sm" onClick={handleOpenMaps}>
-            Ver en Google Maps
+          <button className="btn btn-secondary" onClick={handleOpenMaps}>
+            Mapa
           </button>
         </div>
       </div>
-      <div className="card-footer text-muted text-center">
-        <small>{paddel.direccion} | {paddel.telefono}</small>
+
+      <div className="card-footer">
+        <div className="club-info">
+          <p className="address">
+            <i className="bi bi-geo-alt"></i> {paddel.direccion}
+          </p>
+          <p className="phone">
+            <i className="bi bi-telephone"></i> {paddel.telefono}</p>
+        </div>
       </div>
     </div>
   );
 };
-
-
 
 export default PaddelCard;

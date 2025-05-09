@@ -1,0 +1,250 @@
+.hover-card {
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  height: 100%;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: cardEnter 0.6s ease forwards;
+}
+@keyframes cardEnter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.hover-card {
+  transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.4s ease;
+}
+.hover-card:hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+}
+.image-container {
+  position: relative;
+  height: 220px;
+  overflow: hidden;
+  transition: transform 0.4s ease;
+}
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.image-container:hover .card-image {
+  transform: scale(1.1);
+}
+.sport-overlay {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #2d3748;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+.sport-overlay:hover {
+  transform: scale(1.1);
+}
+.card-body {
+  padding: 1.2rem;
+}
+.card-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 0.75rem;
+}
+.card-description {
+  font-size: 0.95rem;
+  color: #4a5568;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+  min-height: 45px;
+}
+.sports-container {
+  margin-bottom: 1rem;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: sportsFade 0.5s ease forwards 0.3s;
+}
+@keyframes sportsFade {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.sports-container strong {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: #2d3748;
+}
+.badges-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.sport-badge {
+  background: #edf2f7;
+  color: #3182ce;
+  padding: 0.4rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+.sport-badge:hover {
+  background: #3182ce;
+  color: #fff;
+  transform: translateY(-3px) scale(1.05);
+}
+.buttons-container {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+.btn {
+  flex: 1;
+  padding: 0.65rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #3182ce, #68d391);
+  color: #fff;
+  border: none;
+}
+.btn-primary:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(49, 130, 206, 0.4);
+}
+.btn-secondary {
+  background: #edf2f7;
+  color: #2d3748;
+  border: 2px solid #cbd5e0;
+}
+.btn-secondary:hover {
+  background: #e2e8f0;
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+.card-footer {
+  padding: 0.8rem 1.2rem;
+  background: #fafafa;
+  border-top: 1px solid #e2e8f0;
+}
+.club-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.club-info p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #4a5568;
+}
+.club-info i {
+  margin-right: 0.4rem;
+  color: #3182ce;
+}
+
+/* Efecto 3D al hover */
+.hover-card {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 0.4s ease, opacity 0.4s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-8px) scale(1.02) rotateX(1deg) rotateY(1deg);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(49, 130, 206, 0.2);
+}
+
+/* Efecto parallax en imagen */
+.image-container {
+  transform: translateZ(30px);
+  transition: transform 0.4s ease;
+}
+
+.hover-card:hover .image-container {
+  transform: translateZ(40px);
+}
+
+/* Badges con efecto flotante */
+.sport-badge {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.sport-badge::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sport-badge:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(49, 130, 206, 0.2);
+}
+
+.sport-badge:hover::after {
+  opacity: 1;
+}
+
+/* Botones con efecto de profundidad */
+.btn {
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn:hover::before {
+  opacity: 1;
+}
+
+.btn-primary {
+  background: linear-gradient(
+    135deg,
+    rgba(49, 130, 206, 0.9),
+    rgba(104, 211, 145, 0.9)
+  );
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Footer con efecto de vidrio */
+.card-footer {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(203, 213, 224, 0.3);
+}

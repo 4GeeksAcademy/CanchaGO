@@ -40,7 +40,7 @@
 }
 .view-club-header .sport-pill {
   display: inline-block;
-  background: #28a745;
+  background: linear-gradient(to right, #7ed8f8, #055a92);
   color: #fff;
   padding: 0.4rem 1.2rem;
   border-radius: 999px;

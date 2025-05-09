@@ -58,7 +58,7 @@
   margin-bottom: 1rem;
 }
 .view-cancha-card .cancha-days .badge {
-  background: #007bff;
+  background: #1a72be;
   color: #fff;
   padding: 0.3rem 0.6rem;
   border-radius: 0.25rem;
@@ -88,7 +88,7 @@
   color: #fff;
 }
 .view-cancha-card .btn.book {
-  background: #007bff;
+  background: linear-gradient(to right, #7ed8f8, #055a92);
   border: none;
   color: #fff;
 }

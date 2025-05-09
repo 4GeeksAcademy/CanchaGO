@@ -2,8 +2,8 @@ const getState = ({ getStore, getActions, setStore }) => {
   return {
     store: {
       token: localStorage.getItem("token"),
-      role: null,
-      username: null,
+      role: localStorage.getItem("role"),
+      username: localStorage.getItem("username"),
       clubs: [],
       clubsDeportista: [],
       horarios_cancha: [],
@@ -94,6 +94,8 @@ const getState = ({ getStore, getActions, setStore }) => {
               //Setteamos el store
 
               localStorage.setItem("token", data.token);
+              localStorage.setItem("role", rol);
+              localStorage.setItem("username", username);
               setStore({
                 ...getStore(),
                 token: data.token,
@@ -130,6 +132,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 
       logoutUser: () => {
         localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        localStorage.removeItem("username");
         setStore({
           ...getStore(),
           token: null,

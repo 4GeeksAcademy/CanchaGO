@@ -1,3 +1,161 @@
-.modal-header .btn-close {
-  filter: invert(30%) sepia(93%) saturate(1200%) hue-rotate(340deg);
+/* Contenedor principal de modales */
+.reservation-modal .modal-content,
+.confirmation-modal .modal-content {
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Grid de horarios */
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.8rem;
+  padding: 1rem 0;
+  min-height: 160px;
+}
+
+/* Botones de horario */
+.slot-button {
+  position: relative;
+  overflow: hidden;
+  border-radius: 50px !important;
+  padding: 0.8rem 1.2rem;
+  font-size: 0.95rem;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease,
+    box-shadow 0.3s ease;
+  border: 2px solid #dee2e6;
+  background: #fff;
+  color: #495057;
+  min-width: 90px;
+  margin: 3px;
+}
+
+/* Efecto “ola” */
+.slot-button::after {
+  content: "";
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background: rgba(0, 123, 255, 0.2);
+  border-radius: 50%;
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.slot-button:active::after {
+  transform: scale(3);
+  opacity: 1;
+  transition: transform 0s, opacity 0.4s ease-out;
+}
+
+.slot-button:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+/* Estado seleccionado */
+.slot-button.selected {
+  background: #007bff;
+  color: #fff;
+  border-color: #007bff;
+  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.3);
+  transform: scale(1.05);
+}
+
+/* Spinner centrado */
+.loading-spinner {
+  display: grid;
+  place-items: center;
+  height: 160px;
+  grid-column: 1 / -1;
+}
+
+/* Mensaje sin slots */
+.no-slots {
+  text-align: center;
+  color: #6c757d;
+  grid-column: 1 / -1;
+  padding: 2rem 0;
+  font-style: italic;
+}
+
+/* Confirmación detalles */
+.confirmation-details p {
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.confirmation-details strong {
+  color: #34495e;
+  min-width: 120px;
+  display: inline-block;
+}
+
+.total-price {
+  color: #28a745;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid #eee;
+}
+
+/* Entradas/salidas para animar con React Transition Group */
+.modal-enter {
+  opacity: 0;
+  transform: scale(0.95);
+}
+.modal-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: all 300ms ease-out;
+}
+.modal-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+.modal-exit-active {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 300ms ease-in;
+}
+
+/* Badges de horas en confirmación */
+.confirmation-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.slot-badge {
+  background: #007bff;
+  color: #fff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.slot-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 123, 255, 0.4);
+}
+
+/* Convirtiendo “Cancelar” en botón más visible */
+.reservation-modal .btn-link,
+.confirmation-modal .btn-link {
+  color: #dc3545;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.reservation-modal .btn-link:hover,
+.confirmation-modal .btn-link:hover {
+  text-decoration: underline;
 }

@@ -1,19 +1,17 @@
+// ReservarModal.jsx
 import React, { useState, useEffect, useContext, useMemo } from 'react';
-import { Modal, Button, Form } from 'react-bootstrap';
+import { Modal, Button, Form, Spinner } from 'react-bootstrap';
 import { Context } from '../store/appContext';
 import { useAlert } from '../hooks/useAlert.js';
 import '../../styles/reservarmodal.css';
 import { loadStripe } from '@stripe/stripe-js';
-import { useNavigate } from 'react-router-dom';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PK);
 
-const ReservarModal = ({ show, onClose, cancha, onReserve }) => {
+const ReservarModal = ({ show, onClose, cancha }) => {
     const { store, actions } = useContext(Context);
-    const { success, error } = useAlert();
-    const navigate = useNavigate();
+    const { error } = useAlert();
 
-    // Fecha raw de hoy (YYYY-MM-DD) usando hora local sin toISOString
     const today = new Date();
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, '0');
@@ -21,48 +19,48 @@ const ReservarModal = ({ show, onClose, cancha, onReserve }) => {
     const todayRaw = `${yyyy}-${mm}-${dd}`;
 
     const [rawDate, setRawDate] = useState(todayRaw);
-    const formattedDate = rawDate.split('-').reverse().join('/'); // dd/mm/yyyy
+    const formattedDate = rawDate.split('-').reverse().join('/');
 
     const [slots, setSlots] = useState([]);
     const [selected, setSelected] = useState([]);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-    // Carga de slots al abrir modal o cambiar fecha
+    // Carga de horarios
     useEffect(() => {
         if (!show) return;
-        setSelected([]);
-        setSlots([]);
+        setLoading(true);
         actions.clearHorariosCancha();
         actions.getHorariosCancha(cancha.idCancha, formattedDate)
             .then(res => {
                 if (res.success) {
-                    setSlots(store.horarios_cancha.horarios_disponibles);
+                    setSlots(store.horarios_cancha.horarios_disponibles || []);
                 } else {
                     error(res.message);
                     setSlots([]);
                 }
-            });
-    }, [show, rawDate, cancha.idCancha]);
+            })
+            .finally(() => setLoading(false));
+    }, [show, rawDate]);
 
-    // Filtra slots hoy con +2h, otros días muestra todos
+    // Filtrado
     const displaySlots = useMemo(() => {
+        const safeSlots = Array.isArray(slots) ? slots : [];
         if (rawDate === todayRaw) {
             const now = new Date();
-            const threshold = new Date(now.getTime() + 1 * 60 * 60 * 1000);
-            return slots.filter(slot => {
+            const threshold = new Date(now.getTime() + 60 * 60 * 1000);
+            return safeSlots.filter(slot => {
                 const [h, m] = slot.split(':').map(Number);
-                const slotDate = new Date(`${rawDate}T${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`);
+                const slotDate = new Date(`${rawDate}T${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:00`);
                 return slotDate >= threshold;
             });
         }
-        return slots;
+        return safeSlots;
     }, [rawDate, slots]);
 
     const toggleSlot = slot => {
         setSelected(prev =>
-            prev.includes(slot)
-                ? prev.filter(s => s !== slot)
-                : [...prev, slot]
+            prev.includes(slot) ? prev.filter(s => s !== slot) : [...prev, slot]
         );
     };
 
@@ -72,34 +70,36 @@ const ReservarModal = ({ show, onClose, cancha, onReserve }) => {
         setShowConfirm(true);
     };
 
-    const confirm = async () => {
-        // 1) Extrae la frecuencia en minutos
-        const freqStr = cancha?.horario?.frecuencia;
-        let freqMin;
+    const handleBack = () => {
+        setSelected([]);         // limpia selección
+        setShowConfirm(false);
+    };
 
-        if (freqStr?.endsWith('h')) {
-            freqMin = parseInt(freqStr, 10) * 60;
-        } else if (freqStr?.endsWith('min')) {
-            freqMin = parseInt(freqStr, 10);
-        } else {
-            error('Frecuencia inválida: ' + freqStr);
-            return;
-        }
-        // 2) Prepara la data con todas las franjas
-        const reservaData = {
+    const confirm = async () => {
+        const freqStr = cancha?.horario?.frecuencia;
+        let freqMin = freqStr?.endsWith('h')
+            ? parseInt(freqStr, 10) * 60
+            : freqStr?.endsWith('min')
+                ? parseInt(freqStr, 10)
+                : null;
+
+        if (!freqMin) return error('Frecuencia inválida: ' + freqStr);
+
+        const monto = selected.length * (cancha.precio ?? 0);
+        const data = {
             idCancha: cancha.idCancha,
             nombreCancha: cancha.nombre,
             fecha: formattedDate,
-            slots: selected,       // ej. ["16:00","17:00","18:00"]
-            frecuencia: freqMin,        // ej. 60 o 30
-            monto: selected.length * cancha.precio
+            slots: selected,
+            frecuencia: freqMin,
+            monto
         };
 
         try {
-            const sessionId = await actions.createCheckoutSession(reservaData);
+            const sessionId = await actions.createCheckoutSession(data);
             const stripe = await stripePromise;
             const result = await stripe.redirectToCheckout({ sessionId });
-            if (result && result.error) throw result.error;
+            if (result?.error) throw result.error;
         } catch (e) {
             error(e.message);
             onClose();
@@ -108,8 +108,13 @@ const ReservarModal = ({ show, onClose, cancha, onReserve }) => {
 
     return (
         <>
-            <Modal show={show} onHide={onClose} centered>
-                <Modal.Header closeButton className="bg-dark text-white">
+            <Modal
+                show={show && !showConfirm}
+                onHide={onClose}
+                centered
+                dialogClassName="reservation-modal"
+            >
+                <Modal.Header closeButton>
                     <Modal.Title>Reservar {cancha.nombre}</Modal.Title>
                 </Modal.Header>
                 <Form onSubmit={handleSubmit}>
@@ -121,46 +126,63 @@ const ReservarModal = ({ show, onClose, cancha, onReserve }) => {
                                 value={rawDate}
                                 onChange={e => setRawDate(e.target.value)}
                                 min={todayRaw}
-                                max={
-                                    new Date(new Date().setFullYear(new Date().getFullYear() + 1))
-                                        .toISOString().split('T')[0]
-                                }
+                                max={new Date(new Date().setFullYear(yyyy + 1))
+                                    .toISOString().split('T')[0]}
                                 required
                             />
                         </Form.Group>
-                        <Form.Group>
-                            <Form.Label>Horarios disponibles</Form.Label>
-                            <div className="d-flex flex-wrap gap-2">
-                                {displaySlots.map(slot => (
-                                    <Button
-                                        key={slot}
-                                        variant={selected.includes(slot) ? 'primary' : 'outline-primary'}
-                                        onClick={() => toggleSlot(slot)}
-                                        className="rounded-pill py-1"
-                                        style={{ minWidth: '80px' }}
-                                    >{slot}</Button>
-                                ))}
-                                {displaySlots.length === 0 && <p>No hay horarios disponibles.</p>}
-                            </div>
-                        </Form.Group>
+
+                        <div className="slots-grid">
+                            {loading && (
+                                <div className="loading-spinner">
+                                    <Spinner animation="border" />
+                                </div>
+                            )}
+                            {!loading && displaySlots.map(slot => (
+                                <button
+                                    key={slot}
+                                    type="button"
+                                    aria-pressed={selected.includes(slot)}
+                                    className={`slot-button ${selected.includes(slot) ? 'selected' : ''}`}
+                                    onClick={() => toggleSlot(slot)}
+                                >
+                                    {slot}
+                                </button>
+                            ))}
+                            {!loading && !displaySlots.length && (
+                                <div className="no-slots">No hay horarios disponibles.</div>
+                            )}
+                        </div>
                     </Modal.Body>
-                    <Modal.Footer className="justify-content-end">
-                        <Button variant="secondary" onClick={onClose}>Cancelar</Button>
-                        <Button variant="primary" type="submit" disabled={!selected.length}>Siguiente</Button>
+                    <Modal.Footer>
+                        <Button variant="link" onClick={onClose}>Cancelar</Button>
+                        <Button variant="primary" type="submit" disabled={!selected.length}>
+                            Revisar reserva
+                        </Button>
                     </Modal.Footer>
                 </Form>
             </Modal>
-            <Modal show={showConfirm} onHide={() => setShowConfirm(false)} centered>
-                <Modal.Header closeButton className="bg-dark text-white">
+
+            <Modal
+                show={showConfirm}
+                onHide={handleBack}
+                centered
+                dialogClassName="confirmation-modal"
+            >
+                <Modal.Header closeButton>
                     <Modal.Title>Confirmar Reserva</Modal.Title>
                 </Modal.Header>
-                <Modal.Body>
+                <Modal.Body className="confirmation-details">
                     <p><strong>Fecha:</strong> {formattedDate}</p>
-                    <p><strong>Horas:</strong> {selected.join(', ')}</p>
-                    <p><strong>Total:</strong> ${selected.length * cancha.precio}</p>
+                    <div className="confirmation-slots">
+                        {selected.map(slot => (
+                            <span key={slot} className="slot-badge">{slot}</span>
+                        ))}
+                    </div>
+                    <p className="total-price"><strong>Total:</strong> ${(selected.length * (cancha.precio ?? 0)).toFixed(2)}</p>
                 </Modal.Body>
-                <Modal.Footer className="justify-content-end">
-                    <Button variant="secondary" onClick={() => setShowConfirm(false)}>Volver</Button>
+                <Modal.Footer>
+                    <Button variant="outline-secondary" onClick={handleBack}>Volver</Button>
                     <Button variant="success" onClick={confirm}>Confirmar</Button>
                 </Modal.Footer>
             </Modal>

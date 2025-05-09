@@ -2,11 +2,20 @@ import React, { useState } from 'react';
 import '../../styles/ViewCanchaCard.css';
 import DisponibilidadModal from './DisponibilidadModal.jsx';
 import ReservarModal from './ReservarModal.jsx';
+import { useAlert } from '../hooks/useAlert.js';
+import { useContext } from 'react';
+import { Context } from '../store/appContext.js';
+import { useNavigate } from 'react-router-dom';
 
 const formatHora = h => h?.slice(0, 5) || '';
 const formatUnit = f => f === '30min' ? '30 min' : 'hora';
 
 const ViewCanchaCard = ({ cancha }) => {
+
+    const { store, actions } = useContext(Context);
+    const { success, error } = useAlert();
+    const navigate = useNavigate();
+
     const [showDisp, setShowDisp] = useState(false);
     const [showBook, setShowBook] = useState(false);
 
@@ -39,7 +48,17 @@ const ViewCanchaCard = ({ cancha }) => {
                     <button className="btn details" onClick={() => setShowDisp(true)}>
                         Ver Detalles
                     </button>
-                    <button className="btn book" onClick={() => setShowBook(true)}>
+                    <button className="btn book" onClick={() => {
+
+                        if (store.token === null) {
+                            error('Inicia sesión para reservar una cancha');
+                            navigate('/login');
+                        }
+                        else {
+                            setShowBook(true)
+                        }
+                    }
+                    }>
                         Reservar
                     </button>
                 </div>

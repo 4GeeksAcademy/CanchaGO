@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import "../../styles/navbarPropietario.css";
 import canchaLogoSinFondo from "../../img/canchago-sinfondo.png";
 
-
 const Navbarpropietario = ({ onOpenCrearClub }) => {
   const { store, actions } = useContext(Context);
   const { token, role, username } = store;
@@ -17,12 +16,8 @@ const Navbarpropietario = ({ onOpenCrearClub }) => {
   const handleSettings = () => navigate('/Configuraciones');
   const handleReservas = () => navigate('/Reservas');
 
-  // const handleIniciarComoDeportista = () => {
-  //   navigate('/home');
-  // };
-
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark shadow">
+    <nav className="navbar navbar-expand-lg navbar-dark shadow custom-navbar-propietario">
       <div className="container-fluid px-4">
         <div className="logoContainer" onClick={goHome}>
           <img src={canchaLogoSinFondo} alt="CanchaGO" />
@@ -38,22 +33,13 @@ const Navbarpropietario = ({ onOpenCrearClub }) => {
 
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-            <li className="nav-item">
-
-            </li>
+            <li className="nav-item"></li>
           </ul>
 
-          <div className="d-flex align-items-center gap-3">
-            {/* {role == "Deportista" && (
-              <button className="btn btn-outline-light btn-lg" onClick={handleIniciarComoDeportista}>
-                Iniciar como Deportista
-              </button>
-            )} */}
-
-            <button className="btn btn-outline-light btn-lg" onClick={onOpenCrearClub}>
-              Crear Club
+          <div className="d-flex align-items-center gap-3 navbar-buttons-container">
+            <button className="btn btn-outline-light btn-lg mx-2" onClick={onOpenCrearClub}>
+              + Crear Club
             </button>
-
 
             {username && (
               <div className="dropdown">

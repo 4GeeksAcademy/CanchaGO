@@ -89,31 +89,36 @@ const ViewCanchas = () => {
         />
       )}
 
-      <div className="container mt-4">
-        <div className="row mb-4">
-          <div className="col-md-6">
-            <h2 className="mb-3">{club.nombre}</h2>
-            <p className="text-muted">{club.descripcion}</p>
-            <div className="d-flex flex-wrap gap-2 mb-3">
+      <div className="container mt-4 px-lg-5">
+        <div className="row mb-4 g-4 align-items-start">
+          <div className="col-md-6 order-2 order-md-1">
+            <h2 className="mb-3 fw-bold">{club.nombre}</h2>
+            <p className="text-muted mb-4" style={{ lineHeight: '1.6' }}>{club.descripcion}</p>
+            <div className="d-flex flex-wrap gap-2 mb-4">
               {club.deportes.map((sport, index) => (
-                <span key={index} className="badge bg-success">{sport}</span>
+                <span key={index} className="badge bg-success py-2 px-3" style={{ borderRadius: '20px' }}>{sport}</span>
               ))}
             </div>
           </div>
-          <div className="col-md-6">
+          <div className="col-md-6 order-1 order-md-2">
             <img
               src={club.imagen}
               alt={club.nombre}
-              className="img-fluid rounded shadow"
-              style={{ maxHeight: '200px' }}
+              className="img-fluid rounded-3 shadow"
+              style={{
+                maxHeight: '250px',
+                width: '100%',
+                objectFit: 'cover'
+              }}
             />
           </div>
         </div>
 
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h3>Canchas Disponibles</h3>
-          <span className="badge bg-success">{canchas.length} canchas</span>
+        <div className="d-flex justify-content-between align-items-center mb-4 px-2">
+          <h3 className="m-0">Canchas Disponibles</h3>
+          <span className="badge bg-success fs-6 py-2 px-3" style={{ borderRadius: '20px' }}>{canchas.length} canchas</span>
         </div>
+
 
         {canchas.length === 0 ? (
           <div className="alert alert-info">

@@ -125,7 +125,7 @@ def crear_reserva_interna(data, stripe_payment_id=None):
     return jsonify({"message": "Reserva creada exitosamente", "reserva": nueva_reserva.serialize()}), 201
 
 #---------------------------------------------------------------------------------------------------------------
-# Endpoints principales
+# Endpoints principales para Stripe
 
 @reserva_bp.route('/crear', methods=['POST'])
 @jwt_required()
@@ -258,6 +258,9 @@ def confirm_reserva():
     }), 201
     
 
+#finalizan los endpoinys para stripe
+#---------------------------------------------------------------------------------------------------------------
+
 
 #---------------------------------------------------------------------------------------------------------------
 # Otros endpoints
@@ -285,6 +288,14 @@ def disponibilidad():
             return jsonify({'error': 'Cancha no encontrada'}), 404
 
         fecha_dt = datetime.strptime(fecha_str, "%d/%m/%Y").date()
+
+        # Validar día de la semana contra diasDisponibles
+        dias_disponibles = cancha.horario.diasDisponibles or ''
+        dias_list = [d.strip().lower() for d in dias_disponibles.split(',') if d.strip()]
+        nombres_semana = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo']
+        dia_nombre = nombres_semana[fecha_dt.weekday()]
+        if dia_nombre not in dias_list:
+            return jsonify({'error': f'La [ {cancha.nombre} ] no está disponible los días {dia_nombre.capitalize()}'}), 400
         
         # Configuración de horario
         hi = cancha.horario.horarioInicio

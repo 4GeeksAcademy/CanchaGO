@@ -1,6 +1,12 @@
-.custom-navbar-propietario {
+.custom-navbar-deportista {
   background: linear-gradient(to right, #7ed8f8, #055a92);
+  border: 0;
+  margin: 0;
+  width: 100%;
   padding: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   height: 11vh;
 }
 
@@ -19,9 +25,4 @@
 .logoContainer img {
   width: 100%;
   height: auto;
-}
-
-.navbar-buttons-container .btn {
-  margin: 0 5px;
-  min-width: 140px;
 }

@@ -84,17 +84,17 @@ const Propietario = () => {
         />
       )}
 
-      <div className="container mt-4">
-        <h2 className="mb-4" style={{
+      <div className="container mt-4 px-lg-5">
+        <h2 className="mb-4 text-center text-md-start" style={{
           fontFamily: "'Playfair Display', serif",
-          fontSize: '36px',
+          fontSize: '2.5rem',
           color: '#2c3e50',
           fontWeight: '700',
           letterSpacing: '1px',
           textShadow: '1px 1px 2px rgba(0, 0, 0, 0.2)',
-          marginBottom: '20px'
+          marginBottom: '2rem'
         }}>Mis Clubes</h2>
-        <div className="row">
+        <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
           {Array.isArray(store.clubs) ? (
             store.clubs.length === 0 ? (
               <p>No has creado clubes aún.</p>

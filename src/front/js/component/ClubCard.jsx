@@ -37,39 +37,51 @@ const ClubCard = ({ club, onDelete, onEdit }) => {
   return (
     <>
       <div className="col-md-4 mb-4 d-flex">
-        <div className="card shadow flex-fill" style={{ borderRadius: '16px' }}>
+        <div className="card shadow flex-fill" style={{
+          borderRadius: '16px',
+          transition: 'transform 0.2s',
+          minHeight: '420px'
+        }}>
           <img
             src={club.imagen}
             className="card-img-top"
-            style={{ height: '200px', objectFit: 'cover', borderTopLeftRadius: '16px', borderTopRightRadius: '16px' }}
+            style={{
+              height: '200px',
+              objectFit: 'cover',
+              borderTopLeftRadius: '16px',
+              borderTopRightRadius: '16px',
+              width: '100%'
+            }}
             alt={club.name}
           />
-          <div className="card-body d-flex flex-column">
-            <h5 className="card-title mb-1">{club.nombre}</h5>
-            <p className="card-text mb-2">{club.descripcion}</p>
+          <div className="card-body d-flex flex-column p-3">
+            <h5 className="card-title mb-2 fs-5 fw-bold">{club.nombre}</h5>
+            <p className="card-text mb-3 text-muted" style={{ fontSize: '0.9rem' }}>{club.descripcion}</p>
 
             <div className="mb-3">
-              <strong>Deportes:</strong>
-              <div className="d-flex flex-wrap gap-2 mt-1">
+              <strong className="d-block mb-2">Deportes:</strong>
+              <div className="d-flex flex-wrap gap-2">
                 {club.deportes.map((sport, index) => (
-                  <span key={index} className="badge bg-primary">{sport}</span>
+                  <span key={index} className="badge bg-primary py-2 px-3" style={{ borderRadius: '20px' }}>{sport}</span>
                 ))}
               </div>
             </div>
 
-            <div className="mt-auto d-flex justify-content-between">
-              <button className="btn btn-outline-primary btn-sm" onClick={handleViewDetails}>
+            <div className="mt-auto d-flex justify-content-between gap-2">
+              <button className="btn btn-outline-primary btn-sm flex-grow-1"
+                style={{ minWidth: '100px' }}
+                onClick={handleViewDetails}>
                 Ver Canchas
               </button>
-              <button className="btn btn-outline-warning btn-sm" onClick={handleEditClick}>
-                Editar
+              <button className="btn btn-outline-warning btn-sm px-3" onClick={handleEditClick}>
+                <i className="bi bi-pencil"></i> Editar
               </button>
-              <button className="btn btn-outline-danger btn-sm" onClick={handleDeleteClick}>
-                Eliminar
+              <button className="btn btn-outline-danger btn-sm px-3" onClick={handleDeleteClick}>
+                <i className="bi bi-trash"></i> Eliminar
               </button>
             </div>
           </div>
-          <div className="card-footer text-muted text-center">
+          <div className="card-footer text-muted text-center py-2" style={{ fontSize: '0.85rem' }}>
             <small>{club.direccion} | {club.telefono}</small>
           </div>
         </div>

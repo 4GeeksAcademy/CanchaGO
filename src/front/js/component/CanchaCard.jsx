@@ -41,9 +41,17 @@ const CanchaCard = ({ cancha, onDelete, onEdit, club }) => {
   return (
     <>
       <div className="col-md-4 mb-4">
-        <div className="card h-100 shadow" style={{ borderRadius: '12px' }}>
+        <div className="card h-100 shadow" style={{
+          borderRadius: '12px',
+          transition: 'transform 0.2s'
+        }}>
           {cancha.imagen && (
-            <div className="card-img-top" style={{ height: '180px', overflow: 'hidden' }}>
+            <div className="card-img-top" style={{
+              height: '200px',
+              overflow: 'hidden',
+              borderTopLeftRadius: '12px',
+              borderTopRightRadius: '12px'
+            }}>
               <img
                 src={cancha.imagen}
                 alt={cancha.nombre}
@@ -53,54 +61,52 @@ const CanchaCard = ({ cancha, onDelete, onEdit, club }) => {
             </div>
           )}
 
-          <div className="card-header bg-success text-white">
-            <h5 className="mb-0">{cancha.nombre}</h5>
+          <div className="card-header bg-success text-white py-3">
+            <h5 className="mb-0 fs-5 fw-bold">{cancha.nombre}</h5>
           </div>
-          <div className="card-body">
+
+          <div className="card-body p-3">
             <p className="mb-2"><strong>Deporte:</strong> {cancha.deporte}</p>
-            <p className="mb-2">
-              <strong>Días Disponible:</strong>
-              {cancha?.horario?.diasDisponibles ? (
-                cancha.horario.diasDisponibles.split(',').map((dia, index) => (
-                  <span key={index} className="badge bg-primary mx-1">{dia.trim()}</span>
-                ))
-              ) : (
-                <span className="text-danger ms-2">✗ Sin días disponibles</span>
-              )}
-            </p>
-            <p className="mb-3">
+
+            <div className="mb-3">
+              <strong className="d-block mb-2">Días Disponibles:</strong>
+              <div className="d-flex flex-wrap gap-2">
+                {cancha?.horario?.diasDisponibles ? (
+                  cancha.horario.diasDisponibles.split(',').map((dia, index) => (
+                    <span key={index} className="badge bg-primary py-2 px-3" style={{ borderRadius: '20px' }}>{dia.trim()}</span>
+                  ))
+                ) : (
+                  <span className="text-danger">Sin días disponibles</span>
+                )}
+              </div>
+            </div>
+
+            <p className="mb-0">
               <strong>Horario: </strong>
               <span className="text ms-2">
-                * {cancha.horario && cancha.horario.horarioInicio ? cancha.horario.horarioInicio.slice(0, 5) : 'Sin hora'} -
-              </span>
-              <span className="text ms-2">
-                {cancha.horario && cancha.horario.horarioFin ? cancha.horario.horarioFin.slice(0, 5) : 'Sin hora'}
+                {cancha.horario?.horarioInicio ? cancha.horario.horarioInicio.slice(0, 5) : 'Sin hora'} -
+                {cancha.horario?.horarioFin ? cancha.horario.horarioFin.slice(0, 5) : 'Sin hora'}
               </span>
             </p>
           </div>
-          <div className="card-footer bg-transparent">
-            <div className="d-flex justify-content-between">
-              {/* <button
-                className="btn btn-outline-success btn-sm"
-                onClick={handleDisponibilidadClick}
+
+          <div className="card-footer bg-transparent py-3">
+            <div className="d-flex justify-content-end gap-2">
+              <button
+                className="btn btn-outline-warning btn-sm d-flex align-items-center"
+                onClick={handleEditClick}
+                disabled={true}
+                style={{ width: '40px', justifyContent: 'center' }}
               >
-                Ver Disponibilidad
-              </button> */}
-              <div className="d-flex gap-2">
-                <button
-                  className="btn btn-outline-warning btn-sm"
-                  onClick={handleEditClick}
-                  disabled={true}
-                >
-                  Editar
-                </button>
-                <button
-                  className="btn btn-outline-danger btn-sm"
-                  onClick={handleDeleteClick}
-                >
-                  Eliminar
-                </button>
-              </div>
+                <i className="bi bi-pencil"> Editar </i>
+              </button>
+              <button
+                className="btn btn-outline-danger btn-sm d-flex align-items-center"
+                onClick={handleDeleteClick}
+                style={{ width: '40px', justifyContent: 'center' }}
+              >
+                <i className="bi bi-trash"> Eliminar </i>
+              </button>
             </div>
           </div>
         </div>

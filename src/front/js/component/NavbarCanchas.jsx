@@ -17,7 +17,6 @@ const NavbarCanchas = ({ onOpenCrearCancha }) => {
   const goToDashboard = () => navigate('/Propietario');
   const handleReservas = () => navigate('/Reservas');
 
-
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-success py-3 shadow">
       <div className="container-fluid px-4">
@@ -25,15 +24,23 @@ const NavbarCanchas = ({ onOpenCrearCancha }) => {
           <img src={canchaLogoSinFondo} alt="CanchaGO" />
         </div>
 
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <div className="d-flex align-items-center ms-auto gap-3">
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-            <button className="btn btn-outline-light btn-lg" onClick={goToDashboard}>
+        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          <div className="d-flex align-items-center ms-auto gap-3 navbar-buttons-container">
+            <button className="btn btn-outline-light btn-lg mx-2" onClick={goToDashboard}>
               <i className="fas fa-chart-line me-2"></i>Volver
             </button>
 
             <button
-              className="btn btn-light btn-lg"
+              className="btn btn-light btn-lg mx-2"
               onClick={onOpenCrearCancha}
             >
               <i className="fas fa-plus me-2"></i>Nueva Cancha
@@ -42,7 +49,7 @@ const NavbarCanchas = ({ onOpenCrearCancha }) => {
             {username && (
               <div className="dropdown">
                 <button
-                  className="btn btn-outline-light dropdown-toggle d-flex align-items-center px-3 py-2"
+                  className="btn btn-outline-light dropdown-toggle d-flex align-items-center px-3 py-2 mx-2"
                   type="button"
                   id="userDropdown"
                   data-bs-toggle="dropdown"

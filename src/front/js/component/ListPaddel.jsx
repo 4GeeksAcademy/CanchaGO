@@ -12,11 +12,11 @@ const ListPaddel = () => {
   const availableSports = ['Padel', 'Futbol', 'Tenis'];
   const [selectedSport, setSelectedSport] = useState('Padel');
   const [currentPage, setCurrentPage] = useState(1);
-  const cardsPerPage = 8;
+  const cardsPerPage = 6;
 
   const getPagination = () => {
     const range = [];
-    const maxPagesToShow = 5;
+    const maxPagesToShow = 10;
     if (totalPages <= maxPagesToShow) {
       for (let i = 1; i <= totalPages; i++) range.push(i);
     } else {
@@ -60,7 +60,7 @@ const ListPaddel = () => {
   return (
     <>
       <Navbar />
-      <div className="list-paddel-container">
+      <div className="list-paddel-container container-fluid">
         <div className="title-container">
           <h1 className="title-text">Clubs Deportivos</h1>
         </div>

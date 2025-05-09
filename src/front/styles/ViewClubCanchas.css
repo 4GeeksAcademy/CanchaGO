@@ -82,3 +82,7 @@
   font-style: italic;
   padding: 2rem;
 }
+
+.back-btn {
+  width: 120px;
+}

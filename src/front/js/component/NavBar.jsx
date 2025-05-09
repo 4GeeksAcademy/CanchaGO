@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Context } from '../store/appContext';
 import canchaLogoSinFondo from "../../img/canchago-sinfondo.png";
+import "../../styles/navbarDeportista.css"; // Asegúrate de crear este archivo CSS
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -16,8 +17,9 @@ const Navbar = () => {
   const handleSettings = () => navigate('/Configuraciones');
   const handleReservas = () => navigate('/MisReservas');
   const goHome = () => navigate('/');
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark py-2">
+    <nav className="navbar navbar-expand-lg navbar-dark custom-navbar-deportista py-2">
       <div className="container-fluid">
         <div className="logoContainer" onClick={goHome}>
           <img src={canchaLogoSinFondo} alt="CanchaGO" />
@@ -31,8 +33,6 @@ const Navbar = () => {
           <ul className="navbar-nav me-auto mb-2 mb-lg-0"></ul>
 
           <div className="d-flex align-items-center justify-content-center gap-3 ms-auto">
-
-
             {username && userRole === "Deportista" ? (
               <div className="dropdown">
                 <button
@@ -93,7 +93,6 @@ const Navbar = () => {
         </div>
       </div>
     </nav>
-
   );
 };
 

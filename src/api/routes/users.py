@@ -246,3 +246,83 @@ def delete_user(idUsuario):
     return jsonify({'msg': 'Usuario eliminado exitosamente'}), 200
 
 #------------------------------------------------------------------------------------------------
+
+
+
+#------------------------------------------------------------------------------------------------
+
+# 6) Ruta para actualizar un usuario por su email
+# PUT: /users/<int:idUsuario>
+@users_bp.route('/edit', methods=['PUT'])
+@jwt_required()
+def update_user():
+    data = request.get_json() or {}
+    if not data:
+        return jsonify({'msg': 'No se recibieron datos'}), 400
+    
+    #Obtenemos el 
+    nombreUsuario = get_jwt_identity()
+    user = Usuario.query.filter_by(nombreUsuario=nombreUsuario).first()
+    if not user:
+        return jsonify({'msg': 'Usuario no encontrado'}), 404
+
+    # Si viene nombreUsuario, chequear que no esté en uso por otro
+    if 'email' in data:
+        email = data.get('email').strip()
+        if email:
+            existing = Usuario.query.filter_by(email=email).first()
+            if existing and existing.idUsuario != user.idUsuario:
+                return jsonify({'msg': f"El email {data['email']} ya existe, elige otro"}), 409
+            user.email = email
+
+    if 'nombre' in data and data['nombre'].strip():
+        user.nombre = data['nombre'].strip()
+
+    if 'clave' in data and data['clave'].strip():
+        if 'clave' in data and data['clave'].strip().length < 8:
+            return jsonify({'msg': 'La clave debe tener al menos 8 caracteres'}), 400
+        user.clave = data['clave'].strip()
+
+    if 'telefono' in data and data['telefono'].strip():
+       
+        # Validación del número telefónico
+        telefono = data.get('telefono')
+
+        # Verifica que el número sea numérico y de exactamente 10 caracteres
+        if telefono.length != 10 or not telefono.isdigit():
+            return jsonify({'msg': 'El número telefónico debe ser numérico y tener exactamente 10 dígitos'}), 400
+        
+        # Verifica si el número ya existe
+        existing_phone = Usuario.query.filter_by(telefono=telefono).first()
+        if existing_phone and existing_phone.idUsuario != user.idUsuario:
+            return jsonify({'msg': 'El número telefónico ya está registrado'}), 409
+        
+        # Si el número es válido y no está en uso, lo asignamos al usuario
+        user.telefono = data['telefono'].strip()
+    
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify({'msg': 'Usuario actualizado exitosamente', 'usuario': user.serialize()}), 200
+
+
+#Finaliza la funcion editar usuario
+#------------------------------------------------------------------------------------------------
+
+
+#------------------------------------------------------------------------------------------------
+# 7) ruta para obtener los datos de un usuario por su nombre usuario
+# GET: /userinfo
+
+@users_bp.route('/userinfo', methods=['GET'])
+@jwt_required()
+def get_user_info():
+    nombreUsuario = get_jwt_identity()
+    user = Usuario.query.filter_by(nombreUsuario=nombreUsuario).first()
+    if not user:
+        return jsonify({'msg': 'Usuario no encontrado'}), 404
+    
+    return jsonify({
+        'msg': 'Información del usuario',
+        'usuario': user.serialize()
+    }), 200

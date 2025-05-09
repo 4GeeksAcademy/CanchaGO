@@ -55,7 +55,7 @@ const PaddelCard = ({ paddel, selectedSport }) => {
         </div>
 
         <button className="view-button" onClick={handleViewCanchas}>
-          <span>Explorar Instalaciones</span>
+          <span>Ver Canchas</span>
         </button>
       </div>
     </div>

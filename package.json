@@ -77,6 +77,7 @@
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^7.3.0",
     "bootstrap": "^5.3.5",
+    "framer-motion": "^12.10.5",
     "prop-types": "^15.6.1",
     "qrcode.react": "^4.2.0",
     "react": "^19.1.0",

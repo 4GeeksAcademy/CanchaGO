@@ -1,5 +1,7 @@
+// ViewClubCanchas.jsx
 import React, { useEffect, useContext, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { FiArrowLeft } from 'react-icons/fi';
 import ViewCanchaCard from './ViewCanchaCard.jsx';
 import Navbar from './NavBar.jsx';
 import { Context } from '../store/appContext.js';
@@ -14,6 +16,8 @@ const ViewClubCanchas = () => {
     const [club, setClub] = useState(null);
 
     useEffect(() => {
+
+        window.scrollTo(0, 0);
         if (store.clubsDeportista.length) {
             const found = store.clubsDeportista.find(c => c.email === email.trim());
             setClub(found || null);
@@ -24,32 +28,57 @@ const ViewClubCanchas = () => {
         <>
             <Navbar />
             <div className="view-club-page">
-                <div className="view-club-container container mt-4">
+                <div className="view-club-container">
                     <div className="view-club-header">
                         <button
-                            className="btn btn-danger back-btn"
+                            className="back-btn"
                             onClick={() => navigate(-1)}
                         >
-                            <i className="fa-solid fa-arrow-left"></i> Volver
+                            <FiArrowLeft className="back-icon" />
+                            Volver
                         </button>
-                        <h2 className="club-title">{club?.nombre || 'Cargando...'}</h2>
-                        <p className="club-address">{club?.direccion}</p>
-                        <span className="sport-pill">{selectedSport}</span>
+
+                        <div className="header-content">
+                            <h1 className="club-title">{club?.nombre || 'Cargando...'}</h1>
+                            <div className="club-info">
+
+                                <span className="club-address">📍 {club?.direccion} </span>
+
+
+
+                                <span className="sport-pill">{selectedSport}</span>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="row cancha-grid">
-                        {club?.canchas
-                            .filter(c => c.deporte === selectedSport)
-                            .map(cancha => (
-                                <div key={cancha.idCancha} className="col">
-                                    <ViewCanchaCard cancha={cancha} />
+                    <div className="cancha-grid-container">
+                        {club?.canchas?.filter(c => c.deporte === selectedSport).length > 0 ? (
+                            <div className="cancha-grid">
+                                {club.canchas
+                                    .filter(c => c.deporte === selectedSport)
+                                    .map((cancha, index) => (
+                                        <ViewCanchaCard
+                                            key={cancha.idCancha}
+                                            cancha={cancha}
+                                            index={index}
+                                        />
+                                    ))}
+                            </div>
+                        ) : (
+                            <div className="no-canchas">
+                                <div className="empty-state">
+                                    <div className="empty-icon">⛔</div>
+                                    <h3>No hay canchas disponibles</h3>
+                                    <p>Prueba con otro deporte o club</p>
+                                    {/* <button
+                                        className="back-btn"
+                                        onClick={() => navigate(-1)}
+                                    >
+                                        <FiArrowLeft />
+                                        Volver
+                                    </button> */}
                                 </div>
-                            ))}
-
-                        {club && !club.canchas.some(c => c.deporte === selectedSport) && (
-                            <p className="no-canchas">
-                                No hay canchas disponibles para {selectedSport}
-                            </p>
+                            </div>
                         )}
                     </div>
                 </div>

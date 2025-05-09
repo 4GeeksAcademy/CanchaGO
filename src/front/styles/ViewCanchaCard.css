@@ -1,97 +1,193 @@
-/* Card con bordes redondeados, sombra suave y suave escala en hover */
+/* ViewCanchaCard.css */
 .view-cancha-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid #f1f5f9;
   display: flex;
   flex-direction: column;
-  background: #fff;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
-  z-index: 1;
-}
-.view-cancha-card:hover {
-  transform: scale(1.04);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
-  z-index: 5; /* sobrepone sobre hermanos */
+  min-height: 420px;
 }
 
-/* Imagen de la cancha */
-.view-cancha-card .cancha-img {
-  width: 100%;
-  height: 180px;
-  overflow: hidden;
+.view-cancha-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
-.view-cancha-card .cancha-img img {
+
+.cancha-media {
+  position: relative;
+  height: 240px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.cancha-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.4s ease;
 }
 
-/* Cuerpo de la card */
-.view-cancha-card .cancha-body {
-  padding: 1.25rem;
-  flex: 1;
+.cancha-image:hover {
+  transform: scale(1.03);
 }
-.view-cancha-card .cancha-name {
-  font-size: 1.4rem;
+
+.price-badge {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 0.8rem 1.2rem;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(224, 232, 240, 0.4);
+  display: flex;
+  gap: 0.25rem;
+  align-items: baseline;
+  backdrop-filter: none;
+}
+
+.price-amount {
+  font-size: 1.5rem;
   font-weight: 700;
-  color: #212529;
-  margin-bottom: 0.5rem;
+  color: #1e3a8a;
+  line-height: 1;
 }
-.view-cancha-card .cancha-price {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #28a745;
-  margin-bottom: 0.75rem;
+
+.price-unit {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
 }
-.view-cancha-card .cancha-schedule {
-  font-size: 0.95rem;
-  color: #6c757d;
-  font-style: italic;
-  margin-bottom: 0.75rem;
+
+.cancha-content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
-.view-cancha-card .cancha-days {
+
+.cancha-name {
+  font-size: 1.3rem;
+  color: #0f172a;
+  margin: 0 auto 1rem;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.schedule-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  color: #475569;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 0.75rem;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.schedule-icon {
+  color: #3b82f6;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.days-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  margin-bottom: 1rem;
-}
-.view-cancha-card .cancha-days .badge {
-  background: #1a72be;
-  color: #fff;
-  padding: 0.3rem 0.6rem;
-  border-radius: 0.25rem;
-  font-size: 0.8rem;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  justify-content: center;
 }
 
-/* Footer con botones pill */
-.view-cancha-card .cancha-footer {
-  display: flex;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: #f8f9fa;
-}
-.view-cancha-card .btn {
-  flex: 1;
-  border-radius: 999px;
+.day-pill {
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  transition: background 0.3s, color 0.3s;
+  border: 1px solid #bfdbfe;
+  text-align: center;
+  text-transform: capitalize;
+  min-width: 80px;
 }
-.view-cancha-card .btn.details {
-  background: transparent;
-  border: 1px solid #6c757d;
-  color: #6c757d;
+
+.actions-container {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: auto;
 }
-.view-cancha-card .btn.details:hover {
-  background: #6c757d;
-  color: #fff;
-}
-.view-cancha-card .btn.book {
-  background: linear-gradient(to right, #7ed8f8, #055a92);
+
+.details-btn {
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 1rem;
   border: none;
-  color: #fff;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
-.view-cancha-card .btn.book:hover {
-  background: #0056b3;
+
+.details-btn:hover {
+  background: #dbeafe;
+}
+
+.book-btn {
+  background: #3182ce;
+  color: white;
+  padding: 1rem;
+  border: none;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  flex: 2;
+}
+
+.book-btn:hover {
+  background: #1e40af;
+}
+
+@media (max-width: 768px) {
+  .view-cancha-card {
+    min-height: auto;
+  }
+
+  .cancha-media {
+    height: 200px;
+  }
+
+  .price-badge {
+    padding: 0.6rem 1rem;
+  }
+
+  .price-amount {
+    font-size: 1.3rem;
+  }
+
+  .actions-container {
+    flex-direction: column;
+  }
+
+  .details-btn,
+  .book-btn {
+    width: 100%;
+  }
 }

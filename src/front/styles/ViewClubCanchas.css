@@ -1,88 +1,134 @@
-/* Fondo gris alrededor de la sección */
+/* ViewClubCanchas.css */
 .view-club-page {
-  background-color: #f0f2f5;
-  padding: 2rem 0;
+  background: #f8fafc;
+  min-height: 100vh;
+  padding: 2rem 1rem;
 }
 
-/* Contenedor blanco centrado con sombra pro */
 .view-club-container {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.12);
+  max-width: 1440px;
   margin: 0 auto;
-  max-width: 1200px;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
 }
 
-/* Header con botón "Volver", nombre, dirección y pill de deporte */
 .view-club-header {
+  padding: 3rem 2rem 1rem;
   text-align: center;
-  margin-bottom: 2rem;
   position: relative;
-}
-.view-club-header .back-btn {
-  position: absolute;
-  left: 0;
-  top: 0;
-  transform: translateY(0.25rem);
-}
-.view-club-header .club-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #212529;
-  text-transform: uppercase;
-  margin-bottom: 0.25rem;
-}
-.view-club-header .club-address {
-  font-size: 1rem;
-  color: #6c757d;
-  margin-bottom: 0.75rem;
-}
-.view-club-header .sport-pill {
-  display: inline-block;
-  background: linear-gradient(to right, #7ed8f8, #055a92);
-  color: #fff;
-  padding: 0.4rem 1.2rem;
-  border-radius: 999px;
-  font-size: 1rem;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-}
-.view-club-header .sport-pill:hover {
-  transform: translateY(-2px);
-}
-
-/* Grid de canchas con scroll vertical y overflow visible para hover */
-.cancha-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  max-height: 75vh;
-  overflow-y: auto;
-  overflow-x: visible; /* permite que los hover escalen sin cortarse */
-  padding-right: 0.5rem;
-}
-.cancha-grid .col {
-  overflow: visible; /* deja ver las transformaciones de los hijos */
-}
-.cancha-grid::-webkit-scrollbar {
-  width: 6px;
-}
-.cancha-grid::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
-}
-
-/* Mensaje cuando no hay canchas */
-.no-canchas {
-  grid-column: 1 / -1;
-  text-align: center;
-  color: #6c757d;
-  font-style: italic;
-  padding: 2rem;
 }
 
 .back-btn {
-  width: 120px;
+  position: absolute;
+  left: 2rem;
+  top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f1f5f9;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+.header-content {
+  max-width: 800px;
+  margin: 2rem auto 1rem;
+}
+
+.club-title {
+  font-size: 2.5rem;
+  color: #0f172a;
+  margin: 0 0 0.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.club-info {
+  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.club-address {
+  background: #ffffff;
+  color: rgb(0, 0, 0);
+  padding: 0.5rem 2rem;
+  border-radius: 2rem;
+  font-size: 1.1rem;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+.sport-pill {
+  background: #1d4ed8;
+  color: white;
+  padding: 0.5rem 2rem;
+  border-radius: 2rem;
+  font-size: 1.1rem;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+.cancha-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  padding: 2rem;
+}
+
+@media (max-width: 1200px) {
+  .cancha-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .view-club-header {
+    padding: 5rem 1.5rem 1rem;
+  }
+
+  .back-btn {
+    position: static;
+    margin: 0 auto 1rem;
+    width: fit-content;
+  }
+
+  .club-title {
+    font-size: 2rem;
+  }
+
+  .cancha-grid {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .club-title {
+    font-size: 1.75rem;
+  }
+
+  .club-address {
+    font-size: 1rem;
+    width: 100%;
+    text-align: center;
+  }
+
+  .sport-pill {
+    width: 100%;
+    text-align: center;
+    padding: 0.75rem;
+  }
 }

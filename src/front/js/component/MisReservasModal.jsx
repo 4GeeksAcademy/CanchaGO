@@ -1,95 +1,114 @@
+// MisReservasModal.jsx
 import React, { useState } from 'react';
-import { Modal, Button } from 'react-bootstrap';
+import { Modal, Button, Badge, Alert } from 'react-bootstrap';
+import {
+    FaCalendarAlt,
+    FaClock,
+    FaMoneyBillWave,
+    FaMapMarkerAlt,
+    FaTimes,
+    FaInfoCircle,
+    FaExclamationTriangle
+} from 'react-icons/fa';
 
-const MisReservasModal = ({
-    show,
-    onHide,
-    reserva,
-    hora,
-    onCancel
-}) => {
-    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+const MisReservasModal = ({ show, onHide, reserva, onCancel }) => {
+    const [confirming, setConfirming] = useState(false);
 
     if (!reserva) return null;
 
     return (
         <>
-            {/* Main Details Modal */}
-            <Modal show={show} onHide={onHide} centered>
+            <Modal show={show} onHide={onHide} centered size="lg">
                 <Modal.Header closeButton className="bg-dark text-white">
-                    <Modal.Title>Detalles de Reserva</Modal.Title>
+                    <Modal.Title>
+                        <FaInfoCircle className="me-2" />
+                        Detalles de Reserva
+                    </Modal.Title>
                 </Modal.Header>
+
                 <Modal.Body>
-                    <div className="text-center mb-4">
-                        <img
-                            src={reserva.clubImagen}
-                            alt={reserva.clubNombre}
-                            className="img-fluid rounded-3 mb-3"
-                            style={{ maxHeight: '200px', width: '100%', objectFit: 'cover' }}
-                        />
-                    </div>
-
-                    <div className="reservation-details">
-                        <h4 className="mb-3 text-center">{reserva.clubNombre}</h4>
-                        <div className="mb-3">
-                            <p><strong>Código de Reserva:</strong> {reserva.id}-{hora.replace(':', '')}</p>
-                            <p><strong>Cancha:</strong> {reserva.canchaNombre}</p>
-                            <p><strong>Fecha:</strong> {reserva.fecha}</p>
-                            <p><strong>Hora:</strong> {hora}</p>
-                            {reserva.pricePerHour && (
-                                <p><strong>Precio:</strong> ${reserva.pricePerHour}</p>
-                            )}
+                    <div className="reserva-meta">
+                        <div className="reserva-meta-item">
+                            <Badge bg="dark" className="mb-3" style={{
+                                fontSize: '1.2rem',
+                                fontWeight: 'bold',
+                            }}>#{reserva.idReserva}</Badge>
+                            <h3>{reserva.cancha.nombre}</h3>
                         </div>
-
-                        <div className="alert alert-info mt-4">
-                            <i className="fas fa-info-circle me-2"></i>
-                            Presente su código de reserva al llegar al club.
+                        <div className="club-info ">
+                            <Badge bg="primary club-name">{reserva.club.nombre}</Badge>
+                            <Badge bg="secondary club-name">{reserva.deporte}</Badge>
                         </div>
                     </div>
+
+                    <div className="detail-grid">
+                        <div className="detail-item">
+                            <FaCalendarAlt className="text-primary" />
+                            <div>
+                                <small>FECHA</small>
+                                <p>{reserva.fecha}</p>
+                            </div>
+                        </div>
+
+                        <div className="detail-item">
+                            <FaClock className="text-primary" />
+                            <div>
+                                <small>HORARIO</small>
+                                <p>{reserva.horaInicio} - {reserva.horaFin}</p>
+                            </div>
+                        </div>
+
+                        <div className="detail-item">
+                            <FaMoneyBillWave className="text-primary" />
+                            <div>
+                                <small>MONTO</small>
+                                <p>${reserva.monto} ({reserva.metodoPago})</p>
+                            </div>
+                        </div>
+
+                        <div className="detail-item">
+                            <FaMapMarkerAlt className="text-primary" />
+                            <div>
+                                <small>UBICACIÓN</small>
+                                <p>{reserva.club.direccion}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <Alert variant="info" className="mt-4">
+                        <FaExclamationTriangle className="me-2" />
+                        Presenta este código al llegar al establecimiento
+                    </Alert>
                 </Modal.Body>
-                <Modal.Footer className="d-flex justify-content-between">
-                    <Button variant="secondary" onClick={onHide}>
-                        Cerrar
-                    </Button>
-                    <Button
-                        variant="danger"
-                        onClick={() => setShowCancelConfirm(true)}
-                    >
-                        Cancelar Reserva
-                    </Button>
+
+                <Modal.Footer className="justify-content-between">
+                    <Button variant="secondary" onClick={onHide}>Cerrar</Button>
+                    {/* {reserva.estado !== 'cancelada' && (
+                        <Button variant="danger" onClick={() => setConfirming(true)}>
+                            Cancelar Reserva
+                        </Button>
+                    )} */}
                 </Modal.Footer>
             </Modal>
 
-            {/* Cancel Confirmation Modal */}
-            <Modal
-                show={showCancelConfirm}
-                onHide={() => setShowCancelConfirm(false)}
-                centered
-            >
+            <Modal show={confirming} onHide={() => setConfirming(false)} centered>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirmar Cancelación</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <p>¿Estás seguro que deseas cancelar esta reserva?</p>
-                    <p className="text-danger">
-                        <strong>Esta acción no se puede deshacer.</strong>
-                    </p>
+                    <div className="text-center">
+                        <FaExclamationTriangle className="text-danger h1 mb-3" />
+                        <h4>¿Cancelar reserva #{reserva.idReserva}?</h4>
+                        <p className="text-muted">
+                            Esta acción no se puede deshacer. El reembolso estará sujeto a las políticas del club.
+                        </p>
+                    </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button
-                        variant="outline-secondary"
-                        onClick={() => setShowCancelConfirm(false)}
-                    >
+                    <Button variant="outline-secondary" onClick={() => setConfirming(false)}>
                         Volver
                     </Button>
-                    <Button
-                        variant="danger"
-                        onClick={() => {
-                            onCancel(reserva.id, hora);
-                            setShowCancelConfirm(false);
-                            onHide();
-                        }}
-                    >
+                    <Button variant="danger" onClick={() => { onCancel(); setConfirming(false); onHide(); }}>
                         Confirmar Cancelación
                     </Button>
                 </Modal.Footer>

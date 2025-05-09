@@ -10,34 +10,41 @@
 /* Grid de horarios */
 .slots-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-  gap: 0.8rem;
+  /* gap: row-gap column-gap */
+  gap: 1rem 0.4rem; /* 1rem vertical, 0.4rem horizontal */
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   padding: 1rem 0;
-  min-height: 160px;
+  min-height: 200px;
+  justify-items: center;
+  align-content: center;
 }
 
 /* Botones de horario */
 .slot-button {
   position: relative;
   overflow: hidden;
-  border-radius: 50px !important;
-  padding: 0.8rem 1.2rem;
+  border-radius: 30px !important;
+  height: 60px;
+  padding: 0 1.5rem;
   font-size: 0.95rem;
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease,
     box-shadow 0.3s ease;
   border: 2px solid #dee2e6;
   background: #fff;
   color: #495057;
-  min-width: 90px;
-  margin: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  margin: 0;
 }
 
 /* Efecto “ola” */
 .slot-button::after {
   content: "";
   position: absolute;
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   background: rgba(0, 123, 255, 0.2);
   border-radius: 50%;
   transform: scale(0);
@@ -52,8 +59,9 @@
   transition: transform 0s, opacity 0.4s ease-out;
 }
 
+/* Hover */
 .slot-button:hover:not(:disabled) {
-  transform: translateY(-3px) scale(1.02);
+  transform: translateY(-3px) scale(1.03);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
 }
 
@@ -70,7 +78,7 @@
 .loading-spinner {
   display: grid;
   place-items: center;
-  height: 160px;
+  height: 200px;
   grid-column: 1 / -1;
 }
 
@@ -104,7 +112,7 @@
   border-top: 2px solid #eee;
 }
 
-/* Entradas/salidas para animar con React Transition Group */
+/* Animaciones modal */
 .modal-enter {
   opacity: 0;
   transform: scale(0.95);
@@ -147,14 +155,13 @@
   box-shadow: 0 6px 12px rgba(0, 123, 255, 0.4);
 }
 
-/* Convirtiendo “Cancelar” en botón más visible */
+/* Botón “Cancelar” destacado */
 .reservation-modal .btn-link,
 .confirmation-modal .btn-link {
   color: #dc3545;
   font-weight: 500;
   text-decoration: none;
 }
-
 .reservation-modal .btn-link:hover,
 .confirmation-modal .btn-link:hover {
   text-decoration: underline;

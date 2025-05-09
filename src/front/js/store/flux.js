@@ -559,6 +559,70 @@ const getState = ({ getStore, getActions, setStore }) => {
       // — Reserva temporal —
       setTempReserva: (data) => setStore({ ...getStore(), tempReserva: data }),
       clearTempReserva: () => setStore({ ...getStore(), tempReserva: null }),
+
+      //Terminan las acciones de stripe
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+      //------------------------------------------------------------------------------------------------------------------------------------------------------
+      //Funcion para obtener las reservas de un usuario en la base de datos
+
+      getUserReservations: async () => {
+        const { token } = getStore();
+        try {
+          const resp = await fetch(
+            process.env.BACKEND_URL + "reserva/usuario",
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          const data = await resp.json();
+          if (resp.ok) {
+            setStore({ ...getStore(), userReservations: data });
+            return { success: true, data };
+          } else {
+            return {
+              success: false,
+              message: data.error || "Error cargando reservas",
+            };
+          }
+        } catch (error) {
+          return { success: false, message: error.message };
+        }
+      },
+
+      cancelReservation: async (idReserva) => {
+        const { token } = getStore();
+        try {
+          const resp = await fetch(
+            `${process.env.REACT_APP_API_URL}/reserva/${idReserva}`,
+            {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: "Bearer " + token,
+              },
+            }
+          );
+          if (resp.ok) {
+            return { success: true };
+          } else {
+            const data = await resp.json();
+            return {
+              success: false,
+              message: data.error || "Error cancelando reserva",
+            };
+          }
+        } catch (error) {
+          return { success: false, message: error.message };
+        }
+      },
+
+      //termina la funcion para obtener las reservas de un usuario en la base de datos
+      //------------------------------------------------------------------------------------------------------------------------------------------------------
     },
   };
 };

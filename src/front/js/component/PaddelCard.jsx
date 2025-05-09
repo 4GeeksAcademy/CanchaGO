@@ -2,70 +2,61 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAlert } from '../hooks/useAlert.js';
+import { FiMapPin, FiPhone, FiMap } from 'react-icons/fi';
 import '../../styles/PaddelCard.css';
 
 const PaddelCard = ({ paddel, selectedSport }) => {
   const navigate = useNavigate();
   const { error } = useAlert();
 
-  const handleOpenMaps = () => {
-    const link = paddel.googleMapsLink;
-    if (link?.trim() && link !== 'Sin Link') {
-      window.open(link, '_blank');
+  const handleViewCanchas = () => {
+    navigate(`/club/${encodeURI(paddel.email)}-${selectedSport}/canchas`);
+  };
+
+  const handleOpenMap = () => {
+    if (paddel.googleMapsLink?.trim()) {
+      window.open(paddel.googleMapsLink, '_blank');
     } else {
       error('Enlace de mapa no disponible');
     }
   };
 
-  const handleViewCanchas = () => {
-    navigate(`/club/${encodeURI(paddel.email)}-${selectedSport}/canchas`);
-  };
-
   return (
-    <div className="card hover-card">
-      <div className="image-container">
+    <div className="paddel-card">
+      <div className="card-media">
         <img
           src={paddel.imagen}
-          className="card-image"
           alt={paddel.nombre}
-          onClick={handleViewCanchas}
+          className="card-image"
+          loading="lazy"
         />
-        <div className="sport-overlay">{selectedSport}</div>
+        <div className="card-overlay">
+          <button className="map-button" onClick={handleOpenMap}>
+            <FiMap className="map-icon" />
+          </button>
+        </div>
       </div>
 
-      <div className="card-body">
-        <h5 className="card-title">{paddel.nombre}</h5>
-        <p className="card-description">
-          {paddel.descripcion || "Descripción no disponible"}
-        </p>
+      <div className="card-content">
+        <div className="card-header">
+          <h3 className="card-title">{paddel.nombre}</h3>
+          <span className="sport-badge">{selectedSport}</span>
+        </div>
 
-        <div className="sports-container">
-          <strong>Deportes:</strong>
-          <div className="badges-container">
-            {paddel.deportes?.map((sport, i) => (
-              <span key={i} className="sport-badge">{sport}</span>
-            ))}
+        <div className="card-meta">
+          <div className="meta-item">
+            <FiMapPin className="meta-icon" />
+            <p className="meta-text">{paddel.direccion}</p>
+          </div>
+          <div className="meta-item">
+            <FiPhone className="meta-icon" />
+            <p className="meta-text">{paddel.telefono}</p>
           </div>
         </div>
 
-        <div className="buttons-container">
-          <button className="btn btn-primary" onClick={handleViewCanchas}>
-            Ver Canchas
-          </button>
-          <button className="btn btn-secondary" onClick={handleOpenMaps}>
-            Mapa
-          </button>
-        </div>
-      </div>
-
-      <div className="card-footer">
-        <div className="club-info">
-          <p className="address">
-            <i className="bi bi-geo-alt"></i> {paddel.direccion}
-          </p>
-          <p className="phone">
-            <i className="bi bi-telephone"></i> {paddel.telefono}</p>
-        </div>
+        <button className="view-button" onClick={handleViewCanchas}>
+          <span>Explorar Instalaciones</span>
+        </button>
       </div>
     </div>
   );

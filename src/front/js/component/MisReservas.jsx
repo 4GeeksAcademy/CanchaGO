@@ -1,115 +1,199 @@
-import React, { useState } from 'react';
-import { Card, Button } from 'react-bootstrap';
-import NavbarSinFiltro from './NavbarSinFiltro.jsx';
+// MisReservas.jsx
+import React, { useState, useEffect, useContext } from 'react';
+import { Badge, Button, Spinner } from 'react-bootstrap';
+import Navbar from './NavBar.jsx';
 import MisReservasModal from './MisReservasModal.jsx';
+import { Context } from '../store/appContext.js';
+import '../../styles/MisReservas.css';
+import { useAlert } from '../hooks/useAlert.js';
+import {
+    FaCalendarAlt,
+    FaClock,
+    FaMoneyBillWave,
+    FaTimes,
+    FaInfoCircle,
+    FaFutbol,
+    FaTableTennis
+} from 'react-icons/fa';
 
 const MisReservas = () => {
+    const { store, actions } = useContext(Context);
+    const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [selectedReserva, setSelectedReserva] = useState(null);
-    const [selectedHora, setSelectedHora] = useState(null);
-    const [reservas, setReservas] = useState([
-        {
-            id: 1,
-            clubNombre: 'Club A',
-            clubImagen: 'https://example.com/club-a.jpg',
-            canchaNombre: 'Cancha 1',
-            fecha: '2025-05-05',
-            times: ['10:00', '11:00'],
-            pricePerHour: 20000
-        },
-        {
-            id: 2,
-            clubNombre: 'Club B',
-            clubImagen: 'https://example.com/club-b.jpg',
-            canchaNombre: 'Cancha 2',
-            fecha: '2025-05-06',
-            times: ['09:00'],
-            pricePerHour: 18000
-        }
-    ]);
+    const { error, success } = useAlert();
 
-    const handleVerReserva = (reserva, hora) => {
+    useEffect(() => {
+        const cargarReservas = async () => {
+            setLoading(true);
+            let response = await actions.getUserReservations();
+            response.success
+                ? setLoading(false)
+                : error(response.message || 'Error al cargar las reservas');
+            setLoading(false);
+        };
+        cargarReservas();
+    }, []);
+
+    const handleVer = (reserva) => {
         setSelectedReserva(reserva);
-        setSelectedHora(hora);
         setShowModal(true);
     };
 
-    const handleCancelReserva = (reservaId, hora) => {
-        setReservas(prev =>
-            prev.map(r => {
-                if (r.id === reservaId) {
-                    return {
-                        ...r,
-                        times: r.times.filter(t => t !== hora)
-                    };
-                }
-                return r;
-            }).filter(r => r.times.length > 0) // Remove reservation if no times left
-        );
+    const handleCancel = async (idReserva) => {
+        if (!window.confirm('¿Estás seguro que deseas cancelar esta reserva?')) return;
+        const res = await actions.cancelReservation(idReserva);
+        if (res.success) {
+            await actions.getUserReservations();
+            success('Reserva cancelada');
+        } else {
+            error(res.message || 'Error al cancelar');
+        }
     };
+
+    if (loading)
+        return (
+            <div className="loading-screen">
+                <Spinner animation="border" variant="primary" />
+                <p className="mt-3">Cargando reservas...</p>
+            </div>
+        );
+
+    const reservas = store.userReservations || [];
+    const ahora = new Date();
 
     return (
         <>
-            <NavbarSinFiltro />
-            <div className="container my-4">
-                <h2 className="mb-4">Mis Reservas</h2>
+            <Navbar />
+            <section className="reservas-container">
+                <div className="reservas-header">
+                    <h1>
+                        {reservas.length > 0 &&
+                            (() => {
+                                const deporte = reservas[0].cancha.deporte?.nombre.toLowerCase();
+                                if (deporte === 'futbol') return <FaFutbol className="me-2" />;
+                                if (['padel', 'tenis'].includes(deporte))
+                                    return <FaTableTennis className="me-2" />;
+                                return null;
+                            })()}
+                        Mis Reservas
+                    </h1>
+                    <Badge bg="dark" pill>
+                        {reservas.length} activas
+                    </Badge>
+                </div>
 
-                {reservas.flatMap(r => r.times).length > 0 ? (
-                    <div className="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                        {reservas.flatMap((reserva) =>
-                            reserva.times.map((hora, idx) => (
-                                <div className="col" key={`${reserva.id}-${hora}-${idx}`}>
-                                    <Card className="h-100 shadow-sm border-0 rounded-4">
-                                        <Card.Img
-                                            variant="top"
-                                            src={reserva.clubImagen}
-                                            alt={reserva.clubNombre}
-                                            style={{ height: '200px', objectFit: 'cover' }}
-                                            className="rounded-top-4"
-                                        />
-                                        <Card.Body className="d-flex flex-column justify-content-between">
-                                            <div>
-                                                <Card.Title className="text-center fw-bold">
-                                                    {reserva.clubNombre}
-                                                </Card.Title>
-                                                <Card.Text className="text-center text-muted">
-                                                    <span><strong>Cancha:</strong> {reserva.canchaNombre}</span><br />
-                                                    <span><strong>Fecha:</strong> {reserva.fecha}</span><br />
-                                                    <span><strong>Hora:</strong> {hora}</span><br />
-                                                    {reserva.pricePerHour && (
-                                                        <span><strong>Precio:</strong> ${reserva.pricePerHour}</span>
-                                                    )}
-                                                </Card.Text>
-                                            </div>
-                                            <Button
-                                                variant="primary"
-                                                className="mt-3 rounded-pill"
-                                                onClick={() => handleVerReserva(reserva, hora)}
-                                            >
-                                                Ver Reserva
-                                            </Button>
-                                        </Card.Body>
-                                    </Card>
-                                </div>
-                            ))
-                        )}
-                    </div>
-                ) : (
-                    <div className="text-center py-5">
-                        <h4 className="text-muted">No tienes reservas activas</h4>
-                        <Button variant="outline-primary" className="mt-3">
-                            Buscar Canchas
+                {!reservas.length ? (
+                    <div className="empty-state">
+                        <img src="/empty-reservas.svg" alt="Sin reservas" />
+                        <h3>¡No hay reservas activas!</h3>
+                        <Button href="/buscar-canchas" variant="primary" size="lg">
+                            Reservar Ahora
                         </Button>
                     </div>
+                ) : (
+                    <div className="reservas-grid">
+                        {reservas.map((r) => {
+                            // determinar si expiró
+                            const [dia, mes, año] = r.fecha.split('/').map(Number);
+                            const [hFin, mFin] = r.horaFin.split(':').map(Number);
+                            const fechaFin = new Date(año, mes - 1, dia, hFin, mFin);
+                            const estaActiva = fechaFin > ahora;
+
+                            return (
+                                <div key={r.idReserva} className="reserva-card">
+                                    {/* Imagen con overlay */}
+                                    <div className="card-image-container">
+                                        <img
+                                            src={r.cancha.imagen}
+                                            alt={r.cancha.nombre}
+                                            className="reserva-image"
+                                        />
+                                        <div className="image-overlay">
+                                            <span className="club-overlay">{r.cancha.club?.nombre}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="reserva-body">
+                                        <h3 className="cancha-name">{r.cancha.nombre}</h3>
+                                        <div className="reserva-header">
+                                            <Badge
+                                                bg={r.estado === 'cancelada' ? 'secondary' : 'success'}
+                                                pill
+                                            >  {r.estado} </Badge>
+
+                                            {estaActiva ? (
+                                                <Badge bg="info" pill>
+                                                    Activa
+                                                </Badge>
+                                            ) : (
+                                                <Badge bg="warning" pill>
+                                                    Expirada
+                                                </Badge>
+                                            )}
+
+                                            <Badge bg="dark" >#{r.idReserva}</Badge>
+                                        </div>
+
+                                        {/* {estaActiva ? (
+                                            <Badge bg="info" pill>
+                                                Activa
+                                            </Badge>
+                                        ) : (
+                                            <Badge bg="warning" pill>
+                                                Expirada
+                                            </Badge>
+                                        )} */}
+
+
+                                        <div className="reserva-details">
+                                            <div className="detail-item">
+                                                <FaCalendarAlt />
+                                                <span>{r.fecha}</span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <FaClock />
+                                                <span>
+                                                    {r.horaInicio} - {r.horaFin}
+                                                </span>
+                                            </div>
+                                            <div className="detail-item">
+                                                <FaMoneyBillWave />
+                                                <span>
+                                                    ${r.monto} ({r.metodoPago})
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="reserva-actions">
+                                            <Button
+                                                variant="outline-dark"
+                                                onClick={() => handleVer(r)}
+                                            >
+                                                <FaInfoCircle /> Detalles
+                                            </Button>
+                                            {/* <Button
+                                                variant="outline-danger"
+                                                onClick={() => handleCancel(r.idReserva)}
+                                                disabled={r.estado === 'cancelada'}
+                                            >
+                                                <FaTimes />{' '}
+                                                {r.estado === 'cancelada' ? 'Cancelada' : 'Cancelar'}
+                                            </Button> */}
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
                 )}
-            </div>
+            </section>
 
             <MisReservasModal
                 show={showModal}
                 onHide={() => setShowModal(false)}
                 reserva={selectedReserva}
-                hora={selectedHora}
-                onCancel={handleCancelReserva}
+                onCancel={() => handleCancel(selectedReserva.idReserva)}
             />
         </>
     );

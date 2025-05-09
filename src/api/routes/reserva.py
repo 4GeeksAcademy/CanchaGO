@@ -263,7 +263,7 @@ def confirm_reserva():
 
 
 #---------------------------------------------------------------------------------------------------------------
-# Otros endpoints
+# endpoints para obtener todas las reservas y disponibilidad de canchas	
 
 @reserva_bp.route('/all', methods=['GET'])
 def obtener_reservas():
@@ -336,3 +336,32 @@ def disponibilidad():
         return jsonify({'error': 'Formato de fecha inválido'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+    
+
+#---------------------------------------------------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------------------------------------------------
+# Endpoints para obtener reservas por usuario
+
+
+@reserva_bp.route('/usuario', methods=['GET'])
+@jwt_required()
+def obtener_reservas_usuario():
+    # Obtener el nombre de usuario del token JWT
+    nombre_usuario = get_jwt_identity()
+
+    # Buscar el usuario en la base de datos
+    usuario = Usuario.query.filter_by(nombreUsuario=nombre_usuario).first()
+    if not usuario:
+        return jsonify({"error": "Usuario no encontrado"}), 404
+    
+    # Obtener las reservas del usuario
+    reservas = Reserva.query.filter_by(idUsuario=usuario.idUsuario).all()
+    
+    # Serializar las reservas
+    reservas_serializadas = [reserva.serialize() for reserva in reservas]
+
+    return jsonify(reservas_serializadas), 200
+
+#----------------------------------------------------------------------------------------------------------------

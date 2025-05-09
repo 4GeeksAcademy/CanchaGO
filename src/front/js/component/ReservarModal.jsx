@@ -43,6 +43,13 @@ const ReservarModal = ({ show, onClose, cancha }) => {
             .finally(() => setLoading(false));
     }, [show, rawDate]);
 
+    useEffect(() => {
+        if (show) {
+            setSelected([]);
+            setShowConfirm(false);
+        }
+    }, [show]);
+
     // Filtrado
     const displaySlots = useMemo(() => {
         const safeSlots = Array.isArray(slots) ? slots : [];
@@ -71,7 +78,7 @@ const ReservarModal = ({ show, onClose, cancha }) => {
     };
 
     const handleBack = () => {
-        setSelected([]);         // limpia selección
+        setSelected([]);
         setShowConfirm(false);
     };
 

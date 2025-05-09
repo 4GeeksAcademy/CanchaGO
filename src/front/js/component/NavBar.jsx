@@ -16,7 +16,7 @@ const Navbar = () => {
   const handleLogout = () => { actions.logoutUser(); navigate('/'); };
   const handleSettings = () => navigate('/Configuraciones');
   const handleReservas = () => navigate('/MisReservas');
-  const goHome = () => navigate('/');
+  const goHome = () => navigate('/home');
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark custom-navbar-deportista py-2">

@@ -1,250 +1,268 @@
-.hover-card {
-  border: none;
-  border-radius: 20px;
+.paddel-card {
+  flex: 0 0 380px;
+  background: white;
+  border-radius: 24px;
   overflow: hidden;
-  background: #fff;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
-  height: 100%;
-  opacity: 0;
-  transform: translateY(30px);
-  animation: cardEnter 0.6s ease forwards;
-}
-@keyframes cardEnter {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.hover-card {
-  transition: transform 0.4s ease, box-shadow 0.4s ease, opacity 0.4s ease;
-}
-.hover-card:hover {
-  transform: translateY(-8px) scale(1.05);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
-}
-.image-container {
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.05);
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   position: relative;
-  height: 220px;
-  overflow: hidden;
-  transition: transform 0.4s ease;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
 }
+
+.paddel-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.08);
+}
+
+.card-media {
+  position: relative;
+  height: 280px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border-radius: 24px 24px 0 0;
+}
+
 .card-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
 }
-.image-container:hover .card-image {
-  transform: scale(1.1);
+
+.paddel-card:hover .card-image {
+  transform: scale(1.04);
 }
-.sport-overlay {
+
+.card-overlay {
   position: absolute;
-  bottom: 14px;
-  right: 14px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #2d3748;
-  padding: 6px 16px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease;
-}
-.sport-overlay:hover {
-  transform: scale(1.1);
-}
-.card-body {
-  padding: 1.2rem;
-}
-.card-title {
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #1a202c;
-  margin-bottom: 0.75rem;
-}
-.card-description {
-  font-size: 0.95rem;
-  color: #4a5568;
-  margin-bottom: 1rem;
-  line-height: 1.4;
-  min-height: 45px;
-}
-.sports-container {
-  margin-bottom: 1rem;
-  opacity: 0;
-  transform: translateY(10px);
-  animation: sportsFade 0.5s ease forwards 0.3s;
-}
-@keyframes sportsFade {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-.sports-container strong {
-  display: block;
-  margin-bottom: 0.4rem;
-  color: #2d3748;
-}
-.badges-container {
+  top: 1.5rem;
+  right: 1.5rem;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 1rem;
 }
-.sport-badge {
-  background: #edf2f7;
-  color: #3182ce;
-  padding: 0.4rem 0.8rem;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-.sport-badge:hover {
-  background: #3182ce;
-  color: #fff;
-  transform: translateY(-3px) scale(1.05);
-}
-.buttons-container {
-  display: flex;
-  gap: 0.8rem;
-  margin-top: 0.8rem;
-}
-.btn {
-  flex: 1;
-  padding: 0.65rem 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 12px;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-}
-.btn-primary {
-  background: linear-gradient(135deg, #3182ce, #68d391);
-  color: #fff;
+
+.map-button {
+  width: 44px;
+  height: 44px;
   border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.98);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
-.btn-primary:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: 0 8px 20px rgba(49, 130, 206, 0.4);
+
+.map-button:hover {
+  background: #3182ce;
+  transform: scale(1.08);
 }
-.btn-secondary {
-  background: #edf2f7;
-  color: #2d3748;
-  border: 2px solid #cbd5e0;
+
+.map-icon {
+  color: #3182ce;
+  transition: color 0.3s ease;
+  width: 20px;
+  height: 20px;
 }
-.btn-secondary:hover {
-  background: #e2e8f0;
-  transform: translateY(-4px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+
+.map-button:hover .map-icon {
+  color: white;
 }
-.card-footer {
-  padding: 0.8rem 1.2rem;
-  background: #fafafa;
-  border-top: 1px solid #e2e8f0;
-}
-.club-info {
+
+.card-content {
+  padding: 1.5rem;
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
 }
-.club-info p {
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  color: #0f172a;
   margin: 0;
-  font-size: 0.85rem;
-  color: #4a5568;
-}
-.club-info i {
-  margin-right: 0.4rem;
-  color: #3182ce;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
 }
 
-/* Efecto 3D al hover */
-.hover-card {
-  perspective: 1000px;
-  transform-style: preserve-3d;
-  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
-    box-shadow 0.4s ease, opacity 0.4s ease;
-}
-
-.hover-card:hover {
-  transform: translateY(-8px) scale(1.02) rotateX(1deg) rotateY(1deg);
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.1), 0 8px 24px rgba(49, 130, 206, 0.2);
-}
-
-/* Efecto parallax en imagen */
-.image-container {
-  transform: translateZ(30px);
-  transition: transform 0.4s ease;
-}
-
-.hover-card:hover .image-container {
-  transform: translateZ(40px);
-}
-
-/* Badges con efecto flotante */
 .sport-badge {
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: rgba(49, 130, 206, 0.08);
+  color: #3182ce;
+  padding: 0.5rem 1.25rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid rgba(49, 130, 206, 0.12);
 }
 
-.sport-badge::after {
+.card-meta {
+  display: grid;
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+  flex-grow: 1;
+}
+
+.meta-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.meta-icon {
+  flex-shrink: 0;
+  color: #3182ce;
+  font-size: 1.2rem;
+  margin-top: 3px;
+}
+
+.meta-text {
+  color: #475569;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.view-button {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 14px;
+  background: #3182ce;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+.view-button span {
+  position: relative;
+  z-index: 1;
+}
+
+.view-button::before {
   content: "";
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255, 255, 255, 0.2);
+  background: linear-gradient(45deg, #3182ce, #2b6cb0);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.sport-badge:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(49, 130, 206, 0.2);
+.view-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(49, 130, 206, 0.2);
 }
 
-.sport-badge:hover::after {
+.view-button:hover::before {
   opacity: 1;
 }
 
-/* Botones con efecto de profundidad */
-.btn {
-  position: relative;
-  overflow: hidden;
-  transform-style: preserve-3d;
+/* Breakpoint Laptops Medianas (1280px) */
+@media (max-width: 1280px) {
+  .paddel-card {
+    flex: 0 0 340px;
+    min-height: 440px;
+  }
+
+  .card-media {
+    height: 240px;
+  }
+
+  .card-title {
+    font-size: 1.4rem;
+  }
+
+  .meta-text {
+    font-size: 0.92rem;
+  }
 }
 
-.btn::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.1);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+/* Breakpoint Laptops Pequeñas (1024px) */
+@media (max-width: 1024px) {
+  .paddel-card {
+    flex: 0 0 320px;
+    min-height: 420px;
+  }
+
+  .card-media {
+    height: 220px;
+  }
+
+  .card-title {
+    font-size: 1.3rem;
+  }
+
+  .meta-text {
+    font-size: 0.9rem;
+  }
+
+  .view-button {
+    font-size: 0.95rem;
+  }
 }
 
-.btn:hover::before {
-  opacity: 1;
+/* Breakpoint Tablets (768px) */
+@media (max-width: 768px) {
+  .paddel-card {
+    flex: 0 0 300px;
+    min-height: 400px;
+  }
+
+  .card-media {
+    height: 200px;
+  }
+
+  .card-title {
+    font-size: 1.25rem;
+  }
+
+  .sport-badge {
+    font-size: 0.85rem;
+  }
 }
 
-.btn-primary {
-  background: linear-gradient(
-    135deg,
-    rgba(49, 130, 206, 0.9),
-    rgba(104, 211, 145, 0.9)
-  );
-  border: 2px solid rgba(255, 255, 255, 0.15);
-}
+/* Breakpoint Móviles (480px) */
+@media (max-width: 480px) {
+  .paddel-card {
+    flex: 0 0 280px;
+    min-height: 380px;
+  }
 
-/* Footer con efecto de vidrio */
-.card-footer {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(8px);
-  border-top: 1px solid rgba(203, 213, 224, 0.3);
+  .card-media {
+    height: 180px;
+  }
+
+  .card-title {
+    font-size: 1.2rem;
+  }
+
+  .meta-text {
+    font-size: 0.85rem;
+  }
+
+  .view-button {
+    font-size: 0.9rem;
+    padding: 0.8rem;
+  }
 }

@@ -1,130 +1,102 @@
+// ListPaddel.jsx
 import React, { useState, useContext, useEffect } from 'react';
 import PaddelCard from './PaddelCard.jsx';
 import { Context } from '../store/appContext.js';
 import { useAlert } from '../hooks/useAlert.js';
 import Navbar from './NavBar.jsx';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import '../../styles/ListPaddel.css';
 
 const ListPaddel = () => {
   const { store, actions } = useContext(Context);
-  const { success, error } = useAlert();
+  const { error } = useAlert();
 
   const availableSports = ['Padel', 'Futbol', 'Tenis'];
   const [selectedSport, setSelectedSport] = useState('Padel');
   const [currentPage, setCurrentPage] = useState(1);
-  const cardsPerPage = 6;
-
-  const getPagination = () => {
-    const range = [];
-    const maxPagesToShow = 10;
-    if (totalPages <= maxPagesToShow) {
-      for (let i = 1; i <= totalPages; i++) range.push(i);
-    } else {
-      if (currentPage <= 3) {
-        range.push(1, 2, 3, 4, '...', totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        range.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
-      } else {
-        range.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
-      }
-    }
-    return range;
-  };
+  const cardsPerPage = 3;
 
   useEffect(() => {
+    const cargarClubs = async () => {
+      try {
+        await actions.getAllClubs();
+      } catch (err) {
+        error("Error al cargar los clubes");
+      }
+    };
     cargarClubs();
   }, []);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [selectedSport]);
-
-  const cargarClubs = async () => {
-    let response = await actions.getAllClubs();
-    if (!response.success) {
-      error(response.message || "Error al cargar los clubes");
-    }
-  };
-
-  const handleSelectSport = (sport) => setSelectedSport(sport);
-
-  const filteredClubs = store.clubsDeportista.filter(item =>
-    item.deportes.includes(selectedSport)
+  const filteredClubs = Array(cardsPerPage).fill().map((_, index) =>
+    store.clubsDeportista
+      .filter(item => item.deportes.includes(selectedSport))
+    [index + ((currentPage - 1) * cardsPerPage)] || null
   );
 
-  const indexOfLast = currentPage * cardsPerPage;
-  const indexOfFirst = indexOfLast - cardsPerPage;
-  const currentClubs = filteredClubs.slice(indexOfFirst, indexOfLast);
-  const totalPages = Math.ceil(filteredClubs.length / cardsPerPage);
+  const totalPages = Math.ceil(
+    store.clubsDeportista.filter(item => item.deportes.includes(selectedSport)).length / cardsPerPage
+  );
 
   return (
     <>
       <Navbar />
-      <div className="list-paddel-container container-fluid">
-        <div className="title-container">
-          <h1 className="title-text">Clubs Deportivos</h1>
+      <div className="list-paddel-container">
+        <div className="header-section">
+          <div className="title-wrapper">
+            <h1>Clubs Deportivos <span className="gradient-text">Premium</span></h1>
+            <p className="subtitle">Experiencias deportivas de alto nivel</p>
+          </div>
+
+          <div className="controls-container">
+            <div className="sport-filters">
+              {availableSports.map((sport) => (
+                <button
+                  key={sport}
+                  className={`sport-filter ${selectedSport === sport ? 'active' : ''}`}
+                  onClick={() => {
+                    setSelectedSport(sport);
+                    setCurrentPage(1);
+                  }}
+                >
+                  {sport}
+                  <div className="filter-indicator"></div>
+                </button>
+              ))}
+            </div>
+
+            <div className="pagination-controls">
+              <button
+                className="pagination-btn"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                <FiChevronLeft className="nav-icon" />
+              </button>
+              <span className="page-indicator">
+                <span className="current-page">{currentPage}</span>
+                <span className="total-pages">/{totalPages}</span>
+              </span>
+              <button
+                className="pagination-btn"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                <FiChevronRight className="nav-icon" />
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="filter-container">
-          {availableSports.map((sport) => (
-            <button
-              key={sport}
-              className={`filter-btn ${selectedSport === sport ? 'active' : ''}`}
-              onClick={() => handleSelectSport(sport)}
-            >
-              <span className="btn-content">{sport}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="clubs-scroll-container">
-          {filteredClubs.length > 0 ? (
-            <>
-              <div className="clubs-wrapper">
-                {currentClubs.map(item => (
-                  <div className="club-card-wrapper" key={item.idClub}>
-                    <PaddelCard paddel={item} selectedSport={selectedSport} />
-                  </div>
-                ))}
-              </div>
-
-              {totalPages > 1 && (
-                <div className="pagination-controls">
-                  <button
-                    className="page-btn arrow-btn"
-                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                  >
-                    <span className="arrow-icon">←</span>
-                  </button>
-
-                  {getPagination().map((page, index) =>
-                    page === '...' ? (
-                      <span key={index} className="page-ellipsis">• • •</span>
-                    ) : (
-                      <button
-                        key={page}
-                        className={`page-btn ${currentPage === page ? 'active' : ''}`}
-                        onClick={() => setCurrentPage(page)}
-                      >
-                        {page}
-                      </button>
-                    )
-                  )}
-
-                  <button
-                    className="page-btn arrow-btn"
-                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                  >
-                    <span className="arrow-icon">→</span>
-                  </button>
-                </div>
-              )}
-            </>
-          ) : (
-            <div className="no-results">No hay clubs para {selectedSport}</div>
-          )}
+        <div className="cards-carousel">
+          <div className="cards-wrapper">
+            {filteredClubs.map((item, index) => (
+              item ? (
+                <PaddelCard key={item.idClub} paddel={item} selectedSport={selectedSport} />
+              ) : (
+                <div key={`placeholder-${index}`} className="card-placeholder"></div>
+              )
+            ))}
+          </div>
         </div>
       </div>
     </>

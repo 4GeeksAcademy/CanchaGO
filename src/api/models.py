@@ -245,15 +245,27 @@ class Reserva(db.Model):
                 return raw_uuid
 
     def __init__(self, **kwargs):
-        session = db.session  # asegúrate de tener el contexto
+        session = db.session 
         kwargs.setdefault('idReserva', self.generate_unique_id(session))
         super().__init__(**kwargs)
 
     def serialize(self):
         return {
             'idReserva': self.idReserva,
-            'cancha': self.cancha.nombre,
-            'usuario': self.usuario.nombreUsuario,
+            'deporte': self.cancha.deporte.nombre if self.cancha and self.cancha.deporte else None,
+            'club': {
+                'nombre': self.cancha.club.nombre if self.cancha and self.cancha.club else None,
+                'direccion': self.cancha.club.direccion if self.cancha and self.cancha.club else None,
+                'googleMapsLink': self.cancha.club.googleMapsLink if self.cancha and self.cancha.club else None,
+                'imagen': self.cancha.club.imagen if self.cancha and self.cancha.club else None
+            },
+            'cancha': {
+                'idCancha': self.cancha.idCancha if self.cancha else None,
+                'nombre': self.cancha.nombre if self.cancha else None,
+                'precio': self.cancha.precio if self.cancha else None,
+                'imagen': self.cancha.imagen if self.cancha else None
+            },
+            'usuario': self.usuario.nombreUsuario if self.usuario else None,
             'fecha': self.fecha.strftime("%d/%m/%Y") if self.fecha else None,
             'horaInicio': self.horaInicio.strftime("%H:%M") if self.horaInicio else None,
             'horaFin': self.horaFin.strftime("%H:%M") if self.horaFin else None,

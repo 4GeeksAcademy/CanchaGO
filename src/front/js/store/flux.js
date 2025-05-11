@@ -620,6 +620,59 @@ const getState = ({ getStore, getActions, setStore }) => {
           return { success: false, message: error.message };
         }
       },
+      getCurrentUser: async () => {
+        try {
+          const token = getStore().token;
+          if (!token) return { success: false, message: "No token available" };
+
+          const response = await fetch(`${process.env.BACKEND_URL}users/userinfo`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            return { success: false, message: data.msg || "Failed to fetch user" };
+          }
+
+          const data = await response.json();
+          return { success: true, userData: data.usuario };
+        } catch (error) {
+          console.error("Error in getCurrentUser:", error);
+          return { success: false, message: error.message };
+        }
+      },
+
+      updateUserSettings: async (userData) => {
+        try {
+          const token = getStore().token;
+          if (!token) return { success: false, message: "No token available" };
+
+          const response = await fetch(`${process.env.BACKEND_URL}users/edit`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(userData),
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            return { success: false, message: data.msg || "Failed to update user" };
+          }
+
+          const data = await response.json();
+          return { success: true, userData: data.usuario };
+        } catch (error) {
+          console.error("Error in updateUserSettings:", error);
+          return { success: false, message: "Server error" };
+        }
+      },
+
 
       //termina la funcion para obtener las reservas de un usuario en la base de datos
       //------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -18,6 +18,8 @@ import ViewClubCanchas from './component/ViewClubCanchas.jsx';
 import MisReservas from './component/MisReservas.jsx';
 import ReservasPropietario from './component/ReservasPropietario.jsx';
 import ReservaExitosa from './component/ReservaExitosa.jsx';
+import Configuraciones from "./component/Configuraciones.jsx"
+
 
 
 
@@ -27,8 +29,9 @@ const AppContent = () => {
     location.pathname === "/signup" ||
     location.pathname === "/login" ||
     location.pathname === "/Propietario" ||
-    location.pathname.startsWith("/Canchas/");
-  location.pathname === "/Reservas"
+    location.pathname.startsWith("/Canchas/") ||
+    location.pathname === "/Configuraciones";
+
 
   return (
     <>
@@ -44,6 +47,8 @@ const AppContent = () => {
         <Route path="/MisReservas" element={<MisReservas />} />
         <Route path="/reserva-exitosa" element={<ReservaExitosa />} />
         <Route path="/Reservas" element={<ReservasPropietario />} />
+        <Route path="/Configuraciones" element={<Configuraciones />} />
+
       </Routes>
       {!hideLayout && <ProfessionalFooter />}
 

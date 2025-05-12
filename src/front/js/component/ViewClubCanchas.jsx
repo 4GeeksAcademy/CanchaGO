@@ -38,7 +38,7 @@ const ViewClubCanchas = () => {
                             Volver
                         </button>
 
-                        <div className="header-content">
+                        <div className="header-content1">
                             <h1 className="club-title">{club?.nombre || 'Cargando...'}</h1>
                             <div className="club-info">
 

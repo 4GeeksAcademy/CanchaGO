@@ -1,176 +1,295 @@
-/* MisReservas.css */
-
+/* MisReservas.css - Versión Final Ajustada */
 .reservas-container {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1.5rem 20px;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 70vh;
   display: flex;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   flex-direction: column;
-  width: 100%;
   background: linear-gradient(to right, #7ed8f8, #055a92);
-  /* sombra “pro” */
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 20px 25px rgba(0, 0, 0, 0.15),
     inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   border-radius: 12px;
 }
 
+.content-wrapper {
+  flex: 1;
+  min-height: 600px;
+  position: relative;
+  padding: 1rem 0;
+}
+
 .reservas-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding: 1rem 0;
-  border-bottom: 2px solid #e9ecef;
+  align-items: flex-start;
+  flex-direction: column;
+  min-width: 1000px;
+  width: 100%;
 }
 
-.reservas-header h1 {
-  font-size: 2rem;
-  font-weight: 700;
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  padding: 0;
   margin: 0;
+  gap: 1rem;
+  border: 0;
+}
+
+.filtros-section {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.filtros-header {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
 }
 
+.filter-input {
+  height: 48px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  font-size: 1rem;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+}
+
+/* Grid de tarjetas */
 .reservas-grid {
   display: grid;
-  gap: 1.5rem;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  grid-template-columns: repeat(3, minmax(320px, 1fr));
+  justify-items: center;
+  padding: 1rem 0;
 }
 
+/* Tarjeta - Tamaño fijo */
 .reserva-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 380px;
+  min-height: 400px;
+  background: white;
+  border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .reserva-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
-/* Contenedor de la imagen con overlay */
+/* Sección de imagen */
 .card-image-container {
-  position: relative;
-  width: 100%;
   height: 200px;
+  flex-shrink: 0;
+  position: relative;
+  background: #f0f2f5;
 }
 
-.reserva-image {
+.card-image-container img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
 }
 
-.image-overlay {
+/* Badges - Tamaño consistente */
+.card-badges {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  padding: 0.5rem 1rem;
-  background: rgba(0, 0, 0, 0.5);
-}
-
-.club-overlay {
-  color: #fff;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.reserva-body {
-  padding: 1rem 1.5rem;
-}
-
-.cancha-name {
-  font-size: 1.25rem;
-  margin: 0.5rem 0;
-}
-
-.reserva-header {
+  top: 15px;
+  left: 15px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.reserva-details {
-  display: grid;
-  gap: 1rem;
-  margin: 1rem 0;
-}
-
-.detail-item {
-  display: flex;
-  align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem;
-  background: #f8f9fa;
+}
+
+.card-badges .badge {
+  font-size: 0.9rem;
+  padding: 0.7rem 1.1rem;
+  min-width: 100px;
+  text-align: center;
   border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.detail-item svg {
-  font-size: 1.25rem;
-}
-
-.reserva-actions {
+/* Contenido de tarjeta */
+.card-content {
+  padding: 1rem !important;
+  gap: 0;
+  flex: 1;
   display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
+  flex-direction: column;
 }
 
+.club-name {
+  color: #ffffff;
+  font-size: 0.95rem;
+  margin-bottom: 1.25rem;
+}
+
+/* Items de información */
+.reserva-info {
+  margin: 0.75rem 0;
+  flex: 1;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem;
+  margin-bottom: 0.9rem;
+  background: #f8f9fa;
+  border-radius: 10px;
+  min-height: 64px;
+}
+
+.info-item svg {
+  flex-shrink: 0;
+  color: #4a90e2;
+  font-size: 1.2rem;
+}
+
+/* Acciones */
+.card-actions {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+.card-actions .btn {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+/* Estado vacío */
 .empty-state {
   text-align: center;
-  padding: 4rem 0;
+  padding: 4rem 2rem;
+  background: #f8f9fa;
+  border-radius: 20px;
+  width: 100%;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  min-height: 460px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
-.empty-state img {
-  width: 300px;
-  margin-bottom: 2rem;
+.empty-icon {
+  font-size: 4rem;
+  color: #adb5bd;
+  margin-bottom: 1.5rem;
   opacity: 0.8;
 }
 
 .empty-state h3 {
-  color: #6c757d;
-  margin-bottom: 1.5rem;
+  color: #2d3436;
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
 }
 
-.loading-screen {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 70vh;
+.empty-state p {
+  color: #636e72;
+  max-width: 500px;
+  margin: 0 auto 1.5rem;
+  line-height: 1.6;
 }
 
-.temporal-status {
-  margin: 0.5rem 1.5rem;
+/* Responsividad */
+@media (max-width: 1399px) {
+  .reservas-grid {
+    grid-template-columns: repeat(3, minmax(300px, 1fr));
+  }
 }
 
-.temporal-status .badge {
-  font-size: 0.9rem;
+@media (max-width: 1199px) {
+  .reservas-grid {
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
 }
 
-/* Mi reserva modal */
-.club-info {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+@media (max-width: 991px) {
+  .reservas-grid {
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+  }
+
+  .reserva-card {
+    min-height: 380px;
+  }
+
+  .card-image-container {
+    height: 220px;
+  }
 }
 
-.club-name {
-  font-size: 1rem;
-  color: #ffffff;
+@media (max-width: 767px) {
+  .reservas-grid {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .reserva-card {
+    max-width: 100%;
+    min-height: 360px;
+  }
+
+  .filtros-section {
+    padding: 1.25rem;
+  }
 }
 
-.detail-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+@media (max-width: 575px) {
+  .reservas-container {
+    padding: 1.5rem;
+  }
 
-.detail-item {
-  border: rgba(228, 228, 228, 0.5) 1px solid;
+  .card-image-container {
+    height: 200px;
+  }
+
+  .info-item {
+    min-height: 58px;
+    padding: 0.75rem;
+  }
+
+  .empty-state {
+    min-height: 400px;
+    padding: 2rem;
+  }
 }

@@ -211,51 +211,60 @@ def confirm_reserva():
     if not session_id:
         return jsonify({'error': 'Falta session_id'}), 400
 
-    # Recupera la sesión
     try:
+        # Obtener sesión y payment intent
         session = stripe.checkout.Session.retrieve(session_id)
-    except stripe.error.InvalidRequestError:
-        return jsonify({'error': 'Sesión Stripe no encontrada'}), 400
+        payment_intent_id = session.payment_intent  # <--- Clave para reembolsos
+        
+        if session.payment_status != 'paid':
+            return jsonify({'error': 'Pago no completado'}), 400
 
-    if session.payment_status != 'paid':
-        return jsonify({'error': 'Pago no completado'}), 400
-
-    # Extrae metadata y crea la reserva
-    meta = session.metadata
-    slots       = json.loads(meta['slots'])          # lista de "HH:MM"
-    freq_minutes= int(meta['frecuencia'])
-    base_data   = {
-      'user':       meta['user'],
-      'idCancha':   int(meta['idCancha']),
-      'fecha':      meta['fecha'],
-      'estado':     'Confirmada',
-      'metodoPago': 'Tarjeta de credito'
-    }
-    reservas_creadas = []
-    for start in slots:
-        # calcula horaFin sumando freq_minutes
-        h, m = map(int, start.split(':'))
-        dt = datetime.combine(datetime.today(), datetime.strptime(start, "%H:%M").time())
-        dt_end = dt + timedelta(minutes=freq_minutes)
-        end = dt_end.time().strftime("%H:%M")
-
-        data_slot = {
-            **base_data,
-            'horaInicio': start,
-            'horaFin':    end,
-            'monto':      float(meta['monto']) / len(slots)  # prorratea si quieres
+        # Extraer metadata
+        meta = session.metadata
+        slots = json.loads(meta['slots'])
+        freq_minutes = int(meta['frecuencia'])
+        
+        base_data = {
+            'user': meta['user'],
+            'idCancha': int(meta['idCancha']),
+            'fecha': meta['fecha'],
+            'estado': 'Confirmada',
+            'metodoPago': 'Tarjeta de credito'
         }
-        resp, status = crear_reserva_interna(data_slot, stripe_payment_id=session_id)
-        if status == 201:
-            reservas_creadas.append(resp.get_json()['reserva'])
-        else:
-            # si falla en uno, aborta todo
-            return resp, status
 
-    return jsonify({
-        'message': 'Todas las reservas creadas',
-        'reservas': reservas_creadas
-    }), 201
+        reservas_creadas = []
+        for start in slots:
+            # Calcular hora fin
+            dt = datetime.combine(datetime.today(), datetime.strptime(start, "%H:%M").time())
+            dt_end = dt + timedelta(minutes=freq_minutes)
+            end = dt_end.time().strftime("%H:%M")
+
+            data_slot = {
+                **base_data,
+                'horaInicio': start,
+                'horaFin': end,
+                'monto': float(meta['monto']) / len(slots),
+                'stripe_payment_id': payment_intent_id  # <--- Guardar payment_intent
+            }
+            
+            # Crear reserva con payment_intent
+            resp, status = crear_reserva_interna(data_slot)
+            if status == 201:
+                reservas_creadas.append(resp.get_json()['reserva'])
+            else:
+                # Rollback de Stripe si falla
+                stripe.Refund.create(payment_intent=payment_intent_id)
+                return resp, status
+
+        return jsonify({
+            'message': 'Todas las reservas creadas',
+            'reservas': reservas_creadas
+        }), 201
+
+    except stripe.error.StripeError as e:
+        return jsonify({'error': f'Error Stripe: {str(e)}'}), 500
+    except Exception as e:
+        return jsonify({'error': f'Error interno: {str(e)}'}), 500
     
 
 #finalizan los endpoinys para stripe
@@ -365,3 +374,105 @@ def obtener_reservas_usuario():
     return jsonify(reservas_serializadas), 200
 
 #----------------------------------------------------------------------------------------------------------------
+
+
+
+#----------------------------------------------------------------------------------------------------------------
+# Endpoint para cancelar una reserva
+
+@reserva_bp.route('/<string:id_reserva>', methods=['DELETE'])
+@jwt_required()
+def cancel_reservation(id_reserva):
+    try:
+        # 1) Verificar permisos
+        current_user = get_jwt_identity()
+        reserva_principal = Reserva.query.get_or_404(id_reserva)
+        if reserva_principal.usuario.nombreUsuario != current_user:
+            return jsonify({'error': 'No autorizado'}), 403
+
+        # 2) Traer reservas hermanas confirmadas
+        reservas_grupo = Reserva.query.filter_by(
+            stripe_payment_id=reserva_principal.stripe_payment_id,
+            estado='Confirmada'
+        ).all()
+        if not reservas_grupo:
+            return jsonify({'error': 'No hay reservas para cancelar'}), 404
+        
+
+        print(f"Reservas a cancelar: {[r.serialize() for r in reservas_grupo]}")
+
+        # 3) Elegir la más temprana
+        reserva_early = min(
+            reservas_grupo,
+            key=lambda r: (
+                # Parsear fecha si es string
+                datetime.strptime(r.fecha, "%d/%m/%Y").date()
+                if isinstance(r.fecha, str)
+                else r.fecha,
+                # Parsear hora si es string
+                datetime.strptime(r.horaInicio, "%H:%M").time()
+                if isinstance(r.horaInicio, str)
+                else r.horaInicio
+            )
+        )
+
+        # 4) Combinar fecha + hora en un datetime
+        # Date:
+        if isinstance(reserva_early.fecha, str):
+            fecha_obj = datetime.strptime(reserva_early.fecha, "%d/%m/%Y").date()
+        else:
+            fecha_obj = reserva_early.fecha
+        # Time:
+        if isinstance(reserva_early.horaInicio, str):
+            hora_obj = datetime.strptime(reserva_early.horaInicio, "%H:%M").time()
+        else:
+            hora_obj = reserva_early.horaInicio
+
+        inicio_dt = datetime.combine(fecha_obj, hora_obj)
+
+        # 5) Fecha actual
+        ahora = datetime.now()
+
+        # 6) Tiempo restante
+        delta = inicio_dt - ahora
+
+        # 7) Validaciones
+        if delta.total_seconds() <= 0:
+            return jsonify({'error': 'La reserva ya ha iniciado o finalizado'}), 400
+        if delta < timedelta(hours=3):
+            horas = delta.total_seconds() / 3600
+            return jsonify({
+                'error': 'Cancelación permitida hasta 3 horas antes',
+                'detalle': f'Tiempo restante: {horas:.2f} horas'
+            }), 400
+
+        # 8) Reembolso Stripe si aplica
+        if reserva_principal.stripe_payment_id:
+            try:
+                intent = stripe.PaymentIntent.retrieve(reserva_principal.stripe_payment_id)
+                charge = intent.charges.data[0] if intent.charges.data else None
+                if charge and not charge.refunded:
+                    refund = stripe.Refund.create(
+                        payment_intent=reserva_principal.stripe_payment_id,
+                        reason='requested_by_customer'
+                    )
+                    if refund.status != 'succeeded':
+                        db.session.rollback()
+                        return jsonify({'error': 'Error en reembolso Stripe'}), 500
+            except stripe.error.StripeError as e:
+                db.session.rollback()
+                return jsonify({'error': f'Error Stripe: {str(e)}'}), 400
+
+        # 9) Marcar todas las reservas del grupo
+        for r in reservas_grupo:
+            r.estado = 'Cancelada'
+        db.session.commit()
+
+        return jsonify({
+            'message': f'{len(reservas_grupo)} reserva(s) cancelada(s) exitosamente',
+            'reembolso': 'completo' if reserva_principal.stripe_payment_id else 'no aplica'
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error interno: {str(e)}'}), 500

@@ -5,6 +5,7 @@ import Navbar from './NavBar.jsx';
 import { useAlert } from '../hooks/useAlert';
 import { FaUser, FaEnvelope, FaLock, FaPhoneAlt, FaRunning, FaBuilding, FaEye, FaEyeSlash } from 'react-icons/fa';
 import '../../styles/Configuraciones.css';
+import Navbarpropietario from './Navbarpropietario.jsx';
 
 const ROLES = [
     { name: "Propietario", icon: <FaBuilding className="role-icon" /> },
@@ -90,7 +91,8 @@ const Configuraciones = () => {
 
     return (
         <>
-            <Navbar />
+            {store.role === 'Deportista' ? <Navbar /> : <Navbarpropietario />}
+            <div className="background-image"></div>
             <Container className="config-container">
                 <h1 className="config-title">Configuración de cuenta</h1>
 

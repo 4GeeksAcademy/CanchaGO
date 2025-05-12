@@ -89,13 +89,26 @@ const ListPaddel = () => {
 
         <div className="cards-carousel">
           <div className="cards-wrapper">
-            {filteredClubs.map((item, index) => (
-              item ? (
-                <PaddelCard key={item.idClub} paddel={item} selectedSport={selectedSport} />
-              ) : (
-                <div key={`placeholder-${index}`} className="card-placeholder"></div>
-              )
-            ))}
+            {filteredClubs && filteredClubs.length > 0 ? (
+              filteredClubs.map((item, index) => (
+                item ? (
+                  <PaddelCard
+                    key={item.idClub}
+                    paddel={item}
+                    selectedSport={selectedSport}
+                  />
+                ) : (
+                  <div
+                    key={`placeholder-${index}`}
+                    className="card-placeholder"
+                  ></div>
+                )
+              ))
+            ) : (
+              <div className="no-results-message">
+                <p>No hay clubes disponibles para el deporte seleccionado.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

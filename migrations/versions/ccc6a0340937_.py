@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 59ea25d06a14
+Revision ID: ccc6a0340937
 Revises: 
-Create Date: 2025-05-01 20:29:15.709413
+Create Date: 2025-05-12 16:33:16.684651
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '59ea25d06a14'
+revision = 'ccc6a0340937'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -95,7 +95,7 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('reserva',
-    sa.Column('idReserva', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('idReserva', sa.String(length=16), nullable=False),
     sa.Column('idCancha', sa.Integer(), nullable=False),
     sa.Column('idUsuario', sa.Integer(), nullable=False),
     sa.Column('fecha', sa.Date(), nullable=False),
@@ -104,6 +104,7 @@ def upgrade():
     sa.Column('estado', sa.String(length=50), nullable=False),
     sa.Column('monto', sa.Float(), nullable=False),
     sa.Column('metodoPago', sa.String(length=50), nullable=False),
+    sa.Column('stripe_payment_id', sa.String(length=255), nullable=True),
     sa.ForeignKeyConstraint(['idCancha'], ['cancha.idCancha'], ),
     sa.ForeignKeyConstraint(['idUsuario'], ['usuario.idUsuario'], ),
     sa.PrimaryKeyConstraint('idReserva')

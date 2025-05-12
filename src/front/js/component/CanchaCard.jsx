@@ -96,14 +96,14 @@ const CanchaCard = ({ cancha, onDelete, onEdit, club }) => {
                 className="btn btn-outline-warning btn-sm d-flex align-items-center"
                 onClick={handleEditClick}
                 disabled={true}
-                style={{ width: '40px', justifyContent: 'center' }}
+                style={{ width: '70px', justifyContent: 'center' }}
               >
                 <i className="bi bi-pencil"> Editar </i>
               </button>
               <button
                 className="btn btn-outline-danger btn-sm d-flex align-items-center"
                 onClick={handleDeleteClick}
-                style={{ width: '40px', justifyContent: 'center' }}
+                style={{ width: '70px', justifyContent: 'center' }}
               >
                 <i className="bi bi-trash"> Eliminar </i>
               </button>

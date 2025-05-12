@@ -598,26 +598,30 @@ const getState = ({ getStore, getActions, setStore }) => {
         const { token } = getStore();
         try {
           const resp = await fetch(
-            `${process.env.REACT_APP_API_URL}/reserva/${idReserva}`,
+            `${process.env.BACKEND_URL}reserva/${idReserva}`,
             {
               method: "DELETE",
               headers: {
-                "Content-Type": "application/json",
                 Authorization: "Bearer " + token,
               },
             }
           );
-          if (resp.ok) {
-            return { success: true };
-          } else {
-            const data = await resp.json();
+
+          const data = await resp.json(); // Siempre parsea la respuesta
+
+          if (!resp.ok) {
             return {
               success: false,
               message: data.error || "Error cancelando reserva",
             };
           }
+
+          return { success: true };
         } catch (error) {
-          return { success: false, message: error.message };
+          return {
+            success: false,
+            message: "Error de conexión con el servidor",
+          };
         }
       },
       getCurrentUser: async () => {
@@ -625,17 +629,23 @@ const getState = ({ getStore, getActions, setStore }) => {
           const token = getStore().token;
           if (!token) return { success: false, message: "No token available" };
 
-          const response = await fetch(`${process.env.BACKEND_URL}users/userinfo`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          const response = await fetch(
+            `${process.env.BACKEND_URL}users/userinfo`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
 
           if (!response.ok) {
             const data = await response.json();
-            return { success: false, message: data.msg || "Failed to fetch user" };
+            return {
+              success: false,
+              message: data.msg || "Failed to fetch user",
+            };
           }
 
           const data = await response.json();
@@ -662,7 +672,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 
           if (!response.ok) {
             const data = await response.json();
-            return { success: false, message: data.msg || "Failed to update user" };
+            return {
+              success: false,
+              message: data.msg || "Failed to update user",
+            };
           }
 
           const data = await response.json();
@@ -672,7 +685,6 @@ const getState = ({ getStore, getActions, setStore }) => {
           return { success: false, message: "Server error" };
         }
       },
-
 
       //termina la funcion para obtener las reservas de un usuario en la base de datos
       //------------------------------------------------------------------------------------------------------------------------------------------------------

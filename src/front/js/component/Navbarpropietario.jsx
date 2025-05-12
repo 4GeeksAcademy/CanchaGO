@@ -12,7 +12,14 @@ const Navbarpropietario = ({ onOpenCrearClub }) => {
     actions.logoutUser();
     navigate('/');
   };
-  const goHome = () => navigate('/');
+  const goHome = () => {
+    if (role === 'Propietario') {
+      navigate('/Propietario');
+    } else {
+      actions.logoutUser();
+      navigate('/home');
+    }
+  };
   const handleSettings = () => navigate('/Configuraciones');
   const handleReservas = () => navigate('/Reservas');
 
@@ -44,14 +51,19 @@ const Navbarpropietario = ({ onOpenCrearClub }) => {
             {username && (
               <div className="dropdown">
                 <button
-                  className="btn btn-light dropdown-toggle d-flex align-items-center px-3 py-2"
+                  className="btn dropdown-toggle d-flex align-items-center px-3 py-2 rounded-pill"
                   type="button"
                   id="userDropdown"
                   data-bs-toggle="dropdown"
                   aria-expanded="false"
+                  style={{
+                    backgroundColor: "#343a40",
+                    border: "1px solid #555",
+                    color: "#f8f9fa"
+                  }}
                 >
                   <div
-                    className="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center me-2"
+                    className="rounded-circle bg-secondary text-white d-flex justify-content-center align-items-center me-2"
                     style={{
                       width: "36px",
                       height: "36px",

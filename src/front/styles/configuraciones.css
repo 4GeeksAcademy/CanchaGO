@@ -1,0 +1,180 @@
+/* Main Container */
+.config-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Header */
+.config-container h2 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #505256;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* Card Styles */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+/* Form Elements */
+.card label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.card .form-control {
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  transition: all 0.2s ease;
+}
+
+.card .form-control:focus {
+  border-color: #86b7fe;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.card input[readonly] {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+  border-color: #e9ecef;
+}
+
+/* Input Groups */
+.input-group {
+  position: relative;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  z-index: 4;
+}
+
+.auth-input {
+  padding-left: 3rem !important;
+}
+
+/* Password Field Container */
+.password-field-container {
+  position: relative;
+}
+
+/* Password Input Group */
+.password-input-group {
+  display: flex;
+  align-items: center;
+}
+
+/* Password Toggle Button */
+.password-toggle-btn {
+  position: relative; /* Changed from absolute */
+  margin-left: -40px; /* Pulls button into the input field */
+  background: none;
+  border: none;
+  color: #6c757d;
+  padding: 8px 12px;
+  z-index: 2;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.password-toggle-btn:hover {
+  color: #0d6efd;
+}
+
+/* Make sure input has enough padding for the button */
+.password-input {
+  padding-right: 40px !important; /* Space for the toggle button */
+}
+
+/* For readonly password field */
+.password-input[readonly] {
+  background-color: #f8f9fa;
+  user-select: none;
+}
+
+/* Role Styles */
+.role-selection-container {
+  margin-top: 0.5rem;
+}
+
+.role-badges-container {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e9ecef;
+  color: #333;
+  padding: 0.5rem 1.25rem;
+  border-radius: 50px;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  gap: 0.5rem;
+}
+
+/* Button Styles */
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  padding: 0.75rem 2.5rem;
+  font-weight: 500;
+  border-radius: 50px;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.65;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .config-container {
+    padding: 1rem;
+  }
+  
+  .config-container h2 {
+    font-size: 1.8rem;
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  .role-badge {
+    padding: 0.4rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .btn-primary {
+    padding: 0.6rem 1.8rem;
+  }
+}

@@ -252,7 +252,7 @@ def delete_user(idUsuario):
 #------------------------------------------------------------------------------------------------
 
 # 6) Ruta para actualizar un usuario por su email
-# PUT: /users/<int:idUsuario>
+# PUT: /users/edit
 @users_bp.route('/edit', methods=['PUT'])
 @jwt_required()
 def update_user():
@@ -266,44 +266,39 @@ def update_user():
     if not user:
         return jsonify({'msg': 'Usuario no encontrado'}), 404
 
-    # Si viene nombreUsuario, chequear que no esté en uso por otro
+    # Validar email
     if 'email' in data:
-        email = data.get('email').strip()
-        if email:
-            existing = Usuario.query.filter_by(email=email).first()
-            if existing and existing.idUsuario != user.idUsuario:
-                return jsonify({'msg': f"El email {data['email']} ya existe, elige otro"}), 409
-            user.email = email
+        new_email = data.get('email', '').strip().lower()
+        if new_email != user.email:
+            if Usuario.query.filter_by(email=new_email).first():
+                return jsonify({'msg': 'El email ya está registrado'}), 409
+            user.email = new_email
 
-    if 'nombre' in data and data['nombre'].strip():
-        user.nombre = data['nombre'].strip()
-
+    # Validar contraseña
     if 'clave' in data and data['clave'].strip():
-        if 'clave' in data and data['clave'].strip().length < 8:
+        if len(data['clave'].strip()) < 8:
             return jsonify({'msg': 'La clave debe tener al menos 8 caracteres'}), 400
         user.clave = data['clave'].strip()
 
+    # Validar teléfono
     if 'telefono' in data and data['telefono'].strip():
-       
-        # Validación del número telefónico
-        telefono = data.get('telefono')
+        telefono = data['telefono'].strip()
+        if len(telefono) != 10 or not telefono.isdigit():
+            return jsonify({'msg': 'Teléfono inválido'}), 400
+        if Usuario.query.filter(Usuario.telefono == telefono, Usuario.idUsuario != user.idUsuario).first():
+            return jsonify({'msg': 'Teléfono ya registrado'}), 409
+        user.telefono = telefono
 
-        # Verifica que el número sea numérico y de exactamente 10 caracteres
-        if telefono.length != 10 or not telefono.isdigit():
-            return jsonify({'msg': 'El número telefónico debe ser numérico y tener exactamente 10 dígitos'}), 400
-        
-        # Verifica si el número ya existe
-        existing_phone = Usuario.query.filter_by(telefono=telefono).first()
-        if existing_phone and existing_phone.idUsuario != user.idUsuario:
-            return jsonify({'msg': 'El número telefónico ya está registrado'}), 409
-        
-        # Si el número es válido y no está en uso, lo asignamos al usuario
-        user.telefono = data['telefono'].strip()
-    
-    db.session.add(user)
-    db.session.commit()
+    # Actualizar nombre
+    if 'nombre' in data and data['nombre'].strip():
+        user.nombre = data['nombre'].strip()
 
-    return jsonify({'msg': 'Usuario actualizado exitosamente', 'usuario': user.serialize()}), 200
+    try:
+        db.session.commit()
+        return jsonify({'msg': 'Usuario actualizado', 'usuario': user.serialize()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'msg': 'Error al actualizar usuario'}), 500
 
 
 #Finaliza la funcion editar usuario
@@ -324,5 +319,5 @@ def get_user_info():
     
     return jsonify({
         'msg': 'Información del usuario',
-        'usuario': user.serialize()
+        'usuario': {**user.serialize(), "clave": user.clave}
     }), 200

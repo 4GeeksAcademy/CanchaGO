@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import String, Integer, Date, Time, ForeignKey, Boolean, Float
+from datetime import date, time
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import LargeBinary
 import uuid
@@ -266,9 +267,9 @@ class Reserva(db.Model):
                 'imagen': self.cancha.imagen if self.cancha else None
             },
             'usuario': self.usuario.nombreUsuario if self.usuario else None,
-            'fecha': self.fecha.strftime("%d/%m/%Y") if self.fecha else None,
-            'horaInicio': self.horaInicio.strftime("%H:%M") if self.horaInicio else None,
-            'horaFin': self.horaFin.strftime("%H:%M") if self.horaFin else None,
+            'fecha': self.fecha.strftime('%d/%m/%Y') if isinstance(self.fecha, date) else self.fecha,
+            'horaInicio': self.horaInicio.strftime('%H:%M') if isinstance(self.horaInicio, time) else self.horaInicio,
+            'horaFin': self.horaFin.strftime('%H:%M') if isinstance(self.horaFin, time) else self.horaFin,
             'estado': self.estado,
             'monto': self.monto,
             'metodoPago': self.metodoPago,

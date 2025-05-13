@@ -9,7 +9,10 @@ from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
 from datetime import timedelta
 from sqlalchemy import inspect
+from flask_mail import Mail, Message
 import stripe
+from dotenv import load_dotenv
+load_dotenv()
 
 # Importa Blueprints directamente
 after_blueprints = []
@@ -24,9 +27,24 @@ port = int(os.getenv('PORT', 3001))
 base_dir = os.path.dirname(os.path.realpath(__file__))
 static_dir = os.path.join(base_dir, '../public')
 
-app = Flask(__name__, static_folder=None)
+app = Flask(__name__, static_folder=None,template_folder='api/templates' )
 CORS(app, origins=os.getenv("FRONTEND_URL"))
 app.url_map.strict_slashes = False
+
+
+#configuracion del email
+app.config.update({
+    'MAIL_SERVER': 'smtp.gmail.com',
+    'MAIL_PORT': 587,
+    'MAIL_USE_TLS': True,
+    'MAIL_USE_SSL': False,
+    'MAIL_USERNAME': os.getenv('MAIL_USERNAME'),
+    'MAIL_PASSWORD': os.getenv('MAIL_PASSWORD').strip(),  # Elimina espacios accidentales
+    'MAIL_DEFAULT_SENDER': ('CanchaGO', os.getenv('MAIL_USERNAME')),
+    'MAIL_SUPPRESS_SEND': False,
+    'MAIL_ASCII_ATTACHMENTS': False
+})
+mail = Mail(app)
 
 # Configuración de BD
 db_uri = os.getenv('DATABASE_URL', f"sqlite:///{os.path.join(base_dir, '../sqlite/test.db')}" )

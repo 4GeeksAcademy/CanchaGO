@@ -1,11 +1,13 @@
-from flask import Blueprint, request, jsonify, redirect
+from flask import Blueprint, request, jsonify, redirect, render_template
 from api.models import db, Reserva, Usuario, Cancha, Club, UsuarioRol
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date, time, timezone
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 import json
 from api.extra.horario import validar_hora, calcular_intervalos, FRECUENCIAS_PERMITIDAS, DIAS_PERMITIDOS
+from api.extra.email import send_reserva_confirmation, send_reserva_cancellation
 import stripe
 import os
+import pytz
 
 reserva_bp = Blueprint('reserva_bp', __name__, url_prefix='/reserva')
 stripe.api_key = os.getenv('STRIPE_API_KEY')
@@ -116,11 +118,15 @@ def crear_reserva_interna(data, stripe_payment_id=None):
         estado=data['estado'],
         metodoPago=data['metodoPago'],
         monto=monto,
-        stripe_payment_id=stripe_payment_id
+        stripe_payment_id=data['stripe_payment_id']
     )
 
     db.session.add(nueva_reserva)
     db.session.commit()
+
+
+    #Correo de confirmacion
+    send_reserva_confirmation(usuario.email, nueva_reserva)
 
     return jsonify({"message": "Reserva creada exitosamente", "reserva": nueva_reserva.serialize()}), 201
 
@@ -402,72 +408,53 @@ def cancel_reservation(id_reserva):
         if not reservas_grupo:
             return jsonify({'error': 'No hay reservas para cancelar'}), 404
         
+        print(f"Reservas a cancelar: [] {[r.stripe_payment_id for r in reservas_grupo]}")
+        
+        #Del grupo de reservas, tomamos la primera reserva (la más cercana a la fecha/hora actual)
+        reserva_early = min(reservas_grupo, key=lambda r: (r.fecha, r.horaInicio))
+        
+        now = datetime.now()  
+        reserva_dt = datetime.combine(reserva_early.fecha, reserva_early.horaInicio)
 
-        # 3) Elegir la más temprana
-        reserva_early = min(
-            reservas_grupo,
-            key=lambda r: (
-                # Parsear fecha si es string
-                datetime.strptime(r.fecha, "%d/%m/%Y").date()
-                if isinstance(r.fecha, str)
-                else r.fecha,
-                # Parsear hora si es string
-                datetime.strptime(r.horaInicio, "%H:%M").time()
-                if isinstance(r.horaInicio, str)
-                else r.horaInicio
-            )
-        )
+        if reserva_dt.date() < now.date():
+            return jsonify({'error': 'La reserva ya ha finalizado'}), 400
+        
+        if reserva_dt.date() == now.date():
+            diff = reserva_dt - now
+            horas_para_reserva = diff.total_seconds() / 3600
 
-        # 4) Combinar fecha + hora en un datetime
-        # Date:
-        if isinstance(reserva_early.fecha, str):
-            fecha_obj = datetime.strptime(reserva_early.fecha, "%d/%m/%Y").date()
-        else:
-            fecha_obj = reserva_early.fecha
-        # Time:
-        if isinstance(reserva_early.horaInicio, str):
-            hora_obj = datetime.strptime(reserva_early.horaInicio, "%H:%M").time()
-        else:
-            hora_obj = reserva_early.horaInicio
+            # Cambia el 2 a las horas mínimas que quieras antes de cancelar
+            if horas_para_reserva < 2:
+                return jsonify({
+                    'error': 'Cancelación permitida hasta 2 horas antes',
+                    'detalle': f'Tiempo restante: {horas_para_reserva:.2f} horas'
+                }), 400
 
-        inicio_dt = datetime.combine(fecha_obj, hora_obj)
-
-        # 5) Fecha actual
-        ahora = datetime.now()
-
-        # 6) Tiempo restante
-        delta = inicio_dt - ahora
-
-        # 7) Validaciones
-        if delta.total_seconds() <= 0:
-            return jsonify({'error': 'La reserva ya ha iniciado o finalizado'}), 400
-        if delta < timedelta(hours=3):
-            horas = delta.total_seconds() / 3600
-            return jsonify({
-                'error': 'Cancelación permitida hasta 3 horas antes',
-                'detalle': f'Tiempo restante: {horas:.2f} horas'
-            }), 400
 
         # 8) Reembolso Stripe si aplica
         if reserva_principal.stripe_payment_id:
             try:
-                intent = stripe.PaymentIntent.retrieve(reserva_principal.stripe_payment_id)
-                charge = intent.charges.data[0] if intent.charges.data else None
-                if charge and not charge.refunded:
-                    refund = stripe.Refund.create(
-                        payment_intent=reserva_principal.stripe_payment_id,
-                        reason='requested_by_customer'
-                    )
-                    if refund.status != 'succeeded':
-                        db.session.rollback()
-                        return jsonify({'error': 'Error en reembolso Stripe'}), 500
-            except stripe.error.StripeError as e:
-                db.session.rollback()
-                return jsonify({'error': f'Error Stripe: {str(e)}'}), 400
+                stripe.Refund.create(
+                    payment_intent= reserva_principal.stripe_payment_id,
+                    reason='requested_by_customer'
+                )
+            except stripe.error.InvalidRequestError as e:
+                # si ya estaba reembolsado o id inválido, podemos ignorar o manejar distinto
+                if "has already been refunded" in str(e):
+                    pass
+                else:
+                    db.session.rollback()
+                    return jsonify({'error': f'Error en reembolso Stripe: {str(e)}'}), 500
+
+        usuario = usuario = Usuario.query.filter_by(nombreUsuario=current_user).first()
 
         # 9) Marcar todas las reservas del grupo
         for r in reservas_grupo:
             r.estado = 'Cancelada'
+
+            #Mandamos el email de cancelacion de cada reserva
+            send_reserva_cancellation(usuario.email, r)
+
         db.session.commit()
 
         return jsonify({
@@ -517,3 +504,18 @@ def get_reservas_propietario():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+@reserva_bp.route("/test-email", methods=['GET'])
+def test_email():
+    try:
+        reserva_fake = Reserva(
+            fecha=datetime(2025, 5, 13),
+            horaInicio="18:00",
+            horaFin="19:00",
+            monto=20,
+            cancha=Cancha(nombre="Cancha 1", club=Club(nombre="Club CR7"))
+        )        
+        send_reserva_confirmation('andresperez0401@gmail.com', reserva_fake)
+        return "Email enviado correctamente", 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

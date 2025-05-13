@@ -1,0 +1,35 @@
+.modal-backdrop {
+  background: rgba(0, 0, 0, 0.5);
+  position: fixed !important;
+  inset: 0;
+  z-index: 1050;
+}
+.modal-dialog {
+  max-width: 800px;
+}
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+}
+.sport-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.75rem;
+  background: #f1f5f9;
+  transition: 0.2s;
+}
+.sport-btn.active,
+.sport-btn:hover {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+.map-selector {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.leaflet-container {
+  margin-top: 1rem;
+}

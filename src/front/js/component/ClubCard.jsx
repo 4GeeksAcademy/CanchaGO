@@ -36,7 +36,7 @@ const ClubCard = ({ club, onDelete, onEdit }) => {
 
   return (
     <>
-      <div className="col-md-4 mb-4 d-flex">
+      <div className="col-md-4 mb-4 d-flex" style={{ transition: 'transform 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-6px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
         <div className="card shadow flex-fill" style={{
           borderRadius: '16px',
           transition: 'transform 0.2s',

@@ -326,7 +326,7 @@ const getState = ({ getStore, getActions, setStore }) => {
           } else {
             return {
               success: false,
-              message: data.message || "Error al eliminar el club",
+              message: data.error || "Error al eliminar el club",
             };
           }
         } catch (error) {
@@ -383,6 +383,31 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
 
       //Finaliza la funcion para crear una cancha en la base de datos
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+
+      //-----------------------------------------------------------------------------------------------------------------------------------------------------
+      //Funcion para editar una cancha en la base de datos
+
+      // store/appContext.js, agrega algo así:
+      editCancha: async (updated) => {
+        const { token } = getStore();
+        const resp = await fetch(
+          `${process.env.BACKEND_URL}/cancha/${updated.idCancha}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(updated),
+          }
+        );
+        const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || "Error al editar cancha");
+        // luego refresca lista o actualiza store.ownerCanchas
+        return data;
+      },
+      // Finaliza la funcion para editar una cancha en la base de datos
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
 
       //-----------------------------------------------------------------------------------------------------------------------------------------------------
@@ -687,6 +712,39 @@ const getState = ({ getStore, getActions, setStore }) => {
       },
 
       //termina la funcion para obtener las reservas de un usuario en la base de datos
+      //------------------------------------------------------------------------------------------------------------------------------------------------------
+
+      //------------------------------------------------------------------------------------------------------------------------------------------------------
+      // Accion para obtener las reservas de un propietario:
+      getOwnerReservations: async () => {
+        const { token } = getStore();
+        try {
+          const resp = await fetch(
+            process.env.BACKEND_URL + "reserva/propietario",
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          const data = await resp.json();
+          if (resp.ok) {
+            setStore({ ...getStore(), ownerReservations: data.reservas });
+            return { success: true, data };
+          } else {
+            return {
+              success: false,
+              message: data.error || "Error cargando reservas",
+            };
+          }
+        } catch (error) {
+          return { success: false, message: error.message };
+        }
+      },
+
+      // Finaliza la accion para obtener las reservas de un propietario
       //------------------------------------------------------------------------------------------------------------------------------------------------------
     },
   };

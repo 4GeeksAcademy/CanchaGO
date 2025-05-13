@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import CrearCanchaModal from './CrearCanchaModal.jsx';
 import DisponibilidadModal from './DisponibilidadModal.jsx';
+import { useAlert } from "../hooks/useAlert.js";
 
 const CanchaCard = ({ cancha, onDelete, onEdit, club }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDisponibilidadModal, setShowDisponibilidadModal] = useState(false);
+  const { error, success } = useAlert();
 
   const handleDeleteClick = () => {
     setShowDeleteModal(true);
@@ -25,9 +27,23 @@ const CanchaCard = ({ cancha, onDelete, onEdit, club }) => {
     setShowEditModal(false);
   };
 
-  const handleEditSave = (updatedCancha) => {
-    onEdit(updatedCancha);
+  const handleEditSave = async (updatedCancha) => {
+    onEdit({ ...updatedCancha, idCancha: cancha.idCancha });
     setShowEditModal(false);
+
+    try {
+      let response = await actions.editCancha(canchaData);
+
+      if (!response.success) {
+        error("Error al guardar la cancha editada:", response.message);
+        return;
+      }
+      success('Cancha actualizada exitosamente!');
+
+    }
+    catch (error) {
+      error("Error al guardar la cancha editada:", error);
+    }
   };
 
   const handleDisponibilidadClick = () => {
@@ -40,7 +56,7 @@ const CanchaCard = ({ cancha, onDelete, onEdit, club }) => {
 
   return (
     <>
-      <div className="col-md-4 mb-4">
+      <div className="col-md-4 mb-4" style={{ transition: 'transform 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-6px)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
         <div className="card h-100 shadow" style={{
           borderRadius: '12px',
           transition: 'transform 0.2s'
@@ -95,7 +111,7 @@ const CanchaCard = ({ cancha, onDelete, onEdit, club }) => {
               <button
                 className="btn btn-outline-warning btn-sm d-flex align-items-center"
                 onClick={handleEditClick}
-                disabled={true}
+                // disabled={true}
                 style={{ width: '70px', justifyContent: 'center' }}
               >
                 <i className="bi bi-pencil"> Editar </i>

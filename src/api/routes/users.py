@@ -37,7 +37,7 @@ def get_user(idUsuario):
 #------------------------------------------------------------------------------------------------	
 
 # 3) Ruta para crear un nuevo usuario
-# POST: /users
+# POST: /users/signup
 @users_bp.route('/signup', methods=['POST'])
 def create_user():
     data = request.get_json() or {}
@@ -46,117 +46,77 @@ def create_user():
     
     # Campos requeridos
     required_fields = ['nombre', 'email', 'clave', 'nombreUsuario', 'telefono', 'rol']
-
-    # Verificamos que no falte ninguno de los campos requeridos ni que estén vacíos
-    empty_fields = [field for field in required_fields if not data.get(field)]
-
+    empty_fields = [f for f in required_fields if not data.get(f)]
     if empty_fields:
         return jsonify({
             'msg': 'Algunos campos están vacíos o faltan',
             'Campos vacíos o faltantes': empty_fields
         }), 400
-    
-    # Verifica que el rol sea uno de los permitidos
-    rol_obj = Rol.query.filter_by(nombre=data['rol']).first()
-    if not rol_obj:
-        return jsonify({'msg': "El rol: " + data['rol'] + " no existe"}), 400
-    
 
-    #Esto es para verificar si el usuario ya existe con otro rol, lo que significa que desean registarle otro rol 
-    user_with_other_rol = Usuario.query.filter_by(
+    # Parsear uno o varios roles separados por comas
+    roles_input = [r.strip() for r in data['rol'].split(',') if r.strip()]
+    if not roles_input:
+        return jsonify({'msg': 'Debes especificar al menos un rol'}), 400
+
+    # Validar que cada rol exista en BD
+    rol_objs = []
+    for rol_name in roles_input:
+        rol = Rol.query.filter_by(nombre=rol_name).first()
+        if not rol:
+            return jsonify({'msg': f'El rol "{rol_name}" no existe'}), 400
+        rol_objs.append(rol)
+
+    # Buscar usuario existente por email (único)
+    existing_user = Usuario.query.filter_by(email=data['email']).first()
+
+    # Validar teléfono numérico de 10 dígitos
+    telefono = data['telefono']
+    if not (telefono.isdigit() and len(telefono) == 10):
+        return jsonify({'msg': 'El número telefónico debe ser numérico y tener exactamente 10 dígitos'}), 400
+    if Usuario.query.filter_by(telefono=telefono).first() and (not existing_user or existing_user.telefono != telefono):
+        return jsonify({'msg': 'El número telefónico ya está registrado'}), 409
+
+    # Validar username único
+    if Usuario.query.filter_by(nombreUsuario=data['nombreUsuario']).first() and (not existing_user or existing_user.nombreUsuario != data['nombreUsuario']):
+        return jsonify({'msg': 'El nombre de usuario ya existe'}), 409
+
+    if existing_user:
+        # Usuario ya existe: solo agregar los roles nuevos que no tenga
+        added = []
+        for rol in rol_objs:
+            if not UsuarioRol.query.filter_by(idUsuario=existing_user.idUsuario, idRol=rol.idRol).first():
+                ur = UsuarioRol(idUsuario=existing_user.idUsuario, idRol=rol.idRol)
+                db.session.add(ur)
+                added.append(rol.nombre)
+        if not added:
+            return jsonify({'msg': 'El usuario ya tiene todos los roles solicitados'}), 400
+        db.session.commit()
+        return jsonify({
+            'msg': f'Roles {added} agregados exitosamente al usuario {existing_user.nombreUsuario}',
+            'usuario': existing_user.serialize()
+        }), 200
+
+    # Crear nuevo usuario
+    nuevo = Usuario(
         nombre=data['nombre'],
-        nombreUsuario=data['nombreUsuario'],
-        clave=data['clave'],
         email=data['email'],
-        telefono=data['telefono']
-    ).first()
+        clave=data['clave'],
+        telefono=telefono,
+        nombreUsuario=data['nombreUsuario']
+    )
+    db.session.add(nuevo)
+    db.session.flush()  # asigna nuevo.idUsuario
 
+    # Asociar todos los roles al usuario
+    for rol in rol_objs:
+        db.session.add(UsuarioRol(idUsuario=nuevo.idUsuario, idRol=rol.idRol))
 
-    #-----------------------------------------------------------------------------------------------------------------
-    #En este caso el usuario ya existe pero con otro rol, quiere decir que se le puede agregar un nuevo rol
-    if user_with_other_rol:
+    db.session.commit()
+    return jsonify({
+        'msg': 'Usuario creado exitosamente',
+        'usuario': nuevo.serialize()
+    }), 201
 
-        # Verifica si el usuario ya tiene el rol que se intenta agregar
-        existing_user_role = UsuarioRol.query.filter_by(
-            idUsuario=user_with_other_rol.idUsuario,
-            idRol=rol_obj.idRol
-        ).first()
-
-        if existing_user_role:
-            return jsonify({'msg': 'El usuario: ' + data['nombreUsuario'] + ' ya tiene el rol: ' + data['rol']}), 400
-        
-        nuevo_rol_usuario = UsuarioRol(
-            idUsuario=user_with_other_rol.idUsuario,
-            idRol=rol_obj.idRol,
-        )
-
-        db.session.add(nuevo_rol_usuario)
-        db.session.commit()
-        return jsonify({
-            'msg': 'Rol ' + data['rol'] + ', agregado exitosamente al usuario: ' + data['nombreUsuario'],
-            'usuario': user_with_other_rol.serialize()
-        }), 201
-    
-    #Finaliza el if de la verificacion de si existe el usuario con otro rol
-    #-----------------------------------------------------------------------------------------------------------------
-   
-    #-----------------------------------------------------------------------------------------------------------------
-    # Aqui entramos si no hay ningun coincidente en BD, es decir se crea un nuevo usuario de cero
-    else: 
-        # Verifica si el usuario ya existe
-        existing_user = Usuario.query.filter_by(email=data.get('email')).first()
-        if existing_user:
-            return jsonify({'msg': 'El email colocado ya existe'}), 409
-        
-        #Verifica si el nombre de usuario ya existe
-        existing_username = Usuario.query.filter_by(nombreUsuario=data.get('nombreUsuario')).first()
-        if existing_username:
-            return jsonify({'msg': 'El nombre de usuario ya existe'}), 409
-        
-        ################################################################################
-        #Validación del número telefónico
-        telefono = data.get('telefono')
-
-        # Verifica que el número sea numérico y de exactamente 10 caracteres
-        if not (telefono.isdigit() and (len(telefono) == 10)):
-            return jsonify({'msg': 'El número telefónico debe ser numérico y tener exactamente 10 dígitos'}), 400
-
-        # Verifica si el número ya existe
-        existing_phone = Usuario.query.filter_by(telefono=telefono).first()
-        if existing_phone:
-            return jsonify({'msg': 'El número telefónico ya está registrado'}), 409
-        
-        #################################################################################
-        
-        # Crear usuario
-        nuevo = Usuario(
-            nombre=data['nombre'],
-            email=data['email'],
-            clave=data['clave'],
-            telefono=data.get('telefono'),
-            nombreUsuario=data['nombreUsuario']
-        )
-        db.session.add(nuevo)
-
-        #Obtiene el id del nuevo usuario antes de hacer el commit a la bd
-        db.session.flush() 
-
-        # Asociar usuario con rol y club
-        rol_usuario = UsuarioRol(
-            idUsuario=nuevo.idUsuario,
-            idRol=rol_obj.idRol,
-        )
-        db.session.add(rol_usuario)
-    
-        db.session.commit()
-
-        return jsonify({
-            'msg': 'Usuario creado exitosamente',
-            'usuario': nuevo.serialize()
-        }), 201
-    
-        #Finaliza el Else
-        #----------------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------------------------
 

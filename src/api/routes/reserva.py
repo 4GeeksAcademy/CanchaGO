@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, redirect
-from api.models import db, Reserva, Usuario, Cancha, Club
+from api.models import db, Reserva, Usuario, Cancha, Club, UsuarioRol
 from datetime import datetime, timedelta
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 import json
@@ -312,7 +312,11 @@ def disponibilidad():
         freq_min = FRECUENCIAS_PERMITIDAS.get(cancha.horario.frecuencia.lower(), 60)
         
         # Obtener reservas existentes
-        reservas = Reserva.query.filter_by(idCancha=id_cancha, fecha=fecha_dt).all()
+        reservas = Reserva.query.filter(
+            Reserva.idCancha == id_cancha,
+            Reserva.fecha == fecha_dt,
+            Reserva.estado != 'Cancelada'
+        ).all()
         ocupados = [(r.horaInicio, r.horaFin) for r in reservas]
         
         # Generar slots disponibles
@@ -399,8 +403,6 @@ def cancel_reservation(id_reserva):
             return jsonify({'error': 'No hay reservas para cancelar'}), 404
         
 
-        print(f"Reservas a cancelar: {[r.serialize() for r in reservas_grupo]}")
-
         # 3) Elegir la más temprana
         reserva_early = min(
             reservas_grupo,
@@ -476,3 +478,42 @@ def cancel_reservation(id_reserva):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': f'Error interno: {str(e)}'}), 500
+    
+
+#Finaliza el endpoint para cancelar reservas
+#----------------------------------------------------------------------------------------------------------------
+
+
+
+#----------------------------------------------------------------------------------------------------------------
+#Endpoint para obtener reservas de los clubes de un propietario
+
+@reserva_bp.route('/propietario', methods=['GET'])
+@jwt_required()
+def get_reservas_propietario():
+    try:
+        current_user = get_jwt_identity()
+        
+        # 1. Obtener todos los clubs del propietario
+        usuario = Usuario.query.filter_by(nombreUsuario=current_user).first()
+        if not usuario:
+            return jsonify({'error': 'Usuario no encontrado'}), 404
+            
+        clubs_propietario = Club.query.join(UsuarioRol).filter(
+            UsuarioRol.idUsuario == usuario.idUsuario,
+            UsuarioRol.rol.has(nombre='Propietario')
+        ).all()
+        
+        # 2. Obtener todas las reservas de sus canchas
+        reservas = []
+        for club in clubs_propietario:
+            for cancha in club.canchas:
+                reservas_cancha = Reserva.query.filter_by(
+                    idCancha=cancha.idCancha
+                ).all()
+                reservas.extend([r.serialize() for r in reservas_cancha])
+        
+        return jsonify({'reservas': reservas}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500

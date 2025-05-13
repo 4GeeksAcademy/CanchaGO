@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from api.models import Club, db, Deporte, ClubDeporte, Usuario, UsuarioRol, Rol
+from api.models import Club, db, Deporte, ClubDeporte, Usuario, UsuarioRol, Rol, Reserva
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 
 club_bp = Blueprint('club_bp', __name__, url_prefix='/club')
@@ -220,6 +220,16 @@ def delete_club():
 
         if not ur_current:
             return jsonify({"error": "El club no pertenece al usuario"}), 403
+        
+
+        cancha_ids = [c.idCancha for c in club.canchas]
+        existe_reserva = Reserva.query.filter(
+            Reserva.idCancha.in_(cancha_ids)
+        ).first()
+        if existe_reserva:
+            return jsonify({
+                "error": "No se puede eliminar el club porque tiene reservas en sus canchas"
+            }), 400
 
         # Revisamos si ya hay un UsuarioRol “Propietario” sin club asignado
         all_propietarios = UsuarioRol.query.filter_by(

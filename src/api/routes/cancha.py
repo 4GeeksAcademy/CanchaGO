@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from api.models import Cancha, db, Deporte, Usuario, Horario,Club
+from api.models import Cancha, db, Deporte, Usuario, Horario, Club, Reserva
 from api.extra.horario import validar_hora, calcular_intervalos, FRECUENCIAS_PERMITIDAS, DIAS_PERMITIDOS
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 
@@ -184,7 +184,6 @@ def crear_cancha():
 # DELETE: /canchas/<int:idCancha>	
 # 
 # 
-
 @cancha_bp.route('/<int:idCancha>', methods=['DELETE'])
 @jwt_required()
 def eliminar_cancha(idCancha):
@@ -210,6 +209,10 @@ def eliminar_cancha(idCancha):
     if not propietario:
         return jsonify({"error": "No se puede eliminar la cancha, el usuario: {user.nombreUsuario} ,no es el propietario del club :  {cancha.club.nombre}"}), 401
 
+    reserva = Reserva.query.filter_by(idCancha=idCancha).first()
+    if reserva:
+        return jsonify({'error': 'No se puede eliminar la cancha, hay reservas asociadas'}), 400
+    
     try:
         db.session.delete(cancha)
         db.session.commit()
@@ -220,3 +223,87 @@ def eliminar_cancha(idCancha):
     
 #Finaliza el endpoint para eliminar una cancha    
 #----------------------------------------------------------------------------------------------------	
+
+
+
+#----------------------------------------------------------------------------------------------------
+# 5) Endpoint para actualizar una cancha por su id
+# PUT: /canchas/<int:idCancha>
+
+# dentro de api/blueprints/cancha.py (o donde tengas cancha_bp)
+
+@cancha_bp.route('/<int:idCancha>', methods=['PUT'])
+@jwt_required()
+def editar_cancha(idCancha):
+    data = request.get_json() or {}
+    cancha = Cancha.query.get(idCancha)
+    if not cancha:
+        return jsonify({'error': 'Cancha no encontrada'}), 404
+
+    # 1) Verificar permisos: debe ser Propietario y dueño del club
+    jwt_data = get_jwt()
+    user = Usuario.query.filter_by(nombreUsuario=get_jwt_identity()).first()
+    if 'Propietario' not in jwt_data.get('roles', []):
+        return jsonify({'error': 'No tienes permiso para editar canchas'}), 403
+
+    soy_propietario = any(
+        ur.usuario.idUsuario == user.idUsuario and ur.rol.nombre == 'Propietario'
+        for ur in cancha.club.usuario_roles
+    )
+    if not soy_propietario:
+        return jsonify({'error': 'No eres propietario de este club'}), 403
+
+    # 2) Campos permitidos para editar
+    nombre       = data.get('nombre', cancha.nombre)
+    descripcion  = data.get('descripcion', cancha.descripcion)
+    precio       = data.get('precio', cancha.precio)
+    imagen       = data.get('imagen', cancha.imagen)
+    estado       = data.get('estado', cancha.estado)
+
+    # 3) Horario: validar si vinieron nuevos valores
+    hi = data.get('horaInicio')
+    hf = data.get('horaFin')
+    freq = data.get('frecuencia')
+    dias = data.get('dias')  # string: "Lunes,Martes..."
+
+    # Si actualizan horario, validamos igual que en crear
+    if hi or hf or freq or dias is not None:
+        # convertir strings
+        h_inicio = validar_hora(hi) if hi else cancha.horario.horarioInicio
+        h_fin    = validar_hora(hf) if hf else cancha.horario.horarioFin
+        if not h_inicio or not h_fin or h_inicio >= h_fin:
+            return jsonify({'error': 'Horario inválido'}), 400
+
+        frecuencia = freq or cancha.horario.frecuencia
+        if frecuencia not in FRECUENCIAS_PERMITIDAS:
+            return jsonify({'error':'Frecuencia no permitida'}), 400
+
+        dias_list = ([d.strip().capitalize() for d in dias.split(',')]
+                     if dias is not None else cancha.horario.diasDisponibles.split(','))
+        invalidos = [d for d in dias_list if d not in DIAS_PERMITIDOS]
+        if invalidos:
+            return jsonify({'error':'Días inválidos','invalidos':invalidos}),400
+
+        # actualizar horario
+        cancha.horario.horarioInicio   = h_inicio
+        cancha.horario.horarioFin      = h_fin
+        cancha.horario.frecuencia      = frecuencia
+        cancha.horario.diasDisponibles = ','.join(dias_list)
+
+    # 4) Actualizar cancha
+    cancha.nombre      = nombre
+    cancha.descripcion = descripcion
+    cancha.precio      = precio
+    cancha.imagen      = imagen
+    cancha.estado      = bool(estado)
+
+    try:
+        db.session.commit()
+        return jsonify({
+            'mensaje': 'Cancha actualizada',
+            'cancha': cancha.serialize(),
+            'horario': cancha.horario.serialize()
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500

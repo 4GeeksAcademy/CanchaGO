@@ -5,7 +5,7 @@ import { useAlert } from "../hooks/useAlert.js";
 const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
 
   const DEFAULT_IMAGES = {
-    Padel: 'https://www.padelprofi.com/wp-content/uploads/2023/04/high-angle-palette-balls-field22-877x1024.jpg', 
+    Padel: 'https://www.padelprofi.com/wp-content/uploads/2023/04/high-angle-palette-balls-field22-877x1024.jpg',
     Futbol: 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
     Tenis: 'https://images.pexels.com/photos/209977/pexels-photo-209977.jpeg'
   };
@@ -90,7 +90,7 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
       imagen: cancha.imagen.trim() || DEFAULT_IMAGES[cancha.deporte] || '',
       frecuencia: canchaToSave.frecuencia === '60' ? "1h" : "30min",
     };
-    
+
 
     if (cancha.dias.length === 0) {
       error('Debes seleccionar al menos un día disponible para la cancha.');
@@ -166,7 +166,10 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
 
           <Form.Group className="mb-3">
             <Form.Label>Tipo de cancha</Form.Label>
-            <Form.Select name="deporte" value={cancha?.deporte || ''} onChange={handleChange}>
+            <Form.Select
+              name="deporte" value={cancha.deporte} onChange={handleChange}
+              disabled={!!canchaToEdit}        /* si es edición, se deshabilita */
+            >
               {club?.deportes.map((deporte, idx) => (
                 <option key={`${deporte}-${idx}`} value={deporte}>{deporte}</option>
               ))}
@@ -201,6 +204,7 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
                   type="checkbox"
                   label={dia}
                   value={dia}
+                  disabled={canchaToEdit} // Deshabilitar si es edición
                   name="dias"
                   checked={(cancha.dias || []).includes(dia)}
                   onChange={handleChange}
@@ -265,6 +269,7 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
               name="frecuencia"
               value={cancha.frecuencia}
               onChange={handleChange}
+              disabled={canchaToEdit}
               required
             >
               <option value="30">30</option>

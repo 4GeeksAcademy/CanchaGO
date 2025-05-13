@@ -34,20 +34,20 @@ const Loggin = () => {
 
   const handleRoleToggle = (role) => {
 
-    if (!selectedRoles.includes(role)) {
-      setSelectedRoles([role]);
-      setFormData({ ...formData, rol: role });
-    }
+    // if (!selectedRoles.includes(role)) {
+    //   setSelectedRoles([role]);
+    //   setFormData({ ...formData, rol: role });
+    // }
 
 
 
-    //Para cuando se implemente agregar dos roles en simultaneo en el backend
-    // const updatedRoles = selectedRoles.includes(role)
-    //   ? selectedRoles.filter(r => r !== role)
-    //   : [...selectedRoles, role];
+    // Para cuando se implemente agregar dos roles en simultaneo en el backend
+    const updatedRoles = selectedRoles.includes(role)
+      ? selectedRoles.filter(r => r !== role)
+      : [...selectedRoles, role];
 
-    // setSelectedRoles(updatedRoles);
-    // setFormData({ ...formData, rol: updatedRoles.join(',') });
+    setSelectedRoles(updatedRoles);
+    setFormData({ ...formData, rol: updatedRoles.join(',') });
   };
 
 

@@ -74,6 +74,20 @@ const ViewCanchas = () => {
     }
   };
 
+
+  const handleEditCancha = async updated => {
+    try {
+      const resp = await actions.editCancha(updated);
+      success('Cancha actualizada');
+      // refrescar listado
+      await actions.getClubsByUser();
+      const updatedClub = store.clubs.find(c => c.email === clubEmail);
+      setCanchas(updatedClub?.canchas || []);
+    } catch (err) {
+      error(err.message);
+    }
+  };
+
   if (!club) return <div className="text-center mt-5">Cargando información del club...</div>;
 
   return (
@@ -131,6 +145,7 @@ const ViewCanchas = () => {
                 key={cancha.idCancha}
                 cancha={cancha}
                 onDelete={handleDeleteCancha}
+                onEdit={handleEditCancha}
                 club={club}
               />
             ))}

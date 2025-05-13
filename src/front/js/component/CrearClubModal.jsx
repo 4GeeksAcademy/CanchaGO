@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 const CrearClubModal = ({ show, onClose, onSave, clubToEdit }) => {
 
     const DEFAULT_IMAGE_URL =
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXn8_1fUMHpbujy0wY5JANA1_MPUeq-JQPYQ&s';
+        'https://aerialarchives.photoshelter.com/img-get2/I0000zQm.AS6xl0E/fit=1000x750/Stanford-University-sports-complex-aerial-photograph-AHLB6085.jpg';
     const sportsOptions = ['Futbol', 'Tenis', 'Padel'];
 
     const [clubData, setClubData] = useState({

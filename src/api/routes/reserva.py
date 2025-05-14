@@ -71,11 +71,16 @@ def crear_reserva_interna(data, stripe_payment_id=None):
         return jsonify({'error': 'Formato de hora inválido (HH:MM o HH:MM:SS)'}), 400
 
     # Validar disponibilidad de horario
+    # Validar disponibilidad de horario: detecta solapamientos
     reservas_existentes = Reserva.query.filter(
         Reserva.idCancha == data['idCancha'],
-        Reserva.fecha == fecha_dt,
-        (Reserva.horaInicio < hora_fin) & (Reserva.horaFin > hora_inicio)
+        Reserva.fecha    == fecha_dt,
+        Reserva.horaInicio < hora_fin,
+        Reserva.horaFin   > hora_inicio
     ).all()
+    if reservas_existentes:
+        return jsonify({"error": "Horario ya reservado"}), 400
+
     
     if reservas_existentes:
         return jsonify({"error": "Horario ya reservado"}), 400

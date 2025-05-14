@@ -64,7 +64,7 @@ export default function ReservasPropietario() {
     const load = useCallback(async () => {
         await actions.getOwnerReservations();
         setLoading(false);
-    }, [actions]);
+    }, []);
 
     useEffect(() => { load(); }, [load]);
 

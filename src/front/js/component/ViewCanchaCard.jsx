@@ -20,7 +20,7 @@ const ViewCanchaCard = ({ cancha, index }) => {
     const [showBook, setShowBook] = useState(false);
 
     const handleBook = () => {
-        if (!store.token) {
+        if (!store.token || store.role !== 'Deportista') {
             error('Inicia sesión para reservar');
             navigate('/login');
         } else {

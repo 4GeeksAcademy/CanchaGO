@@ -1,10 +1,18 @@
 /* Reset and base styles */
+
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+
 html,
 body {
   margin: 0;
   padding: 0;
   width: 100%;
   min-height: 100vh;
+}
+* {
+  font-family: "Roboto", sans-serif;
+  line-height: 1.6;
+  letter-spacing: 0.2px;
 }
 
 .App {

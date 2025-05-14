@@ -1,0 +1,71 @@
+/* Close button */
+.modal-close-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1;
+}
+.modal-close-btn:hover {
+  color: #000;
+}
+
+/* Image uploader */
+.image-uploader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.image-uploader__btn {
+  padding: 0.5rem 1rem;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.image-uploader__btn:hover {
+  background: #2563eb;
+}
+.image-uploader__input {
+  display: none;
+}
+
+/* Preview full width */
+.cancha-image-preview {
+  position: relative;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.cancha-image-preview img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+.image-remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+}
+.image-remove-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+}

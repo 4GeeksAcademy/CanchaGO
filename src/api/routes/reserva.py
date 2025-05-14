@@ -408,7 +408,6 @@ def cancel_reservation(id_reserva):
         if not reservas_grupo:
             return jsonify({'error': 'No hay reservas para cancelar'}), 404
         
-        print(f"Reservas a cancelar: [] {[r.stripe_payment_id for r in reservas_grupo]}")
         
         #Del grupo de reservas, tomamos la primera reserva (la más cercana a la fecha/hora actual)
         reserva_early = min(reservas_grupo, key=lambda r: (r.fecha, r.horaInicio))

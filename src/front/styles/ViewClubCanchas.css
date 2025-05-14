@@ -90,9 +90,31 @@
 
 .cancha-grid {
   display: grid;
+  width: 100%;
   grid-template-columns: repeat(3, 1fr);
   gap: 2rem;
   padding: 2rem;
+}
+
+.no-canchas {
+  min-height: 400px;
+  padding: 2rem;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.empty-state {
+  max-width: 600px;
+  width: 100%;
+  padding: 2rem;
+  background: #fefefe;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 @media (max-width: 1200px) {

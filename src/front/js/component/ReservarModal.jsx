@@ -122,7 +122,12 @@ const ReservarModal = ({ show, onClose, cancha }) => {
                 dialogClassName="reservation-modal"
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Reservar {cancha.nombre}</Modal.Title>
+                    <Modal.Title style={{ fontSize: '1.5rem', color: 'white' }}>
+                        Reservar {cancha.nombre} para el {formattedDate}
+                    </Modal.Title>
+                    <button type="button" className="modal-close-btn" onClick={onClose} style={{ fontSize: '2.5rem', color: '#333' }}>
+                        &times;
+                    </button>
                 </Modal.Header>
                 <Form onSubmit={handleSubmit}>
                     <Modal.Body>
@@ -168,7 +173,7 @@ const ReservarModal = ({ show, onClose, cancha }) => {
                         </Button>
                     </Modal.Footer>
                 </Form>
-            </Modal>
+            </Modal >
 
             <Modal
                 show={showConfirm}
@@ -177,7 +182,12 @@ const ReservarModal = ({ show, onClose, cancha }) => {
                 dialogClassName="confirmation-modal"
             >
                 <Modal.Header closeButton>
-                    <Modal.Title>Confirmar Reserva</Modal.Title>
+                    <Modal.Title style={{ fontSize: '1.5rem', color: 'white' }}>
+                        Confirmar Reserva
+                    </Modal.Title>
+                    <button type="button" className="modal-close-btn" onClick={onClose} style={{ fontSize: '2.5rem', color: '#333' }}>
+                        &times;
+                    </button>
                 </Modal.Header>
                 <Modal.Body className="confirmation-details">
                     <p><strong>Fecha:</strong> {formattedDate}</p>

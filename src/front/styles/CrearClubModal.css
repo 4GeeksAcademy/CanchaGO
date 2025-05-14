@@ -1,35 +1,131 @@
+/* CrearClubModal.css */
+
+/* Botón cerrar custom */
+.modal-close-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  font-size: 2.5rem;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1;
+}
+.modal-header {
+  background: linear-gradient(to left, #7ed8f8, #055a92);
+}
+.modal-close-btn:hover {
+  color: #000;
+}
+
+/* Modal backdrop */
 .modal-backdrop {
   background: rgba(0, 0, 0, 0.5);
   position: fixed !important;
   inset: 0;
   z-index: 1050;
 }
+
+/* Tamaño máximo modal */
 .modal-dialog {
-  max-width: 800px;
+  max-width: 900px;
+  width: 100%;
 }
+
+/* Botón cerrar */
 .btn-close {
   background: none;
   border: none;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
 }
-.sport-btn {
+.btn-close:hover {
+  opacity: 1;
+}
+
+/* Form controls */
+.form-control {
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+}
+
+/* ==== Image Uploader ==== */
+.image-uploader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.image-uploader__btn {
   padding: 0.5rem 1rem;
-  border: 1px solid #ccc;
-  border-radius: 0.75rem;
-  background: #f1f5f9;
-  transition: 0.2s;
-}
-.sport-btn.active,
-.sport-btn:hover {
   background: #3b82f6;
   color: #fff;
-  border-color: #3b82f6;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s;
 }
+.image-uploader__btn:hover {
+  background: #2563eb;
+}
+.image-uploader__input {
+  display: none;
+}
+
+/* ==== Preview de imagen, ancho completo y igual altura que el mapa ==== */
+.image-preview {
+  position: relative;
+  margin-top: 0.5rem;
+  width: 100%;
+  height: 350px; /* mismo alto que el mapa */
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* preserva resolución */
+}
+.image-preview__remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  line-height: 26px;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* ==== Mapa ==== */
 .map-selector {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
+  width: 100%;
+  height: 400px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 .leaflet-container {
-  margin-top: 1rem;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Footer botones */
+.modal-footer .btn {
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+}
+
+/* Scroll vertical si es necesario */
+.modal-body {
+  max-height: 75vh;
+  overflow-y: auto;
 }

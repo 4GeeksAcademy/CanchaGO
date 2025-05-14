@@ -1,12 +1,18 @@
-// src/front/js/component/CrearClubModal.jsx
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Modal, Button, Form, Spinner } from 'react-bootstrap';
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import {
+    MapContainer,
+    TileLayer,
+    Marker,
+    useMap,
+    useMapEvents
+} from 'react-leaflet';
 import L from 'leaflet';
+import axios from 'axios';
 import { useAlert } from '../hooks/useAlert.js';
+import '../../styles/CrearClubModal.css';
 
-// Iconos Leaflet por defecto
+// Leaflet icon setup
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl:
@@ -15,50 +21,43 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
 });
 
-// Al hacer clic, actualiza posición
+// Marker on click
 function LocationMarker({ onClick }) {
     useMapEvents({
-        click(e) {
-            onClick([e.latlng.lat, e.latlng.lng]);
-        }
+        click(e) { onClick([e.latlng.lat, e.latlng.lng]); }
     });
     return null;
 }
 
-// Recentrar cuando cambie `position`
+// Recenter map
 function Recenter({ position }) {
     const map = useMap();
-    useEffect(() => {
-        if (position) {
-            map.setView(position, map.getZoom());
-        }
-    }, [position, map]);
+    useEffect(() => { if (position) map.setView(position, map.getZoom()); }, [position, map]);
     return null;
 }
 
-const DEFAULT_COORDS = [10.480863, -66.860943]; // Caracas
+const DEFAULT_COORDS = [10.480863, -66.860943];
 const SPORTS = ['Futbol', 'Tenis', 'Padel'];
-const DEFAULT_IMAGE_URL =
-    'https://aerialarchives.photoshelter.com/img-get2/I0000zQm.AS6xl0E/fit=1000x750/Stanford-University-sports-complex-aerial-photograph-AHLB6085.jpg';
+const DEFAULT_IMAGE_URL = 'https://aerialarchives.photoshelter.com/...jpg';
 
 export default function CrearClubModal({ show, onClose, onSave, clubToEdit }) {
     const { error } = useAlert();
     const [loading, setLoading] = useState(false);
     const [clubData, setClubData] = useState({
-        nombre: '',
-        descripcion: '',
-        direccion: '',
-        googleMapsLink: '',
-        email: '',
-        telefono: '',
-        imagen: '',
+        nombre: '', descripcion: '', direccion: '',
+        googleMapsLink: '', email: '', telefono: '',
         deportes: []
     });
     const [markerPos, setMarkerPos] = useState(DEFAULT_COORDS);
 
+    // Imagen
+    const fileInputRef = useRef();
+    const [localImageFile, setLocalImageFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState('');
+    const [uploading, setUploading] = useState(false);
+
     useEffect(() => {
         if (clubToEdit) {
-            // Cargo datos
             setClubData({
                 nombre: clubToEdit.nombre || '',
                 descripcion: clubToEdit.descripcion || '',
@@ -66,34 +65,26 @@ export default function CrearClubModal({ show, onClose, onSave, clubToEdit }) {
                 googleMapsLink: clubToEdit.googleMapsLink || '',
                 email: clubToEdit.email || '',
                 telefono: clubToEdit.telefono || '',
-                imagen: clubToEdit.imagen || '',
                 deportes: clubToEdit.deportes || []
             });
-            // Extraigo coords de la URL
+            setPreviewUrl(clubToEdit.imagen || '');
             try {
                 const url = new URL(clubToEdit.googleMapsLink);
                 const q = url.searchParams.get('query');
                 if (q) {
                     const [lat, lng] = q.split(',').map(Number);
-                    if (!isNaN(lat) && !isNaN(lng)) {
-                        setMarkerPos([lat, lng]);
-                    }
+                    if (!isNaN(lat) && !isNaN(lng)) setMarkerPos([lat, lng]);
                 }
             } catch {
                 setMarkerPos(DEFAULT_COORDS);
             }
         } else {
-            // Nuevo club: limpio datos y centro en Caracas
             setClubData({
-                nombre: '',
-                descripcion: '',
-                direccion: '',
-                googleMapsLink: '',
-                email: '',
-                telefono: '',
-                imagen: '',
+                nombre: '', descripcion: '', direccion: '',
+                googleMapsLink: '', email: '', telefono: '',
                 deportes: []
             });
+            setPreviewUrl('');
             setMarkerPos(DEFAULT_COORDS);
         }
     }, [clubToEdit, show]);
@@ -110,7 +101,6 @@ export default function CrearClubModal({ show, onClose, onSave, clubToEdit }) {
             return { ...cd, deportes };
         });
     };
-
     const handleMapClick = ([lat, lng]) => {
         setMarkerPos([lat, lng]);
         setClubData(cd => ({
@@ -118,31 +108,55 @@ export default function CrearClubModal({ show, onClose, onSave, clubToEdit }) {
             googleMapsLink: `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
         }));
     };
-
     const validate = () => {
         if (!clubData.nombre || !clubData.email || !clubData.telefono) {
-            error('Nombre, Email y Teléfono son obligatorios');
-            return false;
+            error('Nombre, Email y Teléfono son obligatorios'); return false;
         }
         if (!clubData.deportes.length) {
-            error('Selecciona al menos un deporte');
-            return false;
+            error('Selecciona al menos un deporte'); return false;
         }
         if (!clubData.googleMapsLink) {
-            error('Selecciona la ubicación en el mapa');
-            return false;
+            error('Selecciona la ubicación en el mapa'); return false;
         }
         return true;
+    };
+
+    const uploadImageToCloudinary = async file => {
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET);
+        const res = await axios.post(
+            `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`,
+            formData
+        );
+        setUploading(false);
+        return res.data.secure_url;
+    };
+
+    const removeImage = () => {
+        setLocalImageFile(null);
+        setPreviewUrl('');
+        if (fileInputRef.current) fileInputRef.current.value = null;
     };
 
     const handleSubmit = async e => {
         e.preventDefault();
         if (!validate()) return;
         setLoading(true);
-        await onSave({
-            ...clubData,
-            imagen: clubData.imagen.trim() || DEFAULT_IMAGE_URL
-        });
+
+        let imageUrl = (previewUrl !== '' ? previewUrl : DEFAULT_IMAGE_URL);
+        if (localImageFile) {
+            try {
+                imageUrl = await uploadImageToCloudinary(localImageFile);
+            } catch {
+                error('Falló la subida de imagen');
+                setLoading(false);
+                return;
+            }
+        }
+
+        await onSave({ ...clubData, imagen: imageUrl });
         setLoading(false);
         onClose();
     };
@@ -151,15 +165,20 @@ export default function CrearClubModal({ show, onClose, onSave, clubToEdit }) {
 
     return (
         <Modal show onHide={onClose} size="lg" centered>
-            <Modal.Header closeButton>
-                <Modal.Title>
+            <Modal.Header className="position-relative modal-header">
+                <Modal.Title style={{ color: 'white', fontSize: '1.5rem' }}>
                     {clubToEdit ? 'Editar Club' : 'Crear Nuevo Club'}
                 </Modal.Title>
+                {/* Botón de cierre custom */}
+                <button type="button" className="modal-close-btn" onClick={onClose} style={{ fontSize: '2.5rem', color: '#333' }}>
+
+                    &times;
+                </button>
             </Modal.Header>
+
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
                     <div className="row g-3">
-                        {/* Nombre y Teléfono */}
                         <div className="col-md-6">
                             <Form.Label>Nombre *</Form.Label>
                             <Form.Control
@@ -178,8 +197,6 @@ export default function CrearClubModal({ show, onClose, onSave, clubToEdit }) {
                                 required
                             />
                         </div>
-
-                        {/* Email e Imagen */}
                         <div className="col-md-6">
                             <Form.Label>Email *</Form.Label>
                             <Form.Control
@@ -191,26 +208,52 @@ export default function CrearClubModal({ show, onClose, onSave, clubToEdit }) {
                             />
                         </div>
                         <div className="col-md-6">
-                            <Form.Label>Imagen (URL)</Form.Label>
-                            <Form.Control
-                                name="imagen"
-                                value={clubData.imagen}
-                                onChange={handleChange}
-                                placeholder="Opcional"
-                            />
+                            <Form.Label>Imagen *</Form.Label>
+                            <div className="image-uploader">
+                                <button
+                                    type="button"
+                                    className="image-uploader__btn"
+                                    onClick={() => fileInputRef.current.click()}
+                                    disabled={uploading}
+                                >
+                                    {uploading ? 'Subiendo...' : 'Seleccionar imagen'}
+                                </button>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/png,image/jpeg"
+                                    className="image-uploader__input"
+                                    onChange={e => {
+                                        const f = e.target.files[0];
+                                        if (f) {
+                                            setLocalImageFile(f);
+                                            setPreviewUrl(URL.createObjectURL(f));
+                                        }
+                                    }}
+                                />
+                            </div>
                         </div>
-
-                        {/* Descripción y Dirección */}
+                        <div className="col-md-12">
+                            {previewUrl && (
+                                <div className="image-preview">
+                                    <button
+                                        type="button"
+                                        className="image-preview__remove"
+                                        onClick={removeImage}
+                                    >×</button>
+                                    <img src={previewUrl} alt="Preview" />
+                                </div>
+                            )}
+                        </div>
                         <div className="col-12">
                             <Form.Label>Descripción</Form.Label>
                             <Form.Control
-                                // as="textarea" rows={2}
                                 name="descripcion"
                                 value={clubData.descripcion}
                                 onChange={handleChange}
                             />
                         </div>
-                        <div className="col-md-12">
+                        <div className="col-12">
                             <Form.Label>Dirección Física</Form.Label>
                             <Form.Control
                                 name="direccion"
@@ -218,38 +261,31 @@ export default function CrearClubModal({ show, onClose, onSave, clubToEdit }) {
                                 onChange={handleChange}
                             />
                         </div>
-
-                        {/* Deportes */}
                         <div className="col-12">
                             <Form.Label>Deportes *</Form.Label>
                             <div className="d-flex gap-2 flex-wrap">
                                 {SPORTS.map(s => (
-                                    <Form.Check
-                                        inline
-                                        key={s}
-                                        type="checkbox"
-                                        label={s}
+                                    <Form.Check inline key={s}
+                                        type="checkbox" label={s}
                                         checked={clubData.deportes.includes(s)}
                                         onChange={() => toggleSport(s)}
                                     />
                                 ))}
                             </div>
                         </div>
-
-                        {/* Mapa */}
                         <div className="col-12">
                             <Form.Label>Ubicación *</Form.Label>
-                            <div style={{ height: 300, borderRadius: 8, overflow: 'hidden' }}>
+                            <div className="map-selector">
                                 <MapContainer
                                     center={markerPos}
                                     zoom={13}
-                                    style={{ height: '100%', width: '100%' }}
+                                    style={{ width: '100%', height: '400px' }}
                                     whenCreated={map => map.invalidateSize()}
                                 >
                                     <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                                     <Recenter position={markerPos} />
                                     <LocationMarker onClick={handleMapClick} />
-                                    {markerPos && <Marker position={markerPos} />}
+                                    <Marker position={markerPos} />
                                 </MapContainer>
                             </div>
                             <Form.Text className="text-muted">
@@ -258,15 +294,13 @@ export default function CrearClubModal({ show, onClose, onSave, clubToEdit }) {
                         </div>
                     </div>
 
-                    <div className="d-flex justify-content-center mt-4">
+                    <div className="modal-footer d-flex justify-content-end">
                         <Button variant="secondary" onClick={onClose} className="me-2">
                             Cancelar
                         </Button>
-                        <Button variant="primary" type="submit" disabled={loading}>
-                            {loading
-                                ? <Spinner animation="border" size="sm" />
-                                : clubToEdit ? 'Guardar Cambios' : 'Crear Club'
-                            }
+                        <Button variant="primary" type="submit" disabled={loading || uploading}>
+                            {loading ? <Spinner animation="border" size="sm" /> :
+                                clubToEdit ? 'Guardar Cambios' : 'Crear Club'}
                         </Button>
                     </div>
                 </Form>

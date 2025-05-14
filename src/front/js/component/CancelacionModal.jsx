@@ -34,11 +34,13 @@ const CancelacionModal = ({ show, reserva, onHide, onConfirm }) => {
     const permiteReembolso = calcularTiempoRestante() >= 3;
     return (
         <Modal show={show} onHide={onHide} centered size="lg">
-            <Modal.Header closeButton>
-                <Modal.Title className="text-danger">
-                    <FaExclamationTriangle className="me-2" />
+            <Modal.Header >
+                <Modal.Title style={{ fontSize: '1.5rem', color: 'white' }}>
                     Confirmar Cancelación
                 </Modal.Title>
+                <button type="button" className="modal-close-btn" onClick={onHide} style={{ fontSize: '2.5rem', color: '#333' }}>
+                    &times;
+                </button>
             </Modal.Header>
 
             <Modal.Body>

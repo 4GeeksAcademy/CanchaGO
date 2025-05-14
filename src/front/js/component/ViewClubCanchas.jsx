@@ -65,24 +65,22 @@ const ViewClubCanchas = () => {
                                     ))}
                             </div>
                         ) : (
-                            <div className="no-canchas">
-                                <div className="empty-state">
-                                    <div className="empty-icon">⛔</div>
-                                    <h3>No hay canchas disponibles</h3>
-                                    <p>Prueba con otro deporte o club</p>
-                                    {/* <button
+                            <div className="no-canchas" style={{ width: '100%' }}>
+                                <div className="empty-icon">⛔</div>
+                                <h3>No hay canchas disponibles</h3>
+                                <p>Prueba con otro deporte o club</p>
+                                {/* <button
                                         className="back-btn"
                                         onClick={() => navigate(-1)}
                                     >
                                         <FiArrowLeft />
                                         Volver
                                     </button> */}
-                                </div>
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
+            </div >
         </>
     );
 };

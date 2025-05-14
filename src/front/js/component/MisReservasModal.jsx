@@ -19,11 +19,14 @@ const MisReservasModal = ({ show, onHide, reserva, onCancel }) => {
     return (
         <>
             <Modal show={show} onHide={onHide} centered size="lg">
-                <Modal.Header closeButton className="bg-dark text-white">
+                <Modal.Header className="bg-dark text-white">
                     <Modal.Title>
                         <FaInfoCircle className="me-2" />
                         Detalles de Reserva
                     </Modal.Title>
+                    <button type="button" className="modal-close-btn" onClick={onHide} style={{ fontSize: '2.5rem', color: '#333' }}>
+                        &times;
+                    </button>
                 </Modal.Header>
 
                 <Modal.Body>

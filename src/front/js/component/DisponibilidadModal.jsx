@@ -9,7 +9,12 @@ const Disponibilidad = ({ show, onClose, cancha }) => {
   return (
     <Modal show={show} onHide={onClose} centered size="md">
       <Modal.Header closeButton>
-        <Modal.Title>Disponibilidad de {cancha?.nombre}</Modal.Title>
+        <Modal.Title style={{ fontSize: '1.5rem', color: 'white' }}>
+          Disponibilidad de {cancha?.nombre}
+        </Modal.Title>
+        <button type="button" className="modal-close-btn" onClick={onClose} style={{ fontSize: '2.5rem', color: '#333' }}>
+          &times;
+        </button>
       </Modal.Header>
       <Modal.Body>
         <p><strong>Días disponibles:</strong> {cancha?.horario?.diasDisponibles?.split(',').map(d => d.trim()).join(', ') || 'No definidos'}</p>

@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form } from 'react-bootstrap';
+import React, { useState, useEffect, useRef } from 'react';
+import { Modal, Button, Form, Spinner } from 'react-bootstrap';
 import { useAlert } from "../hooks/useAlert.js";
+import axios from 'axios';
+import '../../styles/CrearCanchaModal.css';
 
 const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
-
   const DEFAULT_IMAGES = {
     Padel: 'https://www.padelprofi.com/wp-content/uploads/2023/04/high-angle-palette-balls-field22-877x1024.jpg',
     Futbol: 'https://images.pexels.com/photos/46798/the-ball-stadion-football-the-pitch-46798.jpeg',
     Tenis: 'https://images.pexels.com/photos/209977/pexels-photo-209977.jpeg'
   };
 
-
-  const { error, success } = useAlert();
+  const { error } = useAlert();
 
   const [cancha, setCancha] = useState({
     nombre: '',
     deporte: '',
     dias: [],
-    horaInicio: '',
-    horaFin: '',
+    horaInicio: '00:00',
+    horaFin: '00:00',
     frecuencia: '60',
     precio: '',
     imagen: '',
@@ -26,83 +26,110 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
     emailClub: club?.email || ''
   });
 
+  // Cloudinary image upload
+  const fileInputRef = useRef();
+  const [localImageFile, setLocalImageFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
+
   useEffect(() => {
     if (canchaToEdit) {
-      // Formatear datos del backend para edición
-      const horaInicio = canchaToEdit.horario?.horarioInicio?.split(':').slice(0, 2).join(':') || '00:00';
-      const horaFin = canchaToEdit.horario?.horarioFin?.split(':').slice(0, 2).join(':') || '00:00';
-
+      const hi = canchaToEdit.horario?.horarioInicio?.slice(0, 5) || '00:00';
+      const hf = canchaToEdit.horario?.horarioFin?.slice(0, 5) || '00:00';
       setCancha({
-        ...canchaToEdit,
-        horaInicio,
-        horaFin,
-        frecuencia: canchaToEdit.horario?.frecuencia?.replace('min', '') || '60',
+        nombre: canchaToEdit.nombre,
+        deporte: canchaToEdit.deporte,
         dias: canchaToEdit.horario?.diasDisponibles?.split(',') || [],
-        emailClub: canchaToEdit.emailClub || club?.email || '' // Prioridad: canchaToEdit > club > ''
+        horaInicio: hi,
+        horaFin: hf,
+        frecuencia: canchaToEdit.horario?.frecuencia === '30m' ? '30' : '60',
+        precio: canchaToEdit.precio,
+        imagen: canchaToEdit.imagen || '',
+        estado: canchaToEdit.estado,
+        emailClub: canchaToEdit.emailClub || club?.email || ''
       });
+      setPreviewUrl(canchaToEdit.imagen || '');
     } else {
-      // Inicialización para nueva cancha
-      setCancha({
-        nombre: '',
-        deporte: club?.deportes?.[0] || '', // Primer deporte del club como valor por defecto
-        dias: [],
-        horaInicio: '00:00',
-        horaFin: '00:00',
-        frecuencia: '60',
-        precio: '',
-        imagen: '',
-        estado: true,
-        emailClub: club?.email || ''
-      });
+      setCancha(cd => ({
+        ...cd,
+        deporte: club?.deportes?.[0] || ''
+      }));
+      setPreviewUrl('');
+      setLocalImageFile(null);
     }
-
-    console.log('Datos del club:', club); // Para debug
   }, [canchaToEdit, show, club]);
 
-
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value, type, checked } = e.target;
     if (name === 'dias') {
-      setCancha((prev) => {
+      setCancha(prev => {
         const dias = prev.dias.includes(value)
-          ? prev.dias.filter((dia) => dia !== value)
+          ? prev.dias.filter(d => d !== value)
           : [...prev.dias, value];
-        return { ...prev, dias: dias };
+        return { ...prev, dias };
       });
     } else {
-      setCancha((prev) => ({
+      setCancha(prev => ({
         ...prev,
         [name]: type === 'checkbox' ? checked : value
       }));
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const canchaToSave = {
-      ...cancha,
-      dias: cancha.dias.join(',')
-    };
-
-    const finalData = {
-      ...canchaToSave,
-      imagen: cancha.imagen.trim() || DEFAULT_IMAGES[cancha.deporte] || '',
-      frecuencia: canchaToSave.frecuencia === '60' ? "1h" : "30min",
-    };
-
-
-    if (cancha.dias.length === 0) {
-      error('Debes seleccionar al menos un día disponible para la cancha.');
-      return;
+  const validate = () => {
+    if (!cancha.nombre) {
+      error('El nombre es obligatorio'); return false;
     }
-
-
-    onSave(finalData);
-    onClose();
+    if (cancha.dias.length === 0) {
+      error('Selecciona al menos un día disponible'); return false;
+    }
+    return true;
   };
 
+  const uploadToCloudinary = async file => {
+    setUploading(true);
+    const form = new FormData();
+    form.append('file', file);
+    form.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET);
+    const res = await axios.post(
+      `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME}/image/upload`,
+      form
+    );
+    setUploading(false);
+    return res.data.secure_url;
+  };
 
+  const removeImage = () => {
+    setCancha(c => ({ ...c, imagen: '' }));
+    setPreviewUrl('');
+    setLocalImageFile(null);
+    if (fileInputRef.current) fileInputRef.current.value = null;
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    if (!validate()) return;
+
+    let imageUrl = previewUrl || DEFAULT_IMAGES[cancha.deporte] || '';
+    if (localImageFile) {
+      try {
+        imageUrl = await uploadToCloudinary(localImageFile);
+      } catch {
+        error('Error subiendo la imagen');
+        return;
+      }
+    }
+
+    const final = {
+      ...cancha,
+      dias: cancha.dias.join(','),
+      frecuencia: cancha.frecuencia === '60' ? '1h' : '30min',
+      imagen: imageUrl
+    };
+
+    onSave(final);
+    onClose();
+  };
 
   // Días de la semana en español
   const diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
@@ -112,7 +139,6 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
 
   // minutos según frecuencia (30 → [00,30], 60 → [00])
   const minutes = cancha.frecuencia === '30' ? ['00', '30'] : ['00'];
-
 
   const handleTimePartChange = (field, part, value) => {
     setCancha(prev => {
@@ -126,32 +152,16 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
 
   return (
     <Modal show={show} onHide={onClose} centered size="lg">
-      <Modal.Header closeButton>
-        <Modal.Title>{canchaToEdit ? 'Editar Cancha' : 'Crear Nueva Cancha'}</Modal.Title>
+      <Modal.Header className="position-relative">
+        <Modal.Title style={{ color: 'white', fontSize: '1.5rem' }}>
+          {canchaToEdit ? 'Editar Cancha' : 'Crear Nueva Cancha'}
+        </Modal.Title>
+        <button type="button" className="modal-close-btn" onClick={onClose} style={{ fontSize: '2.5rem', color: '#333' }}>
+          &times;
+        </button>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
-          <Form.Group className="mb-3">
-            <Form.Label>URL de la imagen</Form.Label>
-            <Form.Control
-              type="url"
-              name="imagen"
-              value={cancha.imagen}
-              onChange={handleChange}
-              placeholder="https://ejemplo.com/imagen.jpg"
-            />
-            {cancha.imagen && (
-              <div className="mt-2 text-center">
-                <img
-                  src={cancha.imagen}
-                  alt="Vista previa"
-                  className="img-fluid rounded"
-                  style={{ maxHeight: '200px' }}
-                />
-                <small className="text-muted d-block">Vista previa</small>
-              </div>
-            )}
-          </Form.Group>
 
           <Form.Group className="mb-3">
             <Form.Label>Nombre de la cancha</Form.Label>
@@ -167,46 +177,28 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
           <Form.Group className="mb-3">
             <Form.Label>Tipo de cancha</Form.Label>
             <Form.Select
-              name="deporte" value={cancha.deporte} onChange={handleChange}
-              disabled={!!canchaToEdit}        /* si es edición, se deshabilita */
+              name="deporte"
+              value={cancha.deporte}
+              onChange={handleChange}
+              disabled={!!canchaToEdit}
             >
-              {club?.deportes.map((deporte, idx) => (
-                <option key={`${deporte}-${idx}`} value={deporte}>{deporte}</option>
+              {club?.deportes.map(d => (
+                <option key={d} value={d}>{d}</option>
               ))}
             </Form.Select>
-
           </Form.Group>
-
-          {/* <Form.Check
-            type="checkbox"
-            label="Iluminación"
-            name="iluminacion"
-            checked={cancha.iluminacion}
-            onChange={handleChange}
-            className="mb-2"
-          />
-
-          <Form.Check
-            type="checkbox"
-            label="Techada"
-            name="techada"
-            checked={cancha.techada}
-            onChange={handleChange}
-            className="mb-3"
-          /> */}
 
           <Form.Group className="mb-3">
             <Form.Label>Días disponibles</Form.Label>
             <div className="d-flex flex-wrap gap-2">
-              {diasSemana.map((dia) => (
+              {diasSemana.map(d => (
                 <Form.Check
-                  key={dia}
-                  type="checkbox"
-                  label={dia}
-                  value={dia}
-                  disabled={canchaToEdit} // Deshabilitar si es edición
+                  key={d}
+                  label={d}
                   name="dias"
-                  checked={(cancha.dias || []).includes(dia)}
+                  type="checkbox"
+                  value={d}
+                  checked={cancha.dias.includes(d)}
                   onChange={handleChange}
                 />
               ))}
@@ -262,15 +254,13 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
             </div>
           </Form.Group>
 
-
           <Form.Group className="mb-3">
-            <Form.Label>Frecuencia por turno (minutos)</Form.Label>
+            <Form.Label>Frecuencia (min)</Form.Label>
             <Form.Select
               name="frecuencia"
               value={cancha.frecuencia}
               onChange={handleChange}
-              disabled={canchaToEdit}
-              required
+              disabled={!!canchaToEdit}
             >
               <option value="30">30</option>
               <option value="60">60</option>
@@ -288,20 +278,50 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
             />
           </Form.Group>
 
-          <div className="d-flex justify-content-end mt-4">
-            <Button
-              variant="outline-secondary"
-              onClick={onClose}
-              type="button"
-              className="me-2 px-4 py-2 fw-semibold"
-            >
+          {/* Cloudinary uploader */}
+          <Form.Group className="mb-3">
+            <Form.Label>Imagen</Form.Label>
+            <div className="image-uploader">
+              <button
+                type="button"
+                className="image-uploader__btn"
+                onClick={() => fileInputRef.current.click()}
+                disabled={uploading}
+              >
+                {uploading ? 'Subiendo...' : 'Seleccionar imagen'}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg"
+                className="image-uploader__input"
+                onChange={e => {
+                  const f = e.target.files[0];
+                  if (f) {
+                    setLocalImageFile(f);
+                    setPreviewUrl(URL.createObjectURL(f));
+                  }
+                }}
+              />
+            </div>
+          </Form.Group>
+
+          {previewUrl && (
+            <div className="cancha-image-preview mb-3">
+              <button
+                type="button"
+                className="image-remove-btn"
+                onClick={removeImage}
+              >×</button>
+              <img src={previewUrl} alt="Preview Cancha" />
+            </div>
+          )}
+
+          <div className="d-flex justify-content-end">
+            <Button variant="outline-secondary" onClick={onClose} className="me-2">
               Cancelar
             </Button>
-            <Button
-              variant="primary"
-              type="submit"
-              className="px-4 py-2 fw-semibold"
-            >
+            <Button variant="primary" type="submit">
               Guardar Cancha
             </Button>
           </div>

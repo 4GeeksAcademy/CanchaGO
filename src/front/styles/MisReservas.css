@@ -1,17 +1,17 @@
 /* MisReservas.css - Versión Final Ajustada */
 .reservas-container {
   max-width: 1440px;
-  margin: 0 auto;
+  margin: 1rem auto;
   padding: 2rem;
   min-height: 70vh;
   display: flex;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
   flex-direction: column;
-  background: linear-gradient(to right, #7ed8f8, #055a92);
+  border: 4px solid transparent;
+  border-radius: 12px;
+  background: linear-gradient(#f8f9fa, #f8f9fa) padding-box,
+    linear-gradient(to right, #7ed8f8, #055a92) border-box;
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1), 0 20px 25px rgba(0, 0, 0, 0.15),
     inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
 }
 
 .content-wrapper {

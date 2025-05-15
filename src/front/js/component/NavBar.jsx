@@ -12,7 +12,10 @@ const Navbar = () => {
   const username = store.username;
   const userRole = store.role;
 
-  const handleLogin = () => navigate('/login');
+  const handleLogin = () => {
+    const currentPath = window.location.pathname + window.location.search;
+    navigate(`/login?redirect=${encodeURIComponent(currentPath)}`);
+  };
   const handleLogout = () => { actions.logoutUser(); navigate('/'); };
   const handleSettings = () => navigate('/Configuraciones');
   const handleReservas = () => navigate('/MisReservas');

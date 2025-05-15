@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import "../../styles/index.css";
-import canchaLogo from "../../img/canchago.png";
 import canchaLogoSinFondo from "../../img/canchago-sinfondo.png";
 
 const StartPage = () => {
@@ -13,6 +12,9 @@ const StartPage = () => {
                 <div className="logo-container">
                     <img src={canchaLogoSinFondo} alt="CanchaGO" />
                 </div>
+                <p className="homeTagline">
+                    ¡Elige tu cancha, reúne a tu equipo y que empiece el partido! ⚽🎾🏓
+                </p>
                 <button onClick={() => navigate("/home")} className="btngreen">
                     Ver Canchas Disponibles
                 </button>
@@ -26,4 +28,5 @@ const StartPage = () => {
         </div>
     );
 };
-export default StartPage
+
+export default StartPage;

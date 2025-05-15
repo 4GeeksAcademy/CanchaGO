@@ -15,8 +15,8 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 90%;
-  max-width: 400px;
+  width: 100%;
+  max-width: 600px;
   padding: 30px 20px;
   gap: 15px;
   border-radius: 20px;
@@ -69,3 +69,27 @@
   background-color: #39a6e6;
   transform: translateY(-2px);
 }
+
+.logo-container {
+  display: flex;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto -10px;
+  overflow: hidden;
+}
+
+.logo-container img {
+  width: 100%;
+  height: auto;
+}
+
+.homeTagline {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+  white-space: nowrap;
+}
+

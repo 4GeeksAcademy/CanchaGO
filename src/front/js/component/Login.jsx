@@ -4,7 +4,7 @@ import { Context } from "../store/appContext.js";
 import canchaLogoSinFondo from "../../img/canchago-sinfondo.png";
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useAlert } from "../hooks/useAlert.js";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Login = () => {
     const { error, success } = useAlert();
@@ -15,6 +15,11 @@ const Login = () => {
 
     const { store, actions } = useContext(Context);
     const navigate = useNavigate();
+    //------------------------------------------------------------------------------------------------------------
+    //Constante para llevar el usuario andonde estaba
+    const location = useLocation();
+    const params = new URLSearchParams(location.search);
+    const redirectPath = params.get("redirect");
 
     //------------------------------------------------------------------------------------------------------------
     //Funcion para iniciar sesion en la base de datos
@@ -32,11 +37,12 @@ const Login = () => {
             console.log("LOGIN RESPONSE:", response);
 
             //Si la respuesta es correcta, retorna un objecto con la clave success
-            if (response?.success) {
+          if (response?.success) {
                 success("Login exitoso");
 
-                //Validamos si es propietario o deportista para redigirigir a la pagina correspondiente
-                if (store.role === "Propietario") {
+                if (redirectPath) {
+                    navigate(redirectPath);
+                } else if (store.role === "Propietario") {
                     navigate("/Propietario");
                 } else {
                     navigate("/home");

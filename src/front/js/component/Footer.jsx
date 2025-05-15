@@ -16,7 +16,7 @@ const Footer = () => {
             </div>
             <p className="small mt-1 mb-0">
               <span className="text-nowrap">
-                ¡Elige tu cancha, reúne a tu equipo y que empiece el partido! 🏀⚽🎾
+                ¡Elige tu cancha, reúne a tu equipo y que empiece el partido! ⚽🎾🏓
               </span>
             </p>
           </Col>

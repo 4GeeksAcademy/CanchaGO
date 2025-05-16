@@ -121,7 +121,7 @@ const ReservarModal = ({ show, onClose, cancha }) => {
                 centered
                 dialogClassName="reservation-modal"
             >
-                <Modal.Header closeButton>
+                <Modal.Header>
                     <Modal.Title style={{ fontSize: '1.5rem', color: 'white' }}>
                         Reservar {cancha.nombre} para el {formattedDate}
                     </Modal.Title>
@@ -181,7 +181,7 @@ const ReservarModal = ({ show, onClose, cancha }) => {
                 centered
                 dialogClassName="confirmation-modal"
             >
-                <Modal.Header closeButton>
+                <Modal.Header>
                     <Modal.Title style={{ fontSize: '1.5rem', color: 'white' }}>
                         Confirmar Reserva
                     </Modal.Title>

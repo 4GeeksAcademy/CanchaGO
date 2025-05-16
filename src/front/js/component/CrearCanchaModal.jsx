@@ -127,9 +127,23 @@ const CrearCanchaModal = ({ show, onClose, onSave, canchaToEdit, club }) => {
       imagen: imageUrl
     };
 
-    onSave(final);
+    await onSave(final);
+    setCancha({
+      nombre: '',
+      deporte: '',
+      dias: [],
+      horaInicio: '00:00',
+      horaFin: '00:00',
+      frecuencia: '60',
+      precio: '',
+      imagen: '',
+      estado: true,
+      emailClub: club?.email || ''
+    });
     onClose();
   };
+
+  if (!show) return null;
 
   // Días de la semana en español
   const diasSemana = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];

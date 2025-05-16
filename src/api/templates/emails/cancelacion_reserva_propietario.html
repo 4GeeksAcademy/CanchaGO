@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reserva Cancelada – CanchaGO</title>
+    <style type="text/css">
+      .main-table {
+        width: 100% !important;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .header {
+        padding: 25px;
+        text-align: center;
+      }
+      .content {
+        padding: 30px 25px;
+        background: #fff;
+      }
+      .footer {
+        padding: 20px;
+        text-align: center;
+        background: #f1f5f9;
+      }
+      .button {
+        background: #cc0000;
+        color: #fff !important;
+        padding: 12px 25px;
+        text-decoration: none;
+        border-radius: 5px;
+        display: inline-block;
+      }
+      .warning-icon {
+        font-size: 48px;
+        color: #cc0000;
+        margin-bottom: 15px;
+      }
+    </style>
+  </head>
+  <body style="margin: 0; padding: 20px; background: #f0f4f8">
+    <div class="main-table">
+      <div
+        class="header"
+        style="background: linear-gradient(to right, #c56b6b, #af0808)"
+      >
+        <img
+          src="https://drive.google.com/uc?export=view&id=1OaYg45LTOWKP4uKFObkkB4OTgJpjk0c_"
+          alt="CanchaGO"
+          style="width: 200px; display: block; margin: 0 auto"
+        />
+      </div>
+
+      <div class="content">
+        <div style="text-align: center; margin-bottom: 20px">
+          <div class="warning-icon">❌</div>
+          <h2 style="color: #cc0000; margin-top: 0">Reserva Cancelada</h2>
+        </div>
+
+        <h4 style="color: #1e293b; margin-top: 0">
+          Hola {{ propietario.nombre }},<br />
+          La siguiente reserva ha sido cancelada:
+        </h4>
+
+        <table
+          cellpadding="0"
+          cellspacing="0"
+          style="
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            color: #64748b;
+          "
+        >
+          <tr>
+            <td
+              style="
+                padding: 12px;
+                border: 1px solid #e2e8f0;
+                background: #f8fafc;
+              "
+            >
+              Código
+            </td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0">
+              {{ r.idReserva }}
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="
+                padding: 12px;
+                border: 1px solid #e2e8f0;
+                background: #f8fafc;
+              "
+            >
+              Fecha
+            </td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0">
+              {{ r.fecha }}
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="
+                padding: 12px;
+                border: 1px solid #e2e8f0;
+                background: #f8fafc;
+              "
+            >
+              Horario
+            </td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0">
+              {{ r.horaInicio }} - {{ r.horaFin }}
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="
+                padding: 12px;
+                border: 1px solid #e2e8f0;
+                background: #f8fafc;
+              "
+            >
+              Cancha
+            </td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0">
+              {{ r.cancha.nombre }}
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="
+                padding: 12px;
+                border: 1px solid #e2e8f0;
+                background: #f8fafc;
+              "
+            >
+              Monto Reembolsado
+            </td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0">
+              ${{ r.monto }}
+            </td>
+          </tr>
+        </table>
+
+        <div style="text-align: center; margin-top: 30px">
+          <p style="color: #64748b">Si tienes dudas, contáctanos en:</p>
+          <a href="mailto:soporte@canchago.com" class="button"
+            >CONTACTAR SOPORTE</a
+          >
+        </div>
+      </div>
+
+      <div class="footer">
+        <p style="color: #64748b; font-size: 12px; margin: 5px 0">
+          © CanchaGO – Todos los derechos reservados
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nueva Reserva – CanchaGO</title>
+    <style type="text/css">
+      .main-table {
+        width: 100% !important;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .header {
+        padding: 25px;
+        text-align: center;
+      }
+      .content {
+        padding: 30px 25px;
+        background: #fff;
+      }
+      .footer {
+        padding: 20px;
+        text-align: center;
+        background: #f1f5f9;
+      }
+      .button {
+        background: #3b82f6;
+        color: #fff !important;
+        padding: 12px 25px;
+        text-decoration: none;
+        border-radius: 5px;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body style="margin: 0; padding: 20px; background: #f0f4f8">
+    <div class="main-table">
+      <div
+        class="header"
+        style="background: linear-gradient(to right, #7ed8f8, #055a92)"
+      >
+        <img
+          src="https://drive.google.com/uc?export=view&id=1OaYg45LTOWKP4uKFObkkB4OTgJpjk0c_"
+          alt="CanchaGO"
+          style="width: 200px; display: block; margin: 0 auto"
+        />
+      </div>
+      <div class="content">
+        <h4>
+          Hola {{ propietario.nombre }}, acabas de recibir una nueva reserva en
+          tu cancha.
+        </h4>
+        <h2>Código: {{ r.idReserva }}</h2>
+        <table style="width: 100%; border-collapse: collapse; margin: 25px 0">
+          <tr>
+            <td
+              style="
+                padding: 12px;
+                border: 1px solid #e2e8f0;
+                background: #f8f9fa;
+              "
+            >
+              Usuario
+            </td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0">
+              {{ r.usuario }}
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="
+                padding: 12px;
+                border: 1px solid #e2e8f0;
+                background: #f8f9fa;
+              "
+            >
+              Fecha
+            </td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0">
+              {{ r.fecha }}
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="
+                padding: 12px;
+                border: 1px solid #e2e8f0;
+                background: #f8f9fa;
+              "
+            >
+              Horario
+            </td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0">
+              {{ r.horaInicio }} - {{ r.horaFin }}
+            </td>
+          </tr>
+          <tr>
+            <td
+              style="
+                padding: 12px;
+                border: 1px solid #e2e8f0;
+                background: #f8f9fa;
+              "
+            >
+              Cancha
+            </td>
+            <td style="padding: 12px; border: 1px solid #e2e8f0">
+              {{ r.cancha.nombre }}
+            </td>
+          </tr>
+        </table>
+        <!-- <div style="text-align: center; margin-top: 30px">
+          <a href="{{ r.club.googleMapsLink }}" class="button">VER UBICACIÓN</a>
+        </div> -->
+      </div>
+      <div class="footer">
+        <p style="color: #64748b; font-size: 12px; margin: 5px 0">
+          © CanchaGO – Todos los derechos reservados
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

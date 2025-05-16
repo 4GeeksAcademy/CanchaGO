@@ -4,10 +4,11 @@ from datetime import datetime, timedelta, date, time, timezone
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 import json
 from api.extra.horario import validar_hora, calcular_intervalos, FRECUENCIAS_PERMITIDAS, DIAS_PERMITIDOS
-from api.extra.email import send_reserva_confirmation, send_reserva_cancellation
+from api.extra.email import send_reserva_confirmation, send_reserva_cancellation, send_notificacion_propietario, send_cancelacion_propietario
 import stripe
 import os
 import pytz
+from sqlalchemy import or_, not_
 
 reserva_bp = Blueprint('reserva_bp', __name__, url_prefix='/reserva')
 stripe.api_key = os.getenv('STRIPE_API_KEY')
@@ -70,20 +71,20 @@ def crear_reserva_interna(data, stripe_payment_id=None):
     if not hora_inicio or not hora_fin:
         return jsonify({'error': 'Formato de hora inválido (HH:MM o HH:MM:SS)'}), 400
 
-    # Validar disponibilidad de horario
-    # Validar disponibilidad de horario: detecta solapamientos
-    reservas_existentes = Reserva.query.filter(
-        Reserva.idCancha == data['idCancha'],
-        Reserva.fecha    == fecha_dt,
+     # ←–– aquí el filtrado DE SOLAPAMIENTOS
+    solapamientos = Reserva.query.filter(
+        Reserva.idCancha  == data['idCancha'],
+        Reserva.fecha     == fecha_dt,
+        # la condición A se solapa con B:
         Reserva.horaInicio < hora_fin,
-        Reserva.horaFin   > hora_inicio
+        Reserva.horaFin    > hora_inicio
     ).all()
-    if reservas_existentes:
+    if solapamientos:
+        # debug opcional:
+        # for r in solapamientos:
+        #     print(f"Solapa con {r.horaInicio}-{r.horaFin}")
         return jsonify({"error": "Horario ya reservado"}), 400
 
-    
-    if reservas_existentes:
-        return jsonify({"error": "Horario ya reservado"}), 400
 
     # Validar horario de la cancha
     hi_sched = cancha.horario.horarioInicio
@@ -132,6 +133,9 @@ def crear_reserva_interna(data, stripe_payment_id=None):
 
     #Correo de confirmacion
     send_reserva_confirmation(usuario.email, nueva_reserva)
+
+    # Notifica al propietario(es):
+    send_notificacion_propietario(nueva_reserva)
 
     return jsonify({"message": "Reserva creada exitosamente", "reserva": nueva_reserva.serialize()}), 201
 
@@ -336,17 +340,17 @@ def disponibilidad():
         end_time = datetime.combine(fecha_dt, hf)
         
         while current_time + timedelta(minutes=freq_min) <= end_time:
-            slot_start = current_time.time()
-            slot_end = (current_time + timedelta(minutes=freq_min)).time()
+            s_inicio = current_time.time()
+            s_fin = (current_time + timedelta(minutes=freq_min)).time()
             
             disponible = True
-            for inicio, fin in ocupados:
-                if slot_start < fin and slot_end > inicio:
+            for (o_hi, o_hf) in ocupados:
+                if (s_inicio < o_hf) and (s_fin > o_hi):
                     disponible = False
                     break
             
             if disponible:
-                slots.append(slot_start.strftime("%H:%M"))
+                slots.append(s_inicio.strftime("%H:%M"))
             
             current_time += timedelta(minutes=freq_min)
         
@@ -458,6 +462,7 @@ def cancel_reservation(id_reserva):
 
             #Mandamos el email de cancelacion de cada reserva
             send_reserva_cancellation(usuario.email, r)
+            send_cancelacion_propietario(r)
 
         db.session.commit()
 

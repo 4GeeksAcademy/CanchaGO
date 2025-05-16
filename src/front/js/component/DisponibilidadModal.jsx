@@ -8,7 +8,7 @@ const Disponibilidad = ({ show, onClose, cancha }) => {
 
   return (
     <Modal show={show} onHide={onClose} centered size="md">
-      <Modal.Header closeButton>
+      <Modal.Header >
         <Modal.Title style={{ fontSize: '1.5rem', color: 'white' }}>
           Disponibilidad de {cancha?.nombre}
         </Modal.Title>
